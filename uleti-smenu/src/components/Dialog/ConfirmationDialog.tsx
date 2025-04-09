@@ -2,30 +2,27 @@ import styles from "./ConfirmationDialog.module.scss";
 import Layout from "./Layout";
 
 interface ConfirmationDialogProps {
-  text: string;
   onConfirm: (e: any) => void;
   onClose: React.MouseEventHandler;
 }
 
 const ConfirmationDialog = ({
-  text,
   onConfirm,
   onClose,
 }: ConfirmationDialogProps) => {
   return (
     <Layout
       onClose={onClose}
-      overlay={true}
-      className={styles.confirmationDialog}
+      className={styles.wrapper}
     >
       <div className={styles.dialogContent}>
-        <p>{text}</p>
+        <p className={styles.message}>Da li ste sigurni da zelite da nastavite sa odjavom?</p>
         <div className={styles.buttons}>
           <button onClick={onConfirm} className={styles.confirmBtn}>
-            Confirm
+            Potvrdi
           </button>
           <button onClick={onClose} className={styles.cancelBtn}>
-            Cancel
+            Otkaži
           </button>
         </div>
       </div>
