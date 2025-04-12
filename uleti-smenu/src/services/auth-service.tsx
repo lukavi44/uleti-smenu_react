@@ -13,7 +13,7 @@ export const RegistrationEmployerRequest = async (
   ): Promise<AxiosResponse<RegisterEmployerDTO>> => {
     const updatedBody = {
         ...body,
-        name: body.companyName,
+        name: body.name,
         username: body.email
     }
     return axiosInstance.post<RegisterEmployerDTO>("/api/v1/User/register/employer", updatedBody);

@@ -32,7 +32,7 @@ interface RegistrationFormProps {
 
   const employerSchema = yup.object().shape({
     ...commonSchema,
-    companyName: yup.string().required("Company name is required"),
+    name: yup.string().required("Company name is required"),
     pib: yup.string().length(9).required("Pib is required and must contain 9 characters"),
     mb: yup.string().length(8).required("Pib is required and must contain 8 characters"),
     streetName: yup.string().required("Street name is required"),
@@ -51,7 +51,7 @@ interface RegistrationFormProps {
   });
 
   const employerFields = [
-    { name: "companyName", label: "Company Name" },
+    { name: "name", label: "Name" },
     { name: "pib", label: "PIB" },
     { name: "mb", label: "MB" },
     { name: "streetName", label: "Street Name" },
@@ -82,7 +82,7 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
             email: "",
             phoneNumber: "",
             password: "",
-            companyName: "",
+            name: "",
             pib: "",
             mb: "",
             streetName: "",

@@ -1,18 +1,44 @@
+import { Route, Routes } from "react-router-dom";
+
 import './App.css'
-import Footer from './components/Footer/Footer'
-import Header from './components/Header/Header'
 import HomePage from './pages/Home/Home'
-import JobPosts from './pages/JobPosts/JobPosts'
+import RegistrationPage from "./pages/Registration/Registration";
+import LoginPage from "./pages/Login/Login";
+import AuthContextProvider from "./store/Auth-context";
+import RequireAuth from "./router/RequireAuth";
+import LoggedOutRoute from "./router/LoggedOutRoute";
+import { ToastContainer } from "react-toastify";
+import { LoadingProvider } from "./store/Loading-context";
+import JobPostItem from "./pages/JobPosts/JobPostItem";
 
 function App() {
 
   return (
     <>
-     <Header/>
-     <HomePage/>
-     <JobPosts/>
-     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto, at laboriosam expedita est labore excepturi eligendi atque rerum velit saepe voluptatibus aliquam officiis quam, commodi, provident tempore. Quae, laboriosam iste obcaecati a dolorum quis neque, iure enim reiciendis pariatur eligendi est nemo reprehenderit harum sint earum impedit ratione illum amet praesentium? Accusantium, illum. Facilis ut magnam consequuntur alias magni dignissimos, quisquam earum asperiores dolore sequi velit officia debitis veritatis tempora nemo vel reiciendis minus ipsa odio recusandae. Alias consequatur suscipit dignissimos odit culpa labore autem? Quidem earum architecto error explicabo temporibus numquam vitae veritatis nihil perspiciatis possimus cupiditate aliquam ut consequuntur blanditiis sunt, perferendis assumenda molestiae? Sunt, sed! Adipisci laborum consequatur amet sapiente. Enim nam voluptates consectetur ex ipsam quasi, reprehenderit, laudantium officia corrupti atque, incidunt natus modi dolorem est corporis quo fugiat animi excepturi? Voluptas distinctio eius, maiores, hic recusandae, natus ad iusto fugiat enim ducimus porro quasi nihil officiis deserunt soluta ut voluptate consectetur! Quisquam, incidunt facilis? Distinctio nostrum eligendi error eos ipsa corporis velit consequatur voluptatum libero modi voluptates saepe commodi, eum fugiat cupiditate illum qui natus! Suscipit consequatur cum iusto ratione similique rerum, minus porro amet iure, cumque animi ipsam sapiente sit aspernatur ad eveniet architecto!</p>
-     <Footer/>
+      <ToastContainer
+        autoClose={3000}
+        limit={5}
+        position={"top-right"}
+        closeOnClick={false}
+        pauseOnHover
+        theme={"light"}
+        draggable={false}
+      />
+      <LoadingProvider>
+        <AuthContextProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route element={<LoggedOutRoute />}>
+              <Route path="registration" element={<RegistrationPage userType="employer" />} />
+              <Route path="registration-user" element={<RegistrationPage userType="employee" />} />
+              <Route path="login" element={<LoginPage />} />
+            </Route>
+            <Route element={<RequireAuth />}>
+              <Route element={<JobPostItem/>} />
+            </Route>
+          </Routes>
+        </AuthContextProvider>
+      </LoadingProvider>
     </>
   )
 }
