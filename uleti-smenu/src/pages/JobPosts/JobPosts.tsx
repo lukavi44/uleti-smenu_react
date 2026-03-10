@@ -3,10 +3,11 @@ import JobPostItem from "../../components/JobPosts/JobPostItem";
 
 import styles from './JobPosts.module.scss';
 import JobPostForm from "../../components/JobPosts/JobPostForm";
-import { GetAllJobPosts } from "../../services/jobPost-service";
+import { GetAllJobPosts, GetMyJobPosts } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { useContext } from "react";
 import { AuthContext } from "../../store/Auth-context";
+import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 
 const JobPosts = () => {
     const { role, me } = useContext(AuthContext);
@@ -45,7 +46,9 @@ const JobPosts = () => {
 
     const fetchJobPosts = async () => {
         try {
-            const response = await GetAllJobPosts();
+            const response = role === "Employer"
+                ? await GetMyJobPosts()
+                : await GetAllJobPosts();
             setJobPosts(response.data);
         }
         catch (error: unknown) {
@@ -66,15 +69,18 @@ const JobPosts = () => {
             <div key={jobPost.id}>
               <JobPostItem jobPost={jobPost}/>
               {isMyPost && (
-                <button
-                  className={styles["edit-button"]}
-                  onClick={() => {
-                    setEditingJobPostId(jobPost.id);
-                    setJobPostCreatFormOpened(true);
-                  }}
-                >
-                  Izmeni oglas
-                </button>
+                <div className={styles["employer-actions"]}>
+                  <button
+                    className={styles["edit-button"]}
+                    onClick={() => {
+                      setEditingJobPostId(jobPost.id);
+                      setJobPostCreatFormOpened(true);
+                    }}
+                  >
+                    Izmeni oglas
+                  </button>
+                  <EmployerApplicantsPanel jobPostId={jobPost.id} />
+                </div>
               )}
             </div>
           );

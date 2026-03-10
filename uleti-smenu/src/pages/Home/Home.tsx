@@ -10,6 +10,7 @@ import { GetMyJobPosts } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
+import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 
 const HomePage = () => {
   const isMobile = useMediaQuery("(max-width:768px)");
@@ -136,6 +137,7 @@ const HomePage = () => {
                       <strong>{post.status}</strong>
                     </div>
                   </div>
+                  <EmployerApplicantsPanel jobPostId={post.id} />
                 </article>
               ))}
             </div>

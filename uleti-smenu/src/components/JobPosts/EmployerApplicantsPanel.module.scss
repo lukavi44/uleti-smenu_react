@@ -1,0 +1,95 @@
+.wrapper {
+  margin-top: 0.8rem;
+}
+
+.toggleButton {
+  padding: 0.5rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.toggleButton:hover {
+  background: #f9fafb;
+}
+
+.panel {
+  margin-top: 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: #ffffff;
+}
+
+.mutedText {
+  margin: 0.35rem 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.applicantList {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.applicantRow {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.65rem;
+  background: #f9fafb;
+}
+
+.name {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+.meta {
+  margin: 0.2rem 0;
+  color: #4b5563;
+  font-size: 0.88rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.button {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.acceptButton {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.acceptButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.rejectButton {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.rejectButton:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
