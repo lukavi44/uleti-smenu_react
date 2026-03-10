@@ -14,7 +14,12 @@ export interface EmployeeApplication {
   applicationId: string;
   jobPostId: string;
   jobPostTitle: string;
+  position: string;
   employerName: string;
+  restaurantLocationName?: string;
+  restaurantLocationCity?: string;
+  startingDate: string;
+  salary: number;
   status: string;
   appliedAt: string;
 }

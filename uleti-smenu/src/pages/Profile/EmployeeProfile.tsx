@@ -5,6 +5,7 @@ import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
 import { UpdateMyProfilePhoto } from "../../services/user-service";
 import { toast } from "react-toastify";
+import styles from "./Profile.module.scss";
 
 interface EmployeeProfileProps {
     user: Employee;
@@ -91,54 +92,109 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         }
     };
 
-    return <>
-        <img src={profilePhotoUrl} alt="Profile" height={200} width={200} />
-        <div>
-            <input type="file" accept="image/*" onChange={handleProfilePhotoChange} />
-            <button disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
-                {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
-            </button>
+    const formatDate = (value: string) => {
+        const parsedDate = new Date(value);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "-";
+        }
+        return parsedDate.toLocaleString();
+    };
+
+    return (
+        <div className={styles.profilePage}>
+            <section className={styles.panel}>
+                <div className={styles.profileHeader}>
+                    <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
+                    <div className={styles.profileActions}>
+                        <input className={styles.fileInput} type="file" accept="image/*" onChange={handleProfilePhotoChange} />
+                        <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
+                            {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Employee Info</h2>
+                <div className={styles.infoGrid}>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Full name</span>
+                        <span className={styles.infoValue}>{user.firstName} {user.lastName}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Email</span>
+                        <span className={styles.infoValue}>{user.email}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Phone</span>
+                        <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Applied Job Posts</h2>
+                <div className={styles.applicantsFilters}>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="myApplicationStatusFilter">Filter by status</label>
+                        <select
+                            className={styles.select}
+                            id="myApplicationStatusFilter"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <option value="All">All</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Denied">Denied</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                {visibleApplications.length === 0 && <p className={styles.mutedText}>No applications for this filter.</p>}
+
+                <div className={styles.jobPostsGrid}>
+                    {visibleApplications.map((application) => (
+                        <article key={application.applicationId} className={styles.jobPostCard}>
+                            <h4>{application.jobPostTitle}</h4>
+                            <div className={styles.cardMeta}>
+                                <div><span>Position:</span><strong>{application.position}</strong></div>
+                                <div><span>Restaurant:</span><strong>{application.employerName}</strong></div>
+                                <div>
+                                    <span>Location:</span>
+                                    <strong>
+                                        {application.restaurantLocationName
+                                            ? `${application.restaurantLocationName}${application.restaurantLocationCity ? ` (${application.restaurantLocationCity})` : ""}`
+                                            : "-"}
+                                    </strong>
+                                </div>
+                                <div><span>Starting date:</span><strong>{formatDate(application.startingDate)}</strong></div>
+                                <div><span>Salary:</span><strong>{application.salary} RSD</strong></div>
+                                <div>
+                                    <span>Status:</span>
+                                    <strong>
+                                        <span style={getStatusBadgeStyle(application.status)}>{application.status}</span>
+                                    </strong>
+                                </div>
+                            </div>
+                            {application.status === "Applied" && (
+                                <div className={styles.actionsRow}>
+                                    <button
+                                        className={`${styles.button} ${styles.buttonSecondary}`}
+                                        disabled={cancelInProgressId !== null}
+                                        onClick={() => handleCancel(application.applicationId)}
+                                    >
+                                        {cancelInProgressId === application.applicationId ? "Cancelling..." : "Cancel application"}
+                                    </button>
+                                </div>
+                            )}
+                        </article>
+                    ))}
+                </div>
+            </section>
         </div>
-        <h1>{user.firstName} {user.lastName}</h1>
-        <p>{user.email}</p>
-        <hr />
-        <h2>My applications</h2>
-        <label htmlFor="myApplicationStatusFilter">Filter by status:</label>
-        <select
-            id="myApplicationStatusFilter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-        >
-            <option value="All">All</option>
-            <option value="Applied">Applied</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Denied">Denied</option>
-            <option value="Cancelled">Cancelled</option>
-        </select>
-        {visibleApplications.length === 0 && <p>No applications for this filter.</p>}
-        {visibleApplications.map((application) => (
-            <div key={application.applicationId}>
-                <p>{application.jobPostTitle}</p>
-                <p>{application.employerName}</p>
-                <p>
-                    Status: <span style={getStatusBadgeStyle(application.status)}>{application.status}</span>
-                </p>
-                {application.status === "Applied" && (
-                    <button
-                        disabled={cancelInProgressId !== null}
-                        onClick={() => handleCancel(application.applicationId)}
-                    >
-                        {cancelInProgressId === application.applicationId ? "Cancelling..." : "Cancel application"}
-                    </button>
-                )}
-            </div>
-        ))}
-        <ul>
-            <li>
-                
-            </li>
-        </ul>
-        </>;
+    );
 };
 
 export default EmployeeProfile;
