@@ -7,17 +7,19 @@ import {
     IconButton
   } from "@mui/material";
   import CloseIcon from "@mui/icons-material/Close";
-  import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
   import { useForm, Controller } from "react-hook-form";
   import { yupResolver } from "@hookform/resolvers/yup";
   import * as yup from "yup";
-import { CreateJobPost } from "../../services/jobPost-service";
+import { CreateJobPost, UpdateMyJobPost } from "../../services/jobPost-service";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
+import { JobPost } from "../../models/JobPost.model";
   
   interface JobPostFormProps {
     onClose: () => void;
-    onSubmit?: (data: JobPostFormData) => void;
+    onSubmit?: () => void;
+    initialData?: JobPost;
   }
 
   interface JobPostFormData {
@@ -27,7 +29,7 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
     status: string;
     salary: number;
     startingDate: string;
-    visibleUntil: string;
+    visibleUntil?: string;
     restaurantLocationId: string;
   }
   
@@ -38,30 +40,46 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
     status: yup.string().required(),
     salary: yup.number().required().positive().integer(),
     startingDate: yup.string().required("Start date is required"),
-    visibleUntil: yup.string().required("Visible until is required"),
+    visibleUntil: yup.string().optional(),
     restaurantLocationId: yup.string().required("Location is required"),
   });
   
-  const JobPostForm = ({ onClose, onSubmit }: JobPostFormProps) => {
+  const toDateTimeLocalValue = (value?: Date | string) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 16);
+  };
+
+  const JobPostForm = ({ onClose, onSubmit, initialData }: JobPostFormProps) => {
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+    const isEditMode = useMemo(() => !!initialData, [initialData]);
+
+    const defaultValues = useMemo(() => ({
+      title: initialData?.title ?? "",
+      description: initialData?.description ?? "",
+      position: initialData?.position ?? "",
+      status: initialData?.status ?? "Active",
+      salary: initialData?.salary ?? 0,
+      startingDate: toDateTimeLocalValue(initialData?.startingDate),
+      visibleUntil: toDateTimeLocalValue(initialData?.visibleUntil),
+      restaurantLocationId: initialData?.restaurantLocationId ?? ""
+    }), [initialData]);
 
     const {
       control,
       handleSubmit,
+      reset,
       formState: { errors }
     } = useForm({
       resolver: yupResolver(schema),
-      defaultValues: {
-        title: "",
-        description: "",
-        position: "",
-        status: "Active",
-        salary: 0,
-        startingDate: "",
-        visibleUntil: "",
-        restaurantLocationId: ""
-      }
+      defaultValues
     });
+
+    useEffect(() => {
+      reset(defaultValues);
+    }, [defaultValues, reset]);
 
     useEffect(() => {
       const loadLocations = async () => {
@@ -84,11 +102,15 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
         const fixedData = {
             ...formData,
             startingDate: new Date(formData.startingDate),
-            visibleUntil: new Date(formData.visibleUntil),
+            visibleUntil: formData.visibleUntil ? new Date(formData.visibleUntil) : undefined,
           };
           try {
-            await CreateJobPost(fixedData);
-            onSubmit?.(formData);
+            if (isEditMode && initialData) {
+              await UpdateMyJobPost(initialData.id, fixedData);
+            } else {
+              await CreateJobPost(fixedData);
+            }
+            onSubmit?.();
             onClose();
           }
           catch (error: unknown) {
@@ -103,7 +125,7 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
     return (
       <Box sx={{ padding: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">Create Job Post</Typography>
+          <Typography variant="h5">{isEditMode ? "Edit Job Post" : "Create Job Post"}</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
@@ -248,7 +270,7 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
           />
   
           <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mt: 3 }}>
-            Create
+            {isEditMode ? "Save changes" : "Create"}
           </Button>
         </form>
       </Box>

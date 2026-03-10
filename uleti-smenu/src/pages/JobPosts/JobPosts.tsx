@@ -9,8 +9,9 @@ import { useContext } from "react";
 import { AuthContext } from "../../store/Auth-context";
 
 const JobPosts = () => {
-    const { role } = useContext(AuthContext);
+    const { role, me } = useContext(AuthContext);
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
+    const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
 
     // return (
     //     <div className={styles["posts-container"]}>
@@ -36,6 +37,7 @@ const JobPosts = () => {
     //     </div>
     // )
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
+    const editingJobPost = jobPosts.find((post) => post.id === editingJobPostId);
 
     useEffect(() =>{
         fetchJobPosts();
@@ -59,9 +61,21 @@ const JobPosts = () => {
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
             <div className={styles["left-panel"]}>
             {jobPosts.map((jobPost: JobPost) => {
+          const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           return (
             <div key={jobPost.id}>
               <JobPostItem jobPost={jobPost}/>
+              {isMyPost && (
+                <button
+                  className={styles["edit-button"]}
+                  onClick={() => {
+                    setEditingJobPostId(jobPost.id);
+                    setJobPostCreatFormOpened(true);
+                  }}
+                >
+                  Izmeni oglas
+                </button>
+              )}
             </div>
           );
         })}
@@ -69,14 +83,24 @@ const JobPosts = () => {
 
             {role === "Employer" && jobPostCreateFormOpened && (
                 <div className={styles["right-panel"]}>
-                    <JobPostForm onClose={() => setJobPostCreatFormOpened(false)} />
+                    <JobPostForm
+                        initialData={editingJobPost}
+                        onClose={() => {
+                            setJobPostCreatFormOpened(false);
+                            setEditingJobPostId(null);
+                        }}
+                        onSubmit={fetchJobPosts}
+                    />
                 </div>
             )}
 
             {role === "Employer" && !jobPostCreateFormOpened && (
                 <button
                     className={styles["floating-button"]}
-                    onClick={() => setJobPostCreatFormOpened(true)}
+                    onClick={() => {
+                        setEditingJobPostId(null);
+                        setJobPostCreatFormOpened(true);
+                    }}
                 >
                     Napravi Oglas
                 </button>

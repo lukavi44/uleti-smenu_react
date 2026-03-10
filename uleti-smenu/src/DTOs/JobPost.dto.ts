@@ -5,6 +5,6 @@ export interface JobPostDTO {
     status: string,
     salary: number,
     startingDate: Date,
-    visibleUntil: Date,
+    visibleUntil?: Date,
     restaurantLocationId: string
 }

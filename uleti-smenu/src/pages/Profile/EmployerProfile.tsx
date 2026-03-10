@@ -10,6 +10,7 @@ import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../serv
 import { toast } from "react-toastify";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import styles from "./Profile.module.scss";
+import JobPostForm from "../../components/JobPosts/JobPostForm";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -38,6 +39,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+    const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [isCreatingLocation, setIsCreatingLocation] = useState(false);
     const [newBranch, setNewBranch] = useState({
         name: "",
@@ -54,20 +56,24 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         () => jobPosts.find((post) => post.id === selectedJobPostId),
         [jobPosts, selectedJobPostId]
     );
+    const editingJobPost = useMemo(
+        () => jobPosts.find((post) => post.id === editingJobPostId),
+        [jobPosts, editingJobPostId]
+    );
+
+    const loadJobPosts = async () => {
+        try {
+            const response = await GetMyJobPosts();
+            setJobPosts(response.data);
+            if (response.data.length > 0) {
+                setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
+            }
+        } catch {
+            toast.error("Failed to load your job posts.");
+        }
+    };
 
     useEffect(() => {
-        const loadJobPosts = async () => {
-            try {
-                const response = await GetMyJobPosts();
-                setJobPosts(response.data);
-                if (response.data.length > 0) {
-                    setSelectedJobPostId(response.data[0].id);
-                }
-            } catch {
-                toast.error("Failed to load your job posts.");
-            }
-        };
-
         loadJobPosts();
     }, []);
 
@@ -341,9 +347,29 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <div><span>Payment:</span><strong>{post.salary} RSD</strong></div>
                                 <div><span>Status:</span><strong>{post.status}</strong></div>
                             </div>
+                            <div className={styles.actionsRow}>
+                                <button
+                                    className={`${styles.button} ${styles.buttonSecondary}`}
+                                    onClick={() => setEditingJobPostId(post.id)}
+                                >
+                                    Edit
+                                </button>
+                            </div>
                         </article>
                     ))}
                 </div>
+                {editingJobPost && (
+                    <div className={styles.inlineForm}>
+                        <JobPostForm
+                            initialData={editingJobPost}
+                            onClose={() => setEditingJobPostId(null)}
+                            onSubmit={async () => {
+                                await loadJobPosts();
+                                setEditingJobPostId(null);
+                            }}
+                        />
+                    </div>
+                )}
             </section>
 
             <section className={styles.panel}>

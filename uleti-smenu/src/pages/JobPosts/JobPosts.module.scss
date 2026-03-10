@@ -117,5 +117,16 @@
   .floating-button:hover {
     transform: scale(1.05);
   }
+
+  .edit-button {
+    margin-top: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid #1e88e5;
+    background: #ffffff;
+    color: #1e88e5;
+    cursor: pointer;
+    font-weight: 600;
+  }
   
   
