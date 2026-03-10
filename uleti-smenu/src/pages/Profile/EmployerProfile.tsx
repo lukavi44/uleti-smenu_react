@@ -6,7 +6,9 @@ import { Applicant } from "../../models/Application.model";
 import { GetMyJobPosts } from "../../services/jobPost-service";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import { UpdateMyProfilePhoto } from "../../services/user-service";
+import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { toast } from "react-toastify";
+import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -34,6 +36,18 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
+    const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+    const [isCreatingLocation, setIsCreatingLocation] = useState(false);
+    const [newBranch, setNewBranch] = useState({
+        name: "",
+        phoneNumber: "",
+        streetName: "",
+        streetNumber: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        region: ""
+    });
 
     const selectedJobPost = useMemo(
         () => jobPosts.find((post) => post.id === selectedJobPostId),
@@ -54,6 +68,19 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         };
 
         loadJobPosts();
+    }, []);
+
+    useEffect(() => {
+        const loadLocations = async () => {
+            try {
+                const response = await GetMyRestaurantLocations();
+                setLocations(response.data);
+            } catch {
+                toast.error("Failed to load your restaurant branches.");
+            }
+        };
+
+        loadLocations();
     }, []);
 
     useEffect(() => {
@@ -119,6 +146,47 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
+    const handleBranchFieldChange = (field: keyof typeof newBranch, value: string) => {
+        setNewBranch((prev) => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleCreateBranch = async () => {
+        const requiredValues = Object.values(newBranch).every((value) => value.trim() !== "");
+        if (!requiredValues) {
+            toast.info("Please fill all branch fields.");
+            return;
+        }
+
+        setIsCreatingLocation(true);
+        try {
+            const response = await CreateMyRestaurantLocation({
+                ...newBranch,
+                pib: user.pib,
+                mb: user.mb
+            });
+
+            setLocations((prev) => [...prev, response.data]);
+            setNewBranch({
+                name: "",
+                phoneNumber: "",
+                streetName: "",
+                streetNumber: "",
+                city: "",
+                postalCode: "",
+                country: "",
+                region: ""
+            });
+            toast.success("Franchise branch added.");
+        } catch {
+            toast.error("Failed to add franchise branch.");
+        } finally {
+            setIsCreatingLocation(false);
+        }
+    };
+
     return (
         <div>
             <img src={profilePhotoUrl} alt="Profile" height={200} width={200} />
@@ -130,6 +198,72 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </div>
             <h1>{user.name}</h1>
             <p>{user.email}</p>
+            <p>PIB: {user.pib}</p>
+            <p>MB: {user.mb}</p>
+            <hr />
+            <h2>Add restaurant branch</h2>
+            <div>
+                <input
+                    type="text"
+                    placeholder="Restaurant name"
+                    value={newBranch.name}
+                    onChange={(e) => handleBranchFieldChange("name", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Phone number"
+                    value={newBranch.phoneNumber}
+                    onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
+                />
+                <input type="text" value={user.pib} disabled />
+                <input type="text" value={user.mb} disabled />
+                <input
+                    type="text"
+                    placeholder="Street name"
+                    value={newBranch.streetName}
+                    onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Street number"
+                    value={newBranch.streetNumber}
+                    onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="City"
+                    value={newBranch.city}
+                    onChange={(e) => handleBranchFieldChange("city", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Postal code"
+                    value={newBranch.postalCode}
+                    onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Country"
+                    value={newBranch.country}
+                    onChange={(e) => handleBranchFieldChange("country", e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Region"
+                    value={newBranch.region}
+                    onChange={(e) => handleBranchFieldChange("region", e.target.value)}
+                />
+                <button disabled={isCreatingLocation} onClick={handleCreateBranch}>
+                    {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
+                </button>
+            </div>
+            <h3>Your branches</h3>
+            {locations.length === 0 && <p>No branches yet.</p>}
+            {locations.map((location) => (
+                <div key={location.id}>
+                    <strong>{location.name}</strong> - {location.city}, {location.streetName} {location.streetNumber} ({location.phoneNumber})
+                </div>
+            ))}
             <hr />
             <h2>Applicants</h2>
             {jobPosts.length === 0 && <p>You do not have job posts yet.</p>}
