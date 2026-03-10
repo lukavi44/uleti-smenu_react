@@ -10,13 +10,17 @@ import { AuthContext } from "../../store/Auth-context";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { toast } from "react-toastify";
+import { getImageUrl } from "../../helpers/getHelperUrl";
+import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 
 const JobPosts = () => {
     const { role, me } = useContext(AuthContext);
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
+    const [favouriteFilter, setFavouriteFilter] = useState<"all" | "favourites">("all");
     const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
+    const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
 
     // return (
@@ -45,6 +49,7 @@ const JobPosts = () => {
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const editingJobPost = jobPosts.find((post) => post.id === editingJobPostId);
     const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
+    const favouriteEmployerIdSet = useMemo(() => new Set(favouriteEmployerIds), [favouriteEmployerIds]);
 
     useEffect(() =>{
         fetchJobPosts();
@@ -68,6 +73,28 @@ const JobPosts = () => {
         };
 
         loadMyApplications();
+    }, [role]);
+
+    useEffect(() => {
+        const loadFavourites = async () => {
+            if (role !== "Employee") {
+                setFavouriteEmployerIds([]);
+                return;
+            }
+
+            try {
+                const response = await GetEmployersWithFavouriteStatus();
+                setFavouriteEmployerIds(
+                    response.data
+                        .filter((employer) => employer.isFavourite)
+                        .map((employer) => employer.id)
+                );
+            } catch {
+                setFavouriteEmployerIds([]);
+            }
+        };
+
+        loadFavourites();
     }, [role]);
 
     const fetchJobPosts = async () => {
@@ -125,6 +152,18 @@ const JobPosts = () => {
         return jobPosts;
     }, [role, jobPosts, employeeFilter, appliedJobPostIdSet]);
 
+    const employeeVisibleJobPosts = useMemo(() => {
+        if (role !== "Employee") {
+            return filteredJobPosts;
+        }
+
+        if (favouriteFilter === "favourites") {
+            return filteredJobPosts.filter((jobPost) => favouriteEmployerIdSet.has(jobPost.employerId));
+        }
+
+        return filteredJobPosts;
+    }, [role, filteredJobPosts, favouriteFilter, favouriteEmployerIdSet]);
+
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
             <div className={styles["left-panel"]}>
@@ -141,9 +180,19 @@ const JobPosts = () => {
                   <option value="notApplied">Not applied</option>
                   <option value="applied">Applied</option>
                 </select>
+                <label htmlFor="favouriteFilter">Restaurants:</label>
+                <select
+                  id="favouriteFilter"
+                  className={styles["employee-filter-select"]}
+                  value={favouriteFilter}
+                  onChange={(event) => setFavouriteFilter(event.target.value as "all" | "favourites")}
+                >
+                  <option value="all">All job posts</option>
+                  <option value="favourites">Favourite restaurants only</option>
+                </select>
               </div>
             )}
-            {filteredJobPosts.map((jobPost: JobPost) => {
+            {(role === "Employee" ? employeeVisibleJobPosts : filteredJobPosts).map((jobPost: JobPost) => {
           const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           const isEmployee = role === "Employee";
           const hasApplied = appliedJobPostIdSet.has(jobPost.id);
@@ -152,7 +201,14 @@ const JobPosts = () => {
               {!isEmployee && <JobPostItem jobPost={jobPost}/>}
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
-                  <h4>{jobPost.title}</h4>
+                  <div className={styles["employee-card-header"]}>
+                    <img
+                      className={styles["employee-card-logo"]}
+                      src={getImageUrl(jobPost.employer?.profilePhoto)}
+                      alt={jobPost.employer?.name ? `${jobPost.employer.name} logo` : "Employer logo"}
+                    />
+                    <h4>{jobPost.title}</h4>
+                  </div>
                   <div className={styles["employee-card-meta"]}>
                     <div><span>Position:</span><strong>{jobPost.position}</strong></div>
                     <div>
@@ -201,7 +257,7 @@ const JobPosts = () => {
             </div>
           );
         })}
-            {role === "Employee" && filteredJobPosts.length === 0 && (
+            {role === "Employee" && employeeVisibleJobPosts.length === 0 && (
               <p className={styles["empty-message"]}>No job posts for the selected filter.</p>
             )}
             </div>

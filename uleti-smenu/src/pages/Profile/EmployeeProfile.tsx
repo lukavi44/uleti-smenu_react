@@ -3,7 +3,7 @@ import { Employee } from "../../models/User.model";
 import { ChangeEvent, useEffect, useState } from "react";
 import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
-import { UpdateMyProfilePhoto } from "../../services/user-service";
+import { GetEmployersWithFavouriteStatus, UpdateMyProfilePhoto } from "../../services/user-service";
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 
@@ -27,10 +27,12 @@ const getStatusBadgeStyle = (status: string) => {
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
+    const [restaurantFilter, setRestaurantFilter] = useState<"all" | "favourites">("favourites");
     const [cancelInProgressId, setCancelInProgressId] = useState<string | null>(null);
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
+    const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
 
     useEffect(() => {
         const loadApplications = async () => {
@@ -43,6 +45,24 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         };
 
         loadApplications();
+    }, []);
+
+    useEffect(() => {
+        const loadRestaurants = async () => {
+            try {
+                const response = await GetEmployersWithFavouriteStatus();
+                setRestaurants(response.data.map((restaurant) => ({
+                    id: restaurant.id,
+                    name: restaurant.name,
+                    profilePhoto: restaurant.profilePhoto,
+                    isFavourite: restaurant.isFavourite
+                })));
+            } catch {
+                toast.error("Failed to load favourite restaurants.");
+            }
+        };
+
+        loadRestaurants();
     }, []);
 
     const handleCancel = async (applicationId: string) => {
@@ -66,6 +86,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
 
     const visibleApplications = applications.filter((application) =>
         statusFilter === "All" ? true : application.status === statusFilter
+    );
+
+    const visibleRestaurants = restaurants.filter((restaurant) =>
+        restaurantFilter === "all" ? true : restaurant.isFavourite
     );
 
     const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +153,44 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         <span className={styles.infoLabel}>Phone</span>
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Restaurants</h2>
+                <div className={styles.applicantsFilters}>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="restaurantFilter">Show restaurants</label>
+                        <select
+                            className={styles.select}
+                            id="restaurantFilter"
+                            value={restaurantFilter}
+                            onChange={(e) => setRestaurantFilter(e.target.value as "all" | "favourites")}
+                        >
+                            <option value="favourites">Favourite restaurants</option>
+                            <option value="all">All restaurants</option>
+                        </select>
+                    </div>
+                </div>
+                {visibleRestaurants.length === 0 && <p className={styles.mutedText}>No restaurants for this filter.</p>}
+                <div className={styles.branchList}>
+                    {visibleRestaurants.map((restaurant) => (
+                        <article key={restaurant.id} className={styles.branchCard}>
+                            <div className={styles.restaurantRow}>
+                                <img
+                                    src={getImageUrl(restaurant.profilePhoto)}
+                                    alt={restaurant.name}
+                                    className={styles.restaurantLogo}
+                                />
+                                <div>
+                                    <strong>{restaurant.name}</strong>
+                                    <p className={styles.mutedText}>
+                                        {restaurant.isFavourite ? "Favourite" : "Not favourite"}
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
                 </div>
             </section>
 

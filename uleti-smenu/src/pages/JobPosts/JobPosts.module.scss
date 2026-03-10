@@ -157,9 +157,26 @@
   }
 
   .employee-jobpost-card h4 {
-    margin: 0 0 0.75rem;
+    margin: 0;
     font-size: 1rem;
     color: #0f172a;
+  }
+
+  .employee-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .employee-card-logo {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid #d1d5db;
+    background: #f3f4f6;
+    flex-shrink: 0;
   }
 
   .employee-card-meta {

@@ -6,6 +6,10 @@ export const GetAllEmployers = async (): Promise<AxiosResponse<Employer[]>> => {
     return axiosInstance.get<Employer[]>("/api/v1/User/role/employer");
 }
 
+export const GetEmployersWithFavouriteStatus = async (): Promise<AxiosResponse<Employer[]>> => {
+    return axiosInstance.get<Employer[]>("/api/v1/User/employers/");
+}
+
 export const GetCurrentUserRole = async (): Promise<AxiosResponse<string>> => {
     return axiosInstance.get<string>("/api/v1/User/me/role");
 }
