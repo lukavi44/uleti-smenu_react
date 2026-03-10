@@ -119,10 +119,10 @@
   }
 
   .jobpost-card-wrapper {
-    width: 100%;
-    max-width: 820px;
+    width: min(100%, 48rem);
     position: relative;
-    padding-bottom: 1rem;
+    align-self: center;
+    overflow: visible;
   }
 
   .employer-actions {
@@ -133,8 +133,8 @@
 
   .edit-icon-button {
     position: absolute;
-    top: 0.8rem;
-    right: 0.85rem;
+    top: 0.7rem;
+    right: 0.7rem;
     width: 2rem;
     height: 2rem;
     border-radius: 999px;
@@ -160,20 +160,20 @@
 
   .applicants-button-anchor {
     position: absolute;
-    right: 0.85rem;
-    bottom: 1.1rem;
+    right: 0.7rem;
+    bottom: 0.75rem;
     pointer-events: auto;
   }
 
   @media only screen and (max-width: 820px) {
     .edit-icon-button {
-      top: 0.65rem;
-      right: 0.65rem;
+      top: 0.55rem;
+      right: 0.55rem;
     }
 
     .applicants-button-anchor {
-      right: 0.65rem;
-      bottom: 0.95rem;
+      right: 0.55rem;
+      bottom: 0.65rem;
     }
   }
   
