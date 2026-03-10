@@ -9,6 +9,7 @@ import { UpdateMyProfilePhoto } from "../../services/user-service";
 import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { toast } from "react-toastify";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
+import styles from "./Profile.module.scss";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -187,142 +188,232 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
-    return (
-        <div>
-            <img src={profilePhotoUrl} alt="Profile" height={200} width={200} />
-            <div>
-                <input type="file" accept="image/*" onChange={handleProfilePhotoChange} />
-                <button disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
-                    {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
-                </button>
-            </div>
-            <h1>{user.name}</h1>
-            <p>{user.email}</p>
-            <p>PIB: {user.pib}</p>
-            <p>MB: {user.mb}</p>
-            <hr />
-            <h2>Add restaurant branch</h2>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Restaurant name"
-                    value={newBranch.name}
-                    onChange={(e) => handleBranchFieldChange("name", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Phone number"
-                    value={newBranch.phoneNumber}
-                    onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
-                />
-                <input type="text" value={user.pib} disabled />
-                <input type="text" value={user.mb} disabled />
-                <input
-                    type="text"
-                    placeholder="Street name"
-                    value={newBranch.streetName}
-                    onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Street number"
-                    value={newBranch.streetNumber}
-                    onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="City"
-                    value={newBranch.city}
-                    onChange={(e) => handleBranchFieldChange("city", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Postal code"
-                    value={newBranch.postalCode}
-                    onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Country"
-                    value={newBranch.country}
-                    onChange={(e) => handleBranchFieldChange("country", e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Region"
-                    value={newBranch.region}
-                    onChange={(e) => handleBranchFieldChange("region", e.target.value)}
-                />
-                <button disabled={isCreatingLocation} onClick={handleCreateBranch}>
-                    {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
-                </button>
-            </div>
-            <h3>Your branches</h3>
-            {locations.length === 0 && <p>No branches yet.</p>}
-            {locations.map((location) => (
-                <div key={location.id}>
-                    <strong>{location.name}</strong> - {location.city}, {location.streetName} {location.streetNumber} ({location.phoneNumber})
-                </div>
-            ))}
-            <hr />
-            <h2>Applicants</h2>
-            {jobPosts.length === 0 && <p>You do not have job posts yet.</p>}
-            {jobPosts.length > 0 && (
-                <>
-                    <label htmlFor="jobPostSelect">Choose job post:</label>
-                    <select
-                        id="jobPostSelect"
-                        value={selectedJobPostId}
-                        onChange={(e) => setSelectedJobPostId(e.target.value)}
-                    >
-                        {jobPosts.map((post) => (
-                            <option key={post.id} value={post.id}>
-                                {post.title}
-                            </option>
-                        ))}
-                    </select>
-                    <p>Selected: {selectedJobPost?.title ?? "-"}</p>
-                    <label htmlFor="statusFilter">Filter by status:</label>
-                    <select
-                        id="statusFilter"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="All">All</option>
-                        <option value="Applied">Applied</option>
-                        <option value="Accepted">Accepted</option>
-                        <option value="Denied">Denied</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
+    const formatDate = (value: Date) => {
+        const parsedDate = new Date(value);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "-";
+        }
+        return parsedDate.toLocaleString();
+    };
 
-                    {visibleApplicants.length === 0 && <p>No applicants for this filter.</p>}
+    return (
+        <div className={styles.profilePage}>
+            <section className={styles.panel}>
+                <div className={styles.profileHeader}>
+                    <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
+                    <div className={styles.profileActions}>
+                        <input className={styles.fileInput} type="file" accept="image/*" onChange={handleProfilePhotoChange} />
+                        <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
+                            {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Employer Info</h2>
+                <div className={styles.infoGrid}>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Restaurant name</span>
+                        <span className={styles.infoValue}>{user.name}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Address</span>
+                        <span className={styles.infoValue}>
+                            {locations[0]
+                                ? `${locations[0].streetName} ${locations[0].streetNumber}, ${locations[0].city}`
+                                : "-"}
+                        </span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Phone</span>
+                        <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Email</span>
+                        <span className={styles.infoValue}>{user.email}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>PIB</span>
+                        <span className={styles.infoValue}>{user.pib}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>MB</span>
+                        <span className={styles.infoValue}>{user.mb}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Add Restaurant Branch</h2>
+                <div className={styles.branchForm}>
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Restaurant name"
+                        value={newBranch.name}
+                        onChange={(e) => handleBranchFieldChange("name", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Phone number"
+                        value={newBranch.phoneNumber}
+                        onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
+                    />
+                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
+                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Street name"
+                        value={newBranch.streetName}
+                        onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Street number"
+                        value={newBranch.streetNumber}
+                        onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="City"
+                        value={newBranch.city}
+                        onChange={(e) => handleBranchFieldChange("city", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Postal code"
+                        value={newBranch.postalCode}
+                        onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Country"
+                        value={newBranch.country}
+                        onChange={(e) => handleBranchFieldChange("country", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Region"
+                        value={newBranch.region}
+                        onChange={(e) => handleBranchFieldChange("region", e.target.value)}
+                    />
+                </div>
+                <div className={styles.actionsRow}>
+                    <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
+                        {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
+                    </button>
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h3 className={styles.subTitle}>Your Branches</h3>
+                {locations.length === 0 && <p className={styles.mutedText}>No branches yet.</p>}
+                <div className={styles.branchList}>
+                    {locations.map((location) => (
+                        <div key={location.id} className={styles.branchCard}>
+                            <strong>{location.name}</strong>
+                            <p>{location.city}, {location.streetName} {location.streetNumber}</p>
+                            <p>{location.phoneNumber}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>My Job Posts</h2>
+                {jobPosts.length === 0 && <p className={styles.mutedText}>You do not have job posts yet.</p>}
+                <div className={styles.jobPostsGrid}>
+                    {jobPosts.map((post) => (
+                        <article key={post.id} className={styles.jobPostCard}>
+                            <h4>{post.title}</h4>
+                            <div className={styles.cardMeta}>
+                                <div><span>Worker type:</span><strong>{post.position}</strong></div>
+                                <div><span>Location:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
+                                <div><span>Starting date:</span><strong>{formatDate(post.startingDate)}</strong></div>
+                                <div><span>Payment:</span><strong>{post.salary} RSD</strong></div>
+                                <div><span>Status:</span><strong>{post.status}</strong></div>
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            </section>
+
+            <section className={styles.panel}>
+                <h2 className={styles.sectionTitle}>Applicants</h2>
+                {jobPosts.length > 0 && (
+                    <div className={styles.applicantsFilters}>
+                        <div className={styles.filterGroup}>
+                            <label htmlFor="jobPostSelect">Choose job post</label>
+                            <select
+                                className={styles.select}
+                                id="jobPostSelect"
+                                value={selectedJobPostId}
+                                onChange={(e) => setSelectedJobPostId(e.target.value)}
+                            >
+                                {jobPosts.map((post) => (
+                                    <option key={post.id} value={post.id}>
+                                        {post.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.filterGroup}>
+                            <label htmlFor="statusFilter">Filter by status</label>
+                            <select
+                                className={styles.select}
+                                id="statusFilter"
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                                <option value="All">All</option>
+                                <option value="Applied">Applied</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Denied">Denied</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+                {jobPosts.length > 0 && <p className={styles.selectedPost}>Selected: {selectedJobPost?.title ?? "-"}</p>}
+                {visibleApplicants.length === 0 && <p className={styles.mutedText}>No applicants for this filter.</p>}
+                <div className={styles.applicantsList}>
                     {visibleApplicants.map((applicant) => (
-                        <div key={applicant.applicationId}>
-                            <p>
+                        <div key={applicant.applicationId} className={styles.applicantCard}>
+                            <p className={styles.applicantName}>
                                 {applicant.firstName} {applicant.lastName}{" "}
                                 <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
                             </p>
-                            <p>{applicant.email}</p>
+                            <p className={styles.mutedText}>{applicant.email}</p>
                             {applicant.status === "Applied" && (
-                                <>
+                                <div className={styles.actionsRow}>
                                     <button
+                                        className={`${styles.button} ${styles.buttonPrimary}`}
                                         disabled={actionInProgress !== null}
                                         onClick={() => handleStatusUpdate(applicant.applicationId, "Accepted")}
                                     >
                                         {actionInProgress === `${applicant.applicationId}:Accepted` ? "Accepting..." : "Accept"}
                                     </button>
                                     <button
+                                        className={`${styles.button} ${styles.buttonSecondary}`}
                                         disabled={actionInProgress !== null}
                                         onClick={() => handleStatusUpdate(applicant.applicationId, "Denied")}
                                     >
                                         {actionInProgress === `${applicant.applicationId}:Denied` ? "Denying..." : "Deny"}
                                     </button>
-                                </>
+                                </div>
                             )}
                         </div>
                     ))}
-                </>
-            )}
+                </div>
+            </section>
         </div>
     )
 };
