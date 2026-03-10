@@ -13,6 +13,7 @@ export interface Employer extends User {
     name: string;
     pib: string;
     mb: string;
+    isFavourite: boolean;
 }
 
 
@@ -25,3 +26,5 @@ export interface Employee extends User {
     email: string;
     password: string;
   }
+
+  export type MeResponse = Employer | Employee;

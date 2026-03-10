@@ -9,10 +9,12 @@ import RequireAuth from "./router/RequireAuth";
 import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
-import JobPostItem from "./pages/JobPosts/JobPostItem";
+import JobPosts from "./pages/JobPosts/JobPosts";
+import Header from "./components/Header/Header";
+import ProfilePage from "./pages/Profile/Profile";
+import RestaurantsPage from "./pages/Restaurants/Restaurants";
 
 function App() {
-
   return (
     <>
       <ToastContainer
@@ -26,15 +28,18 @@ function App() {
       />
       <LoadingProvider>
         <AuthContextProvider>
+          <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="restaurants" element={<RestaurantsPage />} />
             <Route element={<LoggedOutRoute />}>
               <Route path="registration" element={<RegistrationPage userType="employer" />} />
               <Route path="registration-user" element={<RegistrationPage userType="employee" />} />
               <Route path="login" element={<LoginPage />} />
             </Route>
             <Route element={<RequireAuth />}>
-              <Route element={<JobPostItem/>} />
+              <Route path='oglasi-za-posao' element={<JobPosts/>} />
+              <Route path="profile" element={<ProfilePage/>}/>
             </Route>
           </Routes>
         </AuthContextProvider>

@@ -1,11 +1,8 @@
 const getApiBaseUrl = () => {
-    const hostname = window.location.hostname;
-
-    if (hostname.includes("dev")) {
-        return process.env.BASE_URL;
-    } 
-    else if (hostname.includes("localhost")) {
-        return "https://localhost:7029/";
+    const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    if (configuredBaseUrl && configuredBaseUrl.trim().length > 0) {
+        return configuredBaseUrl.replace(/\/+$/, "");
     }
+    return "https://localhost:7029";
 };
 export default getApiBaseUrl;

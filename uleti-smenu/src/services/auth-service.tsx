@@ -22,7 +22,7 @@ export const RegistrationEmployerRequest = async (
   export const RegistrationEmployeeRequest = async (
     body: RegisterEmployeeDTO
   ): Promise<AxiosResponse<RegisterEmployeeDTO>> => {
-    return axiosInstance.post<RegisterEmployeeDTO>("/api/v1/User/register/employer", body);
+    return axiosInstance.post<RegisterEmployeeDTO>("/api/v1/User/register/employee", body);
   };
 
   export const LoginUserRequest = async (
@@ -32,5 +32,5 @@ export const RegistrationEmployerRequest = async (
   }
 
   export const LogoutUserRequest = async (): Promise<AxiosResponse> => {
-    return axiosInstance.post("api/v1/User/logout");
+    return axiosInstance.post("/api/v1/User/logout");
   };

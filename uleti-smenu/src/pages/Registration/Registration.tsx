@@ -12,7 +12,7 @@ import {
     Box,
   } from "@mui/material";
 
-import { RegistrationEmployerRequest } from "../../services/auth-service";
+import { RegistrationEmployeeRequest, RegistrationEmployerRequest } from "../../services/auth-service";
 import { useNavigate } from "react-router-dom";
 
 interface RegistrationFormProps {
@@ -34,7 +34,7 @@ interface RegistrationFormProps {
     ...commonSchema,
     name: yup.string().required("Company name is required"),
     pib: yup.string().length(9).required("Pib is required and must contain 9 characters"),
-    mb: yup.string().length(8).required("Pib is required and must contain 8 characters"),
+    mb: yup.string().length(8).required("mb is required and must contain 8 characters"),
     streetName: yup.string().required("Street name is required"),
     streetNumber: yup.string().required("Street number is required"),
     city: yup.string().required("City name is required"),
@@ -46,8 +46,8 @@ interface RegistrationFormProps {
   const employeeSchema = yup.object().shape({
     ...commonSchema,
     firstName: yup.string().required("First name is required"),
-    lastName: yup.string().required("Last name is required"),
-    dateOfBirth: yup.string().required("Date of birth is required"),
+    lastName: yup.string().required("Last name is required")
+    // dateOfBirth: yup.string().required("Date of birth is required"),
   });
 
   const employerFields = [
@@ -65,6 +65,7 @@ interface RegistrationFormProps {
   const employeeFields = [
     { name: "firstName", label: "First Name" },
     { name: "lastName", label: "Last Name" },
+    // { name: "dateOfBirth", label: "Date of birth", type: "date"}
   ];
 
 const RegistrationPage = ({userType}: RegistrationFormProps) => {
@@ -98,20 +99,20 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
             password: "",
             firstName: "",
             lastName: "",
-            dateOfBirth: "",
           } as RegisterEmployeeDTO)),
         });
 
-      console.log("Validation Errors:", errors);
-
       const onSubmit = async (formData: any) => {
-        console.log("form submitted")
         try {
-            console.log("sss")
-          const response = await RegistrationEmployerRequest(formData);
-          toast.success("Please check your email to confirm registration.");
-          console.log(response)
-          navigate("/login");
+          if (isEmployer) {
+            await RegistrationEmployerRequest(formData);
+            toast.success("Please check your email to confirm registration.");
+            navigate("/login");
+          } else if (!isEmployer) {
+            await RegistrationEmployeeRequest(formData);
+            toast.success("Please check your email to confirm registration.");
+            navigate("/login");
+          }
         } catch (error: any) {
           if (error.response?.data?.includes("DuplicateUserName")) {
             toast.error("User already exists.");
@@ -190,7 +191,13 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
                       name={field.name as keyof RegisterEmployeeDTO}
                       control={control}
                       render={({ field: inputField }) => (
-                        <TextField {...inputField} label={field.label} fullWidth margin="normal"
+                        <TextField 
+                        {...inputField}
+                        type="text"
+                        // type={field.type || "text"}
+                        // InputLabelProps={field.type === "date" ? { shrink: true } : undefined} 
+                        label={field.label} 
+                        fullWidth margin="normal"
                         error={getHasError(field.name as keyof RegisterEmployeeDTO)}
                         helperText={getErrorMessage(field.name as keyof RegisterEmployeeDTO)}/>
                       )}

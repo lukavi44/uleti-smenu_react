@@ -1,17 +1,15 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../store/Auth-context";
-import LoadingContext from "../store/Loading-context";
 
 const LoggedOutRoute = () => {
-  const { isLoggedIn } = useContext(AuthContext);
-  const { isLoading } = useContext(LoadingContext);
+  const { authStatus } = useContext(AuthContext);
 
-  if (isLoading) {
-    return <div>Loading...</div>; // Or a spinner
+  if (authStatus === "loading") {
+    return <div>Loading...</div>;
   }
 
-  return isLoggedIn ? <Navigate to="/" replace /> : <Outlet />;
+  return authStatus === "authenticated" ? <Navigate to="/" replace /> : <Outlet />;
 };
 
 export default LoggedOutRoute;

@@ -1,30 +1,32 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { 
-  TextField, 
-  Button, 
-  Typography, 
-  Container, 
-  Box, 
-  CircularProgress 
+import {
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Box,
+  CircularProgress
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { LoginUserRequest } from "../../services/auth-service";
 import { LoginUserDto } from "../../models/User.model";
 import { AuthContext } from "../../store/Auth-context";
+import RegistrationDialog from "../../components/Dialog/RegistrationDialog";
 
 const schema = yup.object().shape({
-    email: yup.string().email().required("Email is required"),
+  email: yup.string().email().required("Email is required"),
   password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
-  const { setIsLoggedIn } = useContext(AuthContext);
+  const { refreshAuthState } = useContext(AuthContext);
+  const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
 
   const {
     control,
@@ -40,15 +42,18 @@ const LoginPage = () => {
     try {
       const response = await LoginUserRequest(data);
       toast.success("Login successful!");
-      console.log("Login Response:", response.data);
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
-      setIsLoggedIn(true);
+      await refreshAuthState();
 
       navigate("/");
-    } catch (error: any) {
-      toast.error("Invalid username or password");
-      console.error("Login Error:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+          console.error(error.message);
+          toast.error("Invalid username or password");
+      } else {
+          console.error('Unknown error', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -95,9 +100,12 @@ const LoginPage = () => {
             <Button variant="contained" color="primary" type="submit" disabled={loading}>
               {loading ? <CircularProgress size={24} /> : "Login"}
             </Button>
-            <Button color="secondary" onClick={() => navigate("/registration")}>
+            <Button color="secondary" onClick={() => setIsRegisterModalOpened(!isRegisterModalOpened)}>
               Don't have an account? Register
             </Button>
+            {isRegisterModalOpened && (
+              <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
+            )}
           </Box>
         </form>
       </Box>

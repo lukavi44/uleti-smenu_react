@@ -10,18 +10,14 @@ export const useEmployers = () => {
 
     useEffect(() => {
         const fetchEmployers = async () => {
-            console.log("usao u useEffect");
             setLoading(true);
             try {
                 const response = await GetAllEmployers();
-                console.log(response.data);
                 setEmployers(response.data)
             } catch (err) {
                 console.log("Greška prilikom preuzimanja poslodavaca.")
                 setError("Greška prilikom preuzimanja poslodavaca.");
-                console.error(err);
             } finally {
-                console.log("finally")
                 setLoading(false);
             }
         };

@@ -1,18 +1,31 @@
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { LogoutUserRequest } from "../services/auth-service";
-import LoadingContext from "./Loading-context";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser, GetCurrentUserRole } from "../services/user-service";
+import { MeResponse } from "../models/User.model";
+
+export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
 interface AuthContextType {
     isLoggedIn: boolean;
-    logout: (e: React.MouseEvent<HTMLButtonElement>) => void;
-    setIsLoggedIn: Dispatch<SetStateAction<any>>;
+    authStatus: AuthStatus;
+    logout: () => Promise<void>;
+    refreshAuthState: () => Promise<void>;
+    setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
+    setAuthStatus: Dispatch<SetStateAction<AuthStatus>>;
+    role: string | null;
+    me: MeResponse | undefined;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     isLoggedIn: false,
-    logout: () => { },
+    authStatus: "loading",
+    logout: async () => { },
+    refreshAuthState: async () => { },
     setIsLoggedIn: () => { },
+    setAuthStatus: () => { },
+    role: null,
+    me: undefined,
 });
 
 interface AuthContextProviderProps {
@@ -21,36 +34,69 @@ interface AuthContextProviderProps {
 
 const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-    const { setLoading, isLoading } = useContext(LoadingContext);
-
+    const [authStatus, setAuthStatus] = useState<AuthStatus>("loading");
+    const [role, setRole] = useState<string | null>(null);
+    const [me, setMe] = useState<MeResponse | undefined>();
     const navigate = useNavigate();
 
-    const logout = () => {
-        LogoutUserRequest();
+    const logout = async () => {
+        try {
+            await LogoutUserRequest();
+        } catch {
+            // Local logout should still proceed if backend logout fails.
+        }
         localStorage.removeItem("AccessToken");
         localStorage.removeItem("RefreshToken");
         setIsLoggedIn(false);
-        navigate('/login');
+        setAuthStatus("unauthenticated");
+        setRole(null);
+        setMe(undefined);
+        navigate("/login");
+    };
+
+    const refreshAuthState = async () => {
+        const token = localStorage.getItem("AccessToken");
+
+        setAuthStatus("loading");
+        if (!token) {
+            setIsLoggedIn(false);
+            setAuthStatus("unauthenticated");
+            setRole(null);
+            setMe(undefined);
+            return;
+        }
+
+        try {
+            const [roleResponse, meResponse] = await Promise.all([GetCurrentUserRole(), getCurrentUser()]);
+
+            setIsLoggedIn(true);
+            setAuthStatus("authenticated");
+            setRole(roleResponse.data);
+            setMe(meResponse.data);
+        } catch (error) {
+            console.error("AuthContext init failed:", error);
+            localStorage.removeItem("AccessToken");
+            localStorage.removeItem("RefreshToken");
+            setIsLoggedIn(false);
+            setAuthStatus("unauthenticated");
+            setRole(null);
+            setMe(undefined);
+        }
     };
 
     useEffect(() => {
-        setLoading(true);
-        const token = localStorage.getItem("AccessToken");
-        setIsLoggedIn(!!token);
-        /*localStorage.getItem(...) vraća string ili null
-        !!token konvertuje: null → false
-        "neki_token_string" → true
-        setIsLoggedIn(...) odmah dobija tačnu boolean vrednost */
-        setLoading(false);
+        const initializeAuth = async () => {
+            await refreshAuthState();
+        };
 
-        // flash of unauthenticated content 
+        initializeAuth();
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, logout }}>
-          {children}
+        <AuthContext.Provider value={{ isLoggedIn, authStatus, refreshAuthState, setIsLoggedIn, setAuthStatus, logout, role, me }}>
+            {children}
         </AuthContext.Provider>
-      );
-}
+    );
+};
 
 export default AuthContextProvider;

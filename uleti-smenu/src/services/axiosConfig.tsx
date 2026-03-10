@@ -5,10 +5,9 @@ import getApiBaseUrl from "../configuration/config";
 const apiBaseURL = getApiBaseUrl();
 
 const axiosInstance = axios.create({
-  withCredentials: true,
   baseURL: apiBaseURL,
   headers: {
-    "Access-Control-Allow-Origin": "*",
+    // "Access-Control-Allow-Origin": "*",
     "Content-Type": "application/json",
     Accept: "application/json",
   },
