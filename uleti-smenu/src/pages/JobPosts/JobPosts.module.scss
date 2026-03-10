@@ -125,6 +125,115 @@
     overflow: visible;
   }
 
+  .employee-filters {
+    width: min(100%, 48rem);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: -1.2rem;
+  }
+
+  .employee-filters label {
+    color: #4b5563;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .employee-filter-select {
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.9rem;
+    color: #111827;
+    background: #ffffff;
+  }
+
+  .employee-jobpost-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 1rem;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .employee-jobpost-card h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: #0f172a;
+  }
+
+  .employee-card-meta {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .employee-card-meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #334155;
+  }
+
+  .employee-card-meta span {
+    color: #6b7280;
+  }
+
+  .employee-description {
+    margin: 0.8rem 0 0;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .employee-card-actions {
+    margin-top: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .applied-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .apply-button {
+    margin-left: auto;
+    border: 1px solid transparent;
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 0.52rem 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .apply-button:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  .apply-button:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+  }
+
+  .empty-message {
+    width: min(100%, 48rem);
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.92rem;
+  }
+
   .employer-actions {
     position: absolute;
     inset: 0;
