@@ -1,22 +1,35 @@
 import React from "react";
+import styles from "./Card.module.scss";
 
 interface CardProps {
   title: string;
   img: string;
   description: string;
+  orientation?: "vertical" | "horizontal";
+  className?: string;
 }
 
-const Card: React.FC<CardProps> = ({ title, img, description }) => {
+const Card: React.FC<CardProps> = ({
+  title,
+  img,
+  description,
+  orientation = "vertical",
+  className = "",
+}) => {
+  const isHorizontal = orientation === "horizontal";
+
   return (
-    <div className="flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden max-w-2xl w-80">
+    <div
+      className={`${styles.card} ${isHorizontal ? styles.horizontal : styles.vertical} ${className}`}
+    >
       <img
         src={img}
         alt={title}
-        className="w-full h-48 object-cover md:w-1/3 md:h-auto"
+        className={isHorizontal ? styles.imageHorizontal : styles.imageVertical}
       />
-      <div className="p-4 flex flex-col justify-center">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p className="text-gray-700">{description}</p>
+      <div className={styles.content}>
+        <h2>{title}</h2>
+        <p>{description}</p>
       </div>
     </div>
   );

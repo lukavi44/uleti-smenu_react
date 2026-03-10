@@ -21,11 +21,10 @@ const Header = () => {
     const { isLoggedIn, logout } = useContext(AuthContext);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-    const [city, setCity] = useState('');
-
-    const handleChange = (event: any) => {
-        setCity(event.target.value as string);
-    };
+    const handleOnConfirm = async () => {
+        await logout();
+        setIsLogoutModalOpened(false);
+    }
 
     return (
         <>
@@ -67,7 +66,7 @@ const Header = () => {
                         </Menu>
                     </div>
                     <div className={`${styles.desktop}`}>
-                        <NavLink to={"/jobPosts"}>
+                        <NavLink to={"/oglasi-za-posao"}>
                             <p>Oglasi</p>
                         </NavLink>
                         <NavLink to={"/restaurants"}>
@@ -93,7 +92,7 @@ const Header = () => {
                             <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
                         )}
                         {isLogoutModalOpened && (
-                            <ConfirmationDialog onConfirm={logout} onClose={() => setIsLogoutModalOpened(false)}/>
+                            <ConfirmationDialog onConfirm={handleOnConfirm} onClose={() => setIsLogoutModalOpened(false)}/>
                         )}
                     </div>
                 </div>

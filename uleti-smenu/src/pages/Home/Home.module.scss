@@ -11,7 +11,7 @@ p {
 }
 
 .background-container {
-  background-image: url('../../assets/cover_img.jpg');
+  background-image: url("../../assets/cover_img.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -51,7 +51,7 @@ p {
 
   .right {
     padding: 0rem 3rem;
-    background-image: url('../../assets/cover_img.jpg');
+    background-image: url("../../assets/cover_img.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -59,11 +59,15 @@ p {
 }
 
 .employers {
-  height: 100vh;
+  // height: 80vh;
   position: relative;
-    background-image: url(../../assets/left-background.86139e2131a3127b.svg), url(../../assets/right-background.166b4763786df14e.svg);
-    background-repeat: no-repeat;
-    background-position: left top, right top;
+  background-image:
+    url(../../assets/left-background.86139e2131a3127b.svg),
+    url(../../assets/right-background.166b4763786df14e.svg);
+  background-repeat: no-repeat;
+  background-position:
+    left top,
+    right top;
 }
 
 @media (max-width: 768px) {

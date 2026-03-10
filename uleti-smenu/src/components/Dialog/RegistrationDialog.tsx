@@ -3,10 +3,10 @@ import Layout from "./Layout";
 import styles from './RegistrationDialog.module.scss';
 import logo from '../../assets/logo.png';
 
-const RegistrationDialog = ({ onClose }: { onClose: React.MouseEventHandler }) => {
+const RegistrationDialog = ({ onClose }: { onClose: () => void }) => {
 
     return (
-        <Layout onClose={onClose}>
+        <Layout onClose={() => onClose()}>
             <div className={styles.wrapper}>
                 <div className={styles.top}>
                     <img src={logo} alt="logo" width={300} />
@@ -20,10 +20,10 @@ const RegistrationDialog = ({ onClose }: { onClose: React.MouseEventHandler }) =
                         </NavLink>
                     </div>
                     <div className={styles.options}>
-                        <NavLink to="/registration-user">
+                        <NavLink to="/registration-user" onClick={onClose}>
                             <p>Registruj se kao kandidat</p>
                         </NavLink>
-                        <NavLink to="/registration">
+                        <NavLink to="/registration" onClick={onClose}>
                             <p>Registruj se kao poslodavac</p>
                         </NavLink>
                     </div>
