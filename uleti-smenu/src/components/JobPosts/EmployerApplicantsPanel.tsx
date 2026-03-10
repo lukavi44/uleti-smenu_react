@@ -6,9 +6,10 @@ import styles from "./EmployerApplicantsPanel.module.scss";
 
 interface EmployerApplicantsPanelProps {
   jobPostId: string;
+  variant?: "default" | "inlineCard";
 }
 
-const EmployerApplicantsPanel = ({ jobPostId }: EmployerApplicantsPanelProps) => {
+const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApplicantsPanelProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -61,13 +62,16 @@ const EmployerApplicantsPanel = ({ jobPostId }: EmployerApplicantsPanelProps) =>
   };
 
   return (
-    <div className={styles.wrapper}>
-      <button className={styles.toggleButton} onClick={toggleApplicants}>
+    <div className={`${styles.wrapper} ${variant === "inlineCard" ? styles.inlineCardWrapper : ""}`}>
+      <button
+        className={`${styles.toggleButton} ${variant === "inlineCard" ? styles.inlineCardToggleButton : ""}`}
+        onClick={toggleApplicants}
+      >
         {isExpanded ? "Hide applicants" : "See applicants"}
       </button>
 
       {isExpanded && (
-        <div className={styles.panel}>
+        <div className={`${styles.panel} ${variant === "inlineCard" ? styles.inlineCardPanel : ""}`}>
           {isLoading && <p className={styles.mutedText}>Loading applicants...</p>}
           {!isLoading && applicants.length === 0 && (
             <p className={styles.mutedText}>No applicants yet for this post.</p>

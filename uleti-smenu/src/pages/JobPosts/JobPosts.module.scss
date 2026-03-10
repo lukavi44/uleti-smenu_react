@@ -118,20 +118,63 @@
     transform: scale(1.05);
   }
 
-  .edit-button {
-    margin-top: 0.5rem;
-    padding: 0.45rem 0.9rem;
-    border-radius: 10px;
-    border: 1px solid #1e88e5;
-    background: #ffffff;
-    color: #1e88e5;
-    cursor: pointer;
-    font-weight: 600;
+  .jobpost-card-wrapper {
+    width: 100%;
+    max-width: 820px;
+    position: relative;
+    padding-bottom: 1rem;
   }
 
   .employer-actions {
-    width: 100%;
-    max-width: 820px;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .edit-icon-button {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.85rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid #c7ddff;
+    background: #e8f1ff;
+    color: #1e88e5;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 3px 10px rgba(30, 136, 229, 0.22);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .edit-icon-button:hover {
+    background: #d8e9ff;
+    transform: translateY(-1px);
+  }
+
+  .applicants-button-anchor {
+    position: absolute;
+    right: 0.85rem;
+    bottom: 1.1rem;
+    pointer-events: auto;
+  }
+
+  @media only screen and (max-width: 820px) {
+    .edit-icon-button {
+      top: 0.65rem;
+      right: 0.65rem;
+    }
+
+    .applicants-button-anchor {
+      right: 0.65rem;
+      bottom: 0.95rem;
+    }
   }
   
   

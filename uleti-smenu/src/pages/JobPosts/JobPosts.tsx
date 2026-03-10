@@ -66,20 +66,24 @@ const JobPosts = () => {
             {jobPosts.map((jobPost: JobPost) => {
           const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           return (
-            <div key={jobPost.id}>
+            <div key={jobPost.id} className={styles["jobpost-card-wrapper"]}>
               <JobPostItem jobPost={jobPost}/>
               {isMyPost && (
                 <div className={styles["employer-actions"]}>
                   <button
-                    className={styles["edit-button"]}
+                    className={styles["edit-icon-button"]}
+                    aria-label="Edit job post"
+                    title="Edit job post"
                     onClick={() => {
                       setEditingJobPostId(jobPost.id);
                       setJobPostCreatFormOpened(true);
                     }}
                   >
-                    Izmeni oglas
+                    ✎
                   </button>
-                  <EmployerApplicantsPanel jobPostId={jobPost.id} />
+                  <div className={styles["applicants-button-anchor"]}>
+                    <EmployerApplicantsPanel jobPostId={jobPost.id} variant="inlineCard" />
+                  </div>
                 </div>
               )}
             </div>

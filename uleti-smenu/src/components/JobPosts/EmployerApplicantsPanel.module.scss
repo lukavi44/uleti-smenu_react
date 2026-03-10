@@ -2,6 +2,11 @@
   margin-top: 0.8rem;
 }
 
+.inlineCardWrapper {
+  margin-top: 0;
+  position: relative;
+}
+
 .toggleButton {
   padding: 0.5rem 0.95rem;
   border-radius: 10px;
@@ -11,6 +16,12 @@
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.inlineCardToggleButton {
+  border-radius: 8px;
+  font-size: 0.84rem;
+  padding: 0.45rem 0.85rem;
 }
 
 .toggleButton:hover {
@@ -23,6 +34,15 @@
   border-radius: 12px;
   padding: 0.85rem;
   background: #ffffff;
+}
+
+.inlineCardPanel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  width: min(27rem, 78vw);
+  z-index: 5;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 .mutedText {
