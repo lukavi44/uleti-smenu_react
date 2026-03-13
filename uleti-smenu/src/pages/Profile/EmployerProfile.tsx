@@ -41,6 +41,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [isCreatingLocation, setIsCreatingLocation] = useState(false);
+    const [isBranchFormOpen, setIsBranchFormOpen] = useState(false);
     const [newBranch, setNewBranch] = useState({
         name: "",
         phoneNumber: "",
@@ -186,6 +187,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 country: "",
                 region: ""
             });
+            setIsBranchFormOpen(false);
             toast.success("Franchise branch added.");
         } catch {
             toast.error("Failed to add franchise branch.");
@@ -208,9 +210,25 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 <div className={styles.profileHeader}>
                     <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
                     <div className={styles.profileActions}>
-                        <input className={styles.fileInput} type="file" accept="image/*" onChange={handleProfilePhotoChange} />
-                        <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
-                            {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
+                        <input
+                            id="employerProfilePhotoInput"
+                            className={styles.fileInputHidden}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfilePhotoChange}
+                        />
+                        <label htmlFor="employerProfilePhotoInput" className={`${styles.button} ${styles.buttonSecondary} ${styles.filePickerButton}`}>
+                            Select photo
+                        </label>
+                        <p className={styles.fileStatusText}>
+                            {selectedPhotoFile ? `Selected: ${selectedPhotoFile.name}` : "No photo selected"}
+                        </p>
+                        <button
+                            className={`${styles.button} ${styles.buttonPrimary}`}
+                            disabled={isPhotoUploadInProgress || !selectedPhotoFile}
+                            onClick={handleProfilePhotoUpload}
+                        >
+                            {isPhotoUploadInProgress ? "Uploading..." : "Upload photo"}
                         </button>
                     </div>
                 </div>
@@ -251,72 +269,84 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Add Restaurant Branch</h2>
-                <div className={styles.branchForm}>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Restaurant name"
-                        value={newBranch.name}
-                        onChange={(e) => handleBranchFieldChange("name", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Phone number"
-                        value={newBranch.phoneNumber}
-                        onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
-                    />
-                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
-                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Street name"
-                        value={newBranch.streetName}
-                        onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Street number"
-                        value={newBranch.streetNumber}
-                        onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="City"
-                        value={newBranch.city}
-                        onChange={(e) => handleBranchFieldChange("city", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Postal code"
-                        value={newBranch.postalCode}
-                        onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Country"
-                        value={newBranch.country}
-                        onChange={(e) => handleBranchFieldChange("country", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Region"
-                        value={newBranch.region}
-                        onChange={(e) => handleBranchFieldChange("region", e.target.value)}
-                    />
-                </div>
-                <div className={styles.actionsRow}>
-                    <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
-                        {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
+                <div className={styles.collapsibleHeader}>
+                    <h2 className={styles.sectionTitle}>Add Restaurant Branch</h2>
+                    <button
+                        className={`${styles.button} ${styles.buttonSecondary}`}
+                        onClick={() => setIsBranchFormOpen((previousState) => !previousState)}
+                    >
+                        {isBranchFormOpen ? "Hide form" : "Open form"}
                     </button>
                 </div>
+                {isBranchFormOpen && (
+                    <>
+                        <div className={styles.branchForm}>
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Restaurant name"
+                                value={newBranch.name}
+                                onChange={(e) => handleBranchFieldChange("name", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Phone number"
+                                value={newBranch.phoneNumber}
+                                onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
+                            />
+                            <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
+                            <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Street name"
+                                value={newBranch.streetName}
+                                onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Street number"
+                                value={newBranch.streetNumber}
+                                onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="City"
+                                value={newBranch.city}
+                                onChange={(e) => handleBranchFieldChange("city", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Postal code"
+                                value={newBranch.postalCode}
+                                onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Country"
+                                value={newBranch.country}
+                                onChange={(e) => handleBranchFieldChange("country", e.target.value)}
+                            />
+                            <input
+                                className={styles.input}
+                                type="text"
+                                placeholder="Region"
+                                value={newBranch.region}
+                                onChange={(e) => handleBranchFieldChange("region", e.target.value)}
+                            />
+                        </div>
+                        <div className={styles.actionsRow}>
+                            <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
+                                {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
+                            </button>
+                        </div>
+                    </>
+                )}
             </section>
 
             <section className={styles.panel}>
