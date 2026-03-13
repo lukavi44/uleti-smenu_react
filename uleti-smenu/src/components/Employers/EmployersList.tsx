@@ -8,11 +8,14 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { PatchClientFavorite } from "../../services/user-service";
+import { AuthContext } from "../../store/Auth-context";
 
 const EmployersList = () => {
   const { isLoading } = useContext(LoadingContext);
+  const { authStatus, role } = useContext(AuthContext);
   const { employers: initialEmployers, error } = useEmployers();
   const [employers, setEmployers] = useState(initialEmployers);
+  const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
     mode: "free",
@@ -39,12 +42,14 @@ const EmployersList = () => {
     event: React.MouseEvent,
   ) => {
     event.stopPropagation();
+    if (!canToggleFavourite) return;
+
     try {
       await PatchClientFavorite(employer.id);
 
       setEmployers((prev: Employer[]) =>
         prev.map((e: Employer) =>
-          e.id === employer.id ? { ...e, isFavourite: !e.isFavourite } : e,
+          e.id === employer.id ? { ...e, isFavourite: !Boolean(e.isFavourite) } : e,
         ),
       );
     } catch (error) {
@@ -79,18 +84,20 @@ const EmployersList = () => {
                 alt={employer.name}
                 className={styles["employer-img"]}
               />
-              <button
-                type="button"
-                className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
-                aria-label={
-                  employer.isFavourite
-                    ? "Remove from favorites"
-                    : "Add to favorites"
-                }
-                onClick={(e) => handleChangeFavourite(employer, e)}
-              >
-                {employer.isFavourite ? "★" : "☆"}
-              </button>
+              {canToggleFavourite && (
+                <button
+                  type="button"
+                  className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
+                  aria-label={
+                    employer.isFavourite
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                  onClick={(e) => handleChangeFavourite(employer, e)}
+                >
+                  {employer.isFavourite ? "★" : "☆"}
+                </button>
+              )}
             </div>
           );
         })}
