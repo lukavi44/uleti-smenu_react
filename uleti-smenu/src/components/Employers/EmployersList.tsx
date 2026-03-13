@@ -9,8 +9,10 @@ import "keen-slider/keen-slider.min.css";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { PatchClientFavorite } from "../../services/user-service";
 import { AuthContext } from "../../store/Auth-context";
+import { useTranslation } from "react-i18next";
 
 const EmployersList = () => {
+  const { t } = useTranslation();
   const { isLoading } = useContext(LoadingContext);
   const { authStatus, role } = useContext(AuthContext);
   const { employers: initialEmployers, error } = useEmployers();
@@ -57,19 +59,18 @@ const EmployersList = () => {
     }
   };
 
-  if (isLoading) return <div className="text-center py-6">Učitavanje...</div>;
+  if (isLoading) return <div className="text-center py-6">{t("common.loading")}</div>;
   if (error)
     return <div className="text-center py-6 text-red-600">{error}</div>;
   if (employers.length === 0)
-    return <div className="text-center py-6">Nema dostupnih poslodavaca.</div>;
+    return <div className="text-center py-6">{t("employers.noEmployers")}</div>;
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.text}>
-        <h2 className="text-[30px] font-bold">Poslodavci</h2>
+        <h2 className="text-[30px] font-bold">{t("employers.title")}</h2>
         <p className="font-medium text-gray">
-          Klikom na logo možeš saznati više o kompanijama koje te posebno
-          zanimaju.
+          {t("employers.subtitle")}
         </p>
       </div>
       <div ref={sliderRef} className="keen-slider px-2 py-4">
@@ -90,8 +91,8 @@ const EmployersList = () => {
                   className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
                   aria-label={
                     employer.isFavourite
-                      ? "Remove from favorites"
-                      : "Add to favorites"
+                              ? t("employers.removeFromFavorites")
+                              : t("employers.addToFavorites")
                   }
                   onClick={(e) => handleChangeFavourite(employer, e)}
                 >

@@ -12,6 +12,7 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import styles from "./Profile.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
+import { useTranslation } from "react-i18next";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -31,6 +32,7 @@ const getStatusBadgeStyle = (status: string) => {
 };
 
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
+    const { t } = useTranslation();
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const [selectedJobPostId, setSelectedJobPostId] = useState<string>("");
     const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -71,7 +73,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
             }
         } catch {
-            toast.error("Failed to load your job posts.");
+            toast.error(t("profile.failedLoadJobPosts"));
         }
     };
 
@@ -85,7 +87,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 const response = await GetMyRestaurantLocations();
                 setLocations(response.data);
             } catch {
-                toast.error("Failed to load your restaurant branches.");
+                toast.error(t("profile.failedLoadBranches"));
             }
         };
 
@@ -103,7 +105,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 const response = await GetApplicantsForJobPost(selectedJobPostId);
                 setApplicants(response.data);
             } catch {
-                toast.error("Failed to load applicants.");
+                toast.error(t("profile.failedLoadApplicants"));
             }
         };
 
@@ -123,9 +125,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                     applicant.applicationId === applicationId ? { ...applicant, status } : applicant
                 )
             );
-            toast.success(`Application ${status.toLowerCase()}.`);
+            toast.success(t("profile.applicationUpdated"));
         } catch {
-            toast.error("Unable to update application status.");
+            toast.error(t("profile.applicationUpdateError"));
         } finally {
             setActionInProgress(null);
         }
@@ -138,7 +140,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
     const handleProfilePhotoUpload = async () => {
         if (!selectedPhotoFile) {
-            toast.info("Select an image first.");
+            toast.info(t("profile.selectPhotoFirst"));
             return;
         }
 
@@ -146,10 +148,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         try {
             const response = await UpdateMyProfilePhoto(selectedPhotoFile);
             setProfilePhotoUrl(getImageUrl(response.data.imagePath));
-            toast.success("Profile photo updated.");
+            toast.success(t("profile.photoUpdated"));
             setSelectedPhotoFile(null);
         } catch {
-            toast.error("Unable to update profile photo.");
+            toast.error(t("profile.photoUpdateError"));
         } finally {
             setIsPhotoUploadInProgress(false);
         }
@@ -165,7 +167,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const handleCreateBranch = async () => {
         const requiredValues = Object.values(newBranch).every((value) => value.trim() !== "");
         if (!requiredValues) {
-            toast.info("Please fill all branch fields.");
+            toast.info(t("profile.fillBranchFields"));
             return;
         }
 
@@ -189,9 +191,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 region: ""
             });
             setIsBranchFormOpen(false);
-            toast.success("Franchise branch added.");
+            toast.success(t("profile.branchAdded"));
         } catch {
-            toast.error("Failed to add franchise branch.");
+            toast.error(t("profile.branchAddError"));
         } finally {
             setIsCreatingLocation(false);
         }
@@ -221,14 +223,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Employer Info</h2>
+                <h2 className={styles.sectionTitle}>{t("profile.employerInfo")}</h2>
                 <div className={styles.infoGrid}>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Restaurant name</span>
+                        <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
                         <span className={styles.infoValue}>{user.name}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Address</span>
+                        <span className={styles.infoLabel}>{t("profile.address")}</span>
                         <span className={styles.infoValue}>
                             {locations[0]
                                 ? `${locations[0].streetName} ${locations[0].streetNumber}, ${locations[0].city}`
@@ -236,19 +238,19 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Phone</span>
+                        <span className={styles.infoLabel}>{t("profile.phone")}</span>
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Email</span>
+                        <span className={styles.infoLabel}>{t("profile.email")}</span>
                         <span className={styles.infoValue}>{user.email}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>PIB</span>
+                        <span className={styles.infoLabel}>{t("registration.pib")}</span>
                         <span className={styles.infoValue}>{user.pib}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>MB</span>
+                        <span className={styles.infoLabel}>{t("registration.mb")}</span>
                         <span className={styles.infoValue}>{user.mb}</span>
                     </div>
                 </div>
@@ -256,12 +258,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
             <section className={styles.panel}>
                 <div className={styles.collapsibleHeader}>
-                    <h2 className={styles.sectionTitle}>Add Restaurant Branch</h2>
+                    <h2 className={styles.sectionTitle}>{t("profile.addBranch")}</h2>
                     <button
                         className={`${styles.button} ${styles.buttonSecondary}`}
                         onClick={() => setIsBranchFormOpen((previousState) => !previousState)}
                     >
-                        {isBranchFormOpen ? "Hide form" : "Open form"}
+                        {isBranchFormOpen ? t("profile.hideForm") : t("profile.openForm")}
                     </button>
                 </div>
                 {isBranchFormOpen && (
@@ -270,14 +272,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Restaurant name"
+                                placeholder={t("profile.restaurantName")}
                                 value={newBranch.name}
                                 onChange={(e) => handleBranchFieldChange("name", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Phone number"
+                                placeholder={t("registration.phoneNumber")}
                                 value={newBranch.phoneNumber}
                                 onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
                             />
@@ -286,49 +288,49 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Street name"
+                                placeholder={t("registration.streetName")}
                                 value={newBranch.streetName}
                                 onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Street number"
+                                placeholder={t("registration.streetNumber")}
                                 value={newBranch.streetNumber}
                                 onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="City"
+                                placeholder={t("registration.city")}
                                 value={newBranch.city}
                                 onChange={(e) => handleBranchFieldChange("city", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Postal code"
+                                placeholder={t("registration.postalCode")}
                                 value={newBranch.postalCode}
                                 onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Country"
+                                placeholder={t("registration.country")}
                                 value={newBranch.country}
                                 onChange={(e) => handleBranchFieldChange("country", e.target.value)}
                             />
                             <input
                                 className={styles.input}
                                 type="text"
-                                placeholder="Region"
+                                placeholder={t("registration.region")}
                                 value={newBranch.region}
                                 onChange={(e) => handleBranchFieldChange("region", e.target.value)}
                             />
                         </div>
                         <div className={styles.actionsRow}>
                             <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
-                                {isCreatingLocation ? "Adding branch..." : "Add franchise branch"}
+                                {isCreatingLocation ? t("profile.addingBranch") : t("profile.addBranchAction")}
                             </button>
                         </div>
                     </>
@@ -336,8 +338,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h3 className={styles.subTitle}>Your Branches</h3>
-                {locations.length === 0 && <p className={styles.mutedText}>No branches yet.</p>}
+                <h3 className={styles.subTitle}>{t("profile.yourBranches")}</h3>
+                {locations.length === 0 && <p className={styles.mutedText}>{t("profile.noBranches")}</p>}
                 <div className={styles.branchList}>
                     {locations.map((location) => (
                         <div key={location.id} className={styles.branchCard}>
@@ -350,25 +352,25 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>My Job Posts</h2>
-                {jobPosts.length === 0 && <p className={styles.mutedText}>You do not have job posts yet.</p>}
+                <h2 className={styles.sectionTitle}>{t("profile.myJobPosts")}</h2>
+                {jobPosts.length === 0 && <p className={styles.mutedText}>{t("profile.noJobPosts")}</p>}
                 <div className={styles.jobPostsGrid}>
                     {jobPosts.map((post) => (
                         <article key={post.id} className={styles.jobPostCard}>
                             <h4>{post.title}</h4>
                             <div className={styles.cardMeta}>
-                                <div><span>Worker type:</span><strong>{post.position}</strong></div>
-                                <div><span>Location:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
-                                <div><span>Starting date:</span><strong>{formatDate(post.startingDate)}</strong></div>
-                                <div><span>Payment:</span><strong>{post.salary} RSD</strong></div>
-                                <div><span>Status:</span><strong>{post.status}</strong></div>
+                                <div><span>{t("profile.workerType")}:</span><strong>{post.position}</strong></div>
+                                <div><span>{t("profile.location")}:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
+                                <div><span>{t("profile.startingDate")}:</span><strong>{formatDate(post.startingDate)}</strong></div>
+                                <div><span>{t("profile.payment")}:</span><strong>{post.salary} RSD</strong></div>
+                                <div><span>{t("profile.status")}:</span><strong>{post.status}</strong></div>
                             </div>
                             <div className={styles.actionsRow}>
                                 <button
                                     className={`${styles.button} ${styles.buttonSecondary}`}
                                     onClick={() => setEditingJobPostId(post.id)}
                                 >
-                                    Edit
+                                    {t("profile.edit")}
                                 </button>
                             </div>
                         </article>
@@ -389,11 +391,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Applicants</h2>
+                <h2 className={styles.sectionTitle}>{t("profile.applicants")}</h2>
                 {jobPosts.length > 0 && (
                     <div className={styles.applicantsFilters}>
                         <div className={styles.filterGroup}>
-                            <label htmlFor="jobPostSelect">Choose job post</label>
+                            <label htmlFor="jobPostSelect">{t("profile.chooseJobPost")}</label>
                             <select
                                 className={styles.select}
                                 id="jobPostSelect"
@@ -408,24 +410,24 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             </select>
                         </div>
                         <div className={styles.filterGroup}>
-                            <label htmlFor="statusFilter">Filter by status</label>
+                            <label htmlFor="statusFilter">{t("profile.filterByStatus")}</label>
                             <select
                                 className={styles.select}
                                 id="statusFilter"
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                             >
-                                <option value="All">All</option>
-                                <option value="Applied">Applied</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Denied">Denied</option>
-                                <option value="Cancelled">Cancelled</option>
+                                <option value="All">{t("profile.all")}</option>
+                                <option value="Applied">{t("jobPosts.appliedShort")}</option>
+                                <option value="Accepted">{t("profile.accept")}</option>
+                                <option value="Denied">{t("profile.deny")}</option>
+                                <option value="Cancelled">{t("common.cancel")}</option>
                             </select>
                         </div>
                     </div>
                 )}
-                {jobPosts.length > 0 && <p className={styles.selectedPost}>Selected: {selectedJobPost?.title ?? "-"}</p>}
-                {visibleApplicants.length === 0 && <p className={styles.mutedText}>No applicants for this filter.</p>}
+                {jobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
+                {visibleApplicants.length === 0 && <p className={styles.mutedText}>{t("profile.noApplicantsForFilter")}</p>}
                 <div className={styles.applicantsList}>
                     {visibleApplicants.map((applicant) => (
                         <div key={applicant.applicationId} className={styles.applicantCard}>
@@ -441,14 +443,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                         disabled={actionInProgress !== null}
                                         onClick={() => handleStatusUpdate(applicant.applicationId, "Accepted")}
                                     >
-                                        {actionInProgress === `${applicant.applicationId}:Accepted` ? "Accepting..." : "Accept"}
+                                        {actionInProgress === `${applicant.applicationId}:Accepted` ? t("profile.accepting") : t("profile.accept")}
                                     </button>
                                     <button
                                         className={`${styles.button} ${styles.buttonSecondary}`}
                                         disabled={actionInProgress !== null}
                                         onClick={() => handleStatusUpdate(applicant.applicationId, "Denied")}
                                     >
-                                        {actionInProgress === `${applicant.applicationId}:Denied` ? "Denying..." : "Deny"}
+                                        {actionInProgress === `${applicant.applicationId}:Denied` ? t("profile.denying") : t("profile.deny")}
                                     </button>
                                 </div>
                             )}

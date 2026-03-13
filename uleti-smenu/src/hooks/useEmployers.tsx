@@ -3,8 +3,10 @@ import LoadingContext from "../store/Loading-context";
 import { GetAllEmployers, GetEmployersWithFavouriteStatus } from "../services/user-service";
 import { Employer } from "../models/User.model";
 import { AuthContext } from "../store/Auth-context";
+import { useTranslation } from "react-i18next";
 
 export const useEmployers = () => {
+    const { t } = useTranslation();
     const [employers, setEmployers] = useState<Employer[]>([]);
     const { setLoading } = useContext(LoadingContext);
     const { authStatus, role } = useContext(AuthContext);
@@ -26,15 +28,15 @@ export const useEmployers = () => {
 
                 setEmployers(normalizedEmployers);
             } catch (err) {
-                console.log("Greška prilikom preuzimanja poslodavaca.")
-                setError("Greška prilikom preuzimanja poslodavaca.");
+                console.log(t("employers.loadError"))
+                setError(t("employers.loadError"));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchEmployers();
-    }, [authStatus, role, setLoading]);
+    }, [authStatus, role, setLoading, t]);
 
     return { employers, error };
 };

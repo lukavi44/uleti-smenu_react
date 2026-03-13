@@ -12,12 +12,14 @@ import RegistrationDialog from "../Dialog/RegistrationDialog";
 import ConfirmationDialog from "../Dialog/ConfirmationDialog";
 import { GetMyNotifications, GetMyUnreadNotificationCount, MarkNotificationAsRead } from "../../services/notification-service";
 import { UserNotification } from "../../models/Notification.model";
+import { useTranslation } from "react-i18next";
 
 // import ProfileDialog from "../Dialogs/ProfileDialog";
 // import { AuthContext } from "../../store/Auth-context";
 // import ConfirmationDialog from "../Dialog/ConfirmationDialog";
 
 const Header = () => {
+    const { t, i18n } = useTranslation();
     const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
     const [isLogoutModalOpened, setIsLogoutModalOpened] = useState(false);
     const { isLoggedIn, logout, role } = useContext(AuthContext);
@@ -97,7 +99,7 @@ const Header = () => {
                         <Menu as="div" className="relative inline-block text-left">
                             <div>
                                 <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">
-                                    {selectedCity || "Grad"}
+                                    {selectedCity || t("header.city")}
                                     <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
                                 </MenuButton>
                             </div>
@@ -125,26 +127,34 @@ const Header = () => {
                     </div>
                     <div className={`${styles.desktop}`}>
                         <NavLink to={"/oglasi-za-posao"}>
-                            <p>Oglasi</p>
+                            <p>{t("header.posts")}</p>
                         </NavLink>
                         <NavLink to={"/restaurants"}>
-                            <p>Restorani</p>
+                            <p>{t("header.restaurants")}</p>
                         </NavLink>
+                        <select
+                            value={i18n.language}
+                            onChange={(event) => void i18n.changeLanguage(event.target.value)}
+                            aria-label={t("common.language")}
+                        >
+                            <option value="sr">{t("common.serbian")}</option>
+                            <option value="en">{t("common.english")}</option>
+                        </select>
                         {isEmployeeLoggedIn && (
                             <div className={styles["notifications-wrapper"]}>
                                 <button
                                     type="button"
                                     className={styles["notifications-button"]}
                                     onClick={() => setIsNotificationsOpen((previous) => !previous)}
-                                    aria-label="Notifications"
+                                    aria-label={t("header.notifications")}
                                 >
                                     🔔
                                     {unreadCount > 0 && <span className={styles["notifications-count"]}>{unreadCount}</span>}
                                 </button>
                                 {isNotificationsOpen && (
                                     <div className={styles["notifications-panel"]}>
-                                        <h4>Notifications</h4>
-                                        {notifications.length === 0 && <p className={styles["notifications-muted"]}>No notifications yet.</p>}
+                                        <h4>{t("header.notifications")}</h4>
+                                        {notifications.length === 0 && <p className={styles["notifications-muted"]}>{t("header.noNotifications")}</p>}
                                         {notifications.map((notification) => (
                                             <div
                                                 key={notification.id}
@@ -158,7 +168,7 @@ const Header = () => {
                                                         onClick={() => handleMarkAsRead(notification.id)}
                                                         disabled={activeNotificationId !== null}
                                                     >
-                                                        {activeNotificationId === notification.id ? "Marking..." : "Mark as read"}
+                                                        {activeNotificationId === notification.id ? t("header.marking") : t("header.markAsRead")}
                                                     </button>
                                                 )}
                                             </div>
@@ -170,16 +180,16 @@ const Header = () => {
                         {isLoggedIn && (
                             <>
                                 <NavLink to={"/profile"}>
-                                    <p>Profil</p>
+                                    <p>{t("header.profile")}</p>
                                 </NavLink>
-                                <button onClick={() => setIsLogoutModalOpened(!isLogoutModalOpened)}>Odjava</button>
+                                <button onClick={() => setIsLogoutModalOpened(!isLogoutModalOpened)}>{t("header.logout")}</button>
                             </>
                         )}
                         {!isLoggedIn && (
                             <>
-                                <p onClick={() => setIsRegisterModalOpened(!isRegisterModalOpened)}>Registruj se</p>
+                                <p onClick={() => setIsRegisterModalOpened(!isRegisterModalOpened)}>{t("header.register")}</p>
                                 <NavLink to={"/login"}>
-                                    <p>Prijavi se</p>
+                                    <p>{t("header.login")}</p>
                                 </NavLink>
                             </>
                         )}

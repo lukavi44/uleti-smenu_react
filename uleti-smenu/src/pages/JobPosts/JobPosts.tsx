@@ -12,8 +12,10 @@ import { ApplyToJobPost, GetMyApplications } from "../../services/application-se
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
+import { useTranslation } from "react-i18next";
 
 const JobPosts = () => {
+    const { t } = useTranslation();
     const { role, me } = useContext(AuthContext);
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
@@ -142,12 +144,12 @@ const JobPosts = () => {
         setApplyInProgressForPostId(jobPostId);
         try {
             await ApplyToJobPost(jobPostId);
-            toast.success("Successfully applied for this shift.");
+            toast.success(t("jobPosts.applySuccess"));
             setAppliedJobPostIds((previousIds) =>
                 previousIds.includes(jobPostId) ? previousIds : [...previousIds, jobPostId]
             );
         } catch {
-            toast.error("Unable to apply for this shift.");
+            toast.error(t("jobPosts.applyError"));
         } finally {
             setApplyInProgressForPostId(null);
         }
@@ -194,38 +196,38 @@ const JobPosts = () => {
             <div className={styles["left-panel"]}>
             {role === "Employee" && (
               <div className={styles["employee-filters"]}>
-                <label htmlFor="employeeFilter">Show:</label>
+                <label htmlFor="employeeFilter">{t("jobPosts.show")}</label>
                 <select
                   id="employeeFilter"
                   className={styles["employee-filter-select"]}
                   value={employeeFilter}
                   onChange={(event) => setEmployeeFilter(event.target.value as "all" | "notApplied" | "applied")}
                 >
-                  <option value="all">All job posts</option>
-                  <option value="notApplied">Not applied</option>
-                  <option value="applied">Applied</option>
+                  <option value="all">{t("jobPosts.all")}</option>
+                  <option value="notApplied">{t("jobPosts.notApplied")}</option>
+                  <option value="applied">{t("jobPosts.applied")}</option>
                 </select>
-                <label htmlFor="favouriteFilter">Restaurants:</label>
+                <label htmlFor="favouriteFilter">{t("jobPosts.restaurants")}</label>
                 <select
                   id="favouriteFilter"
                   className={styles["employee-filter-select"]}
                   value={favouriteFilter}
                   onChange={(event) => setFavouriteFilter(event.target.value as "all" | "favourites")}
                 >
-                  <option value="all">All job posts</option>
-                  <option value="favourites">Favourite restaurants only</option>
+                  <option value="all">{t("jobPosts.all")}</option>
+                  <option value="favourites">{t("jobPosts.favoritesOnly")}</option>
                 </select>
-                <label htmlFor="sortFilter">Sort:</label>
+                <label htmlFor="sortFilter">{t("jobPosts.sort")}</label>
                 <select
                   id="sortFilter"
                   className={styles["employee-filter-select"]}
                   value={selectedSortValue}
                   onChange={(event) => handleSortChange(event.target.value)}
                 >
-                  <option value="createdAt_desc">Newest first</option>
-                  <option value="createdAt_asc">Oldest first</option>
-                  <option value="salary_desc">Salary high to low</option>
-                  <option value="salary_asc">Salary low to high</option>
+                  <option value="createdAt_desc">{t("jobPosts.newest")}</option>
+                  <option value="createdAt_asc">{t("jobPosts.oldest")}</option>
+                  <option value="salary_desc">{t("jobPosts.salaryHighLow")}</option>
+                  <option value="salary_asc">{t("jobPosts.salaryLowHigh")}</option>
                 </select>
               </div>
             )}
@@ -247,28 +249,28 @@ const JobPosts = () => {
                     <h4>{jobPost.title}</h4>
                   </div>
                   <div className={styles["employee-card-meta"]}>
-                    <div><span>Position:</span><strong>{jobPost.position}</strong></div>
+                    <div><span>{t("jobPosts.position")}:</span><strong>{jobPost.position}</strong></div>
                     <div>
-                      <span>Location:</span>
+                      <span>{t("jobPosts.location")}:</span>
                       <strong>
                         {jobPost.restaurantLocationName
                           ? `${jobPost.restaurantLocationName}${jobPost.restaurantLocationCity ? ` (${jobPost.restaurantLocationCity})` : ""}`
                           : "-"}
                       </strong>
                     </div>
-                    <div><span>Starting Date:</span><strong>{formatDate(jobPost.startingDate)}</strong></div>
-                    <div><span>Salary:</span><strong>{jobPost.salary} RSD</strong></div>
-                    <div><span>Status:</span><strong>{jobPost.status}</strong></div>
+                    <div><span>{t("jobPosts.startingDate")}:</span><strong>{formatDate(jobPost.startingDate)}</strong></div>
+                    <div><span>{t("jobPosts.salary")}:</span><strong>{jobPost.salary} RSD</strong></div>
+                    <div><span>{t("jobPosts.status")}:</span><strong>{jobPost.status}</strong></div>
                   </div>
                   <p className={styles["employee-description"]}>{jobPost.description}</p>
                   <div className={styles["employee-card-actions"]}>
-                    {hasApplied && <span className={styles["applied-badge"]}>Already applied</span>}
+                    {hasApplied && <span className={styles["applied-badge"]}>{t("jobPosts.alreadyApplied")}</span>}
                     <button
                       className={styles["apply-button"]}
                       disabled={hasApplied || applyInProgressForPostId !== null}
                       onClick={() => handleApply(jobPost.id)}
                     >
-                      {applyInProgressForPostId === jobPost.id ? "Applying..." : hasApplied ? "Applied" : "Apply"}
+                      {applyInProgressForPostId === jobPost.id ? t("jobPosts.applying") : hasApplied ? t("jobPosts.appliedShort") : t("jobPosts.apply")}
                     </button>
                   </div>
                 </article>
@@ -295,7 +297,7 @@ const JobPosts = () => {
           );
         })}
             {role === "Employee" && employeeVisibleJobPosts.length === 0 && (
-              <p className={styles["empty-message"]}>No job posts for the selected filter.</p>
+              <p className={styles["empty-message"]}>{t("jobPosts.noPostsFiltered")}</p>
             )}
             </div>
 
@@ -320,7 +322,7 @@ const JobPosts = () => {
                         setJobPostCreatFormOpened(true);
                     }}
                 >
-                    Napravi Oglas
+                    {t("jobPosts.createPost")}
                 </button>
             )}
         </div>

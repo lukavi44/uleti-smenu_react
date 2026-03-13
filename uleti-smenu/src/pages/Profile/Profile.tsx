@@ -3,13 +3,15 @@ import { AuthContext } from "../../store/Auth-context";
 import EmployerProfile from "./EmployerProfile";
 import { Employee, Employer } from "../../models/User.model";
 import EmployeeProfile from "./EmployeeProfile";
+import { useTranslation } from "react-i18next";
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { role, me, authStatus } = useContext(AuthContext);
 
-  if (authStatus === "loading") return <div>Loading profile...</div>;
-  if (authStatus === "unauthenticated") return <div>Unauthorized</div>;
-  if (!me) return <div>Loading profile...</div>;
+  if (authStatus === "loading") return <div>{t("profile.loadingProfile")}</div>;
+  if (authStatus === "unauthenticated") return <div>{t("common.unauthorized")}</div>;
+  if (!me) return <div>{t("profile.loadingProfile")}</div>;
 
   switch (role) {
     case "Employer":
@@ -19,7 +21,7 @@ const ProfilePage = () => {
     // case "Admin":
     //   return <AdminProfile user={user} />;
     default:
-      return <div>Unknown role</div>;
+      return <div>{t("common.unknownRole")}</div>;
   }
 };
 

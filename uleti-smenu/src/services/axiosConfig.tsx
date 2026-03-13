@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import getApiBaseUrl from "../configuration/config";
+import i18n from "../i18n";
 
 const apiBaseURL = getApiBaseUrl();
 
@@ -30,7 +31,7 @@ axiosInstance.interceptors.response.use(
     const handleSessionExpired = () => {
       localStorage.removeItem("AccessToken");
       localStorage.removeItem("RefreshToken");
-      toast.error("Session expired, please login again.");
+      toast.error(i18n.t("common.sessionExpired"));
       window.location.href = "/login";
     };
 
@@ -60,7 +61,7 @@ axiosInstance.interceptors.response.use(
     } else if (error.response.status === 401 && errorMessage === "Invalid refresh token.") {
       handleSessionExpired();
     } else if (error.response.status === 500) {
-      toast.error("Unexpected server error");
+      toast.error(i18n.t("common.unexpectedServerError"));
     }
     return Promise.reject(error);
   }

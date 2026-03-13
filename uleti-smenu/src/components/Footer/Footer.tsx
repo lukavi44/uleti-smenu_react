@@ -3,40 +3,41 @@ import { NavLink } from "react-router-dom";
 import styles from './Footer.module.scss';
 import useMediaQuery from "@mui/material/useMediaQuery";
 import logo from "../../assets/logo.png";
-
-const footerSections = [
-    {
-        title: "Platform",
-        links: ["O nama", "Kako funkcioniše", "FAQ"]
-    },
-    {
-        title: "Za kandidate",
-        links: ["Pronađi smenu", "Kako aplicirati", "Saveti za profil"]
-    },
-    {
-        title: "Za restorane",
-        links: ["Objavi oglas", "Pregled kandidata", "Pretplate i cene"]
-    },
-    {
-        title: "Pravno",
-        links: ["Uslovi korišćenja", "Politika privatnosti", "Politika kolačića"]
-    },
-    {
-        title: "Kontakt",
-        links: ["support@uletismenu.com", "+381 11 123 456", "Novi Sad, Srbija"]
-    }
-];
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+    const { t } = useTranslation();
     const isMobile = useMediaQuery('(max-width:768px)');
+    const footerSections = [
+        {
+            title: t("footer.platform"),
+            links: [t("footer.about"), t("footer.howItWorks"), t("footer.faq")]
+        },
+        {
+            title: t("footer.forCandidates"),
+            links: [t("footer.findShift"), t("footer.howToApply"), t("footer.profileTips")]
+        },
+        {
+            title: t("footer.forRestaurants"),
+            links: [t("footer.postAd"), t("footer.candidateOverview"), t("footer.subscriptions")]
+        },
+        {
+            title: t("footer.legal"),
+            links: [t("footer.terms"), t("footer.privacy"), t("footer.cookies")]
+        },
+        {
+            title: t("footer.contact"),
+            links: ["support@uletismenu.com", "+381 11 123 456", "Novi Sad, Srbija"]
+        }
+    ];
     return (
         <>
             {isMobile && (
                 <footer className={`${styles['footer-container']} fixed bottom-0 left-0 w-full bg-blue-600 text-white text-center py-3 md:hidden flex justify-between p-5 gap-x-3`}>
-                    <NavLink to="/">Oglasi</NavLink>
-                    <NavLink to="/">Kandidati</NavLink>
-                    <NavLink to="/">Poslodavci</NavLink>
-                    <NavLink to="/">Profil</NavLink>
+                    <NavLink to="/">{t("header.posts")}</NavLink>
+                    <NavLink to="/">{t("footer.candidates")}</NavLink>
+                    <NavLink to="/">{t("footer.employers")}</NavLink>
+                    <NavLink to="/">{t("header.profile")}</NavLink>
                 </footer>
             )}
             {!isMobile && (
@@ -44,8 +45,7 @@ const Footer = () => {
                 <section className={styles.info}>
                     <div className={styles.top}>
                         <p>
-                            UletiSmenu povezuje restorane kojima hitno treba podrška sa kandidatima
-                            koji žele fleksibilne dnevne angažmane.
+                            {t("footer.intro")}
                         </p>
                     </div>
                     <div className={styles.bottom}>
@@ -67,7 +67,7 @@ const Footer = () => {
                         <img src={logo} alt="logo" width={250} />
                     </div>
                     <div className={styles.right}>
-                        © {new Date().getFullYear()} UletiSmenu. Sva prava zadržana.
+                        © {new Date().getFullYear()} UletiSmenu. {t("footer.rights")}
                     </div>
                 </footer>
                 </>

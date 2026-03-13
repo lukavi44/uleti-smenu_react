@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { Applicant } from "../../models/Application.model";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import styles from "./EmployerApplicantsPanel.module.scss";
+import { useTranslation } from "react-i18next";
 
 interface EmployerApplicantsPanelProps {
   jobPostId: string;
@@ -10,6 +11,7 @@ interface EmployerApplicantsPanelProps {
 }
 
 const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApplicantsPanelProps) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -21,7 +23,7 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
       const response = await GetApplicantsForJobPost(jobPostId);
       setApplicants(response.data);
     } catch {
-      toast.error("Unable to load applicants for this post.");
+      toast.error(t("applicants.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -45,9 +47,9 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
           applicant.applicationId === applicationId ? { ...applicant, status } : applicant
         )
       );
-      toast.success(status === "Accepted" ? "Applicant accepted." : "Applicant rejected.");
+      toast.success(status === "Accepted" ? t("applicants.accepted") : t("applicants.rejected"));
     } catch {
-      toast.error("Unable to update applicant status.");
+      toast.error(t("applicants.updateError"));
     } finally {
       setActiveAction(null);
     }
@@ -67,14 +69,14 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
         className={`${styles.toggleButton} ${variant === "inlineCard" ? styles.inlineCardToggleButton : ""}`}
         onClick={toggleApplicants}
       >
-        {isExpanded ? "Hide applicants" : "See applicants"}
+        {isExpanded ? t("applicants.hideApplicants") : t("applicants.seeApplicants")}
       </button>
 
       {isExpanded && (
         <div className={`${styles.panel} ${variant === "inlineCard" ? styles.inlineCardPanel : ""}`}>
-          {isLoading && <p className={styles.mutedText}>Loading applicants...</p>}
+          {isLoading && <p className={styles.mutedText}>{t("applicants.loading")}</p>}
           {!isLoading && applicants.length === 0 && (
-            <p className={styles.mutedText}>No applicants yet for this post.</p>
+            <p className={styles.mutedText}>{t("applicants.none")}</p>
           )}
           {!isLoading && applicants.length > 0 && (
             <div className={styles.applicantList}>
@@ -84,22 +86,22 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                     {applicant.firstName} {applicant.lastName}
                   </p>
                   <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
-                  <p className={styles.meta}>Applied: {formatDate(applicant.appliedAt)}</p>
-                  <p className={styles.meta}>Status: {applicant.status}</p>
+                  <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>
+                  <p className={styles.meta}>{t("applicants.status")}: {applicant.status}</p>
                   <div className={styles.actions}>
                     <button
                       className={`${styles.button} ${styles.acceptButton}`}
                       disabled={activeAction !== null}
                       onClick={() => handleDecision(applicant.applicationId, "Accepted")}
                     >
-                      {activeAction === `${applicant.applicationId}:Accepted` ? "Accepting..." : "Accept"}
+                      {activeAction === `${applicant.applicationId}:Accepted` ? t("applicants.accepting") : t("applicants.accept")}
                     </button>
                     <button
                       className={`${styles.button} ${styles.rejectButton}`}
                       disabled={activeAction !== null}
                       onClick={() => handleDecision(applicant.applicationId, "Denied")}
                     >
-                      {activeAction === `${applicant.applicationId}:Denied` ? "Rejecting..." : "Reject"}
+                      {activeAction === `${applicant.applicationId}:Denied` ? t("applicants.rejecting") : t("applicants.reject")}
                     </button>
                   </div>
                 </div>

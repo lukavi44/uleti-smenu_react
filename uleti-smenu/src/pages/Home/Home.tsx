@@ -12,8 +12,10 @@ import { GetMyRestaurantLocations } from "../../services/restaurantLocation-serv
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 import { GetApplicantsForJobPost } from "../../services/application-service";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:768px)");
   const { authStatus, role } = useContext(AuthContext);
   const canSeeEmployersCarousel =
@@ -112,9 +114,9 @@ const HomePage = () => {
         {!isMobile && (
           <div className={styles.content}>
             <div className={styles.left}>
-              <p>Uleti smenu!</p>
+              <p>{t("home.heroTitle")}</p>
               <p className={styles["p-medium"]}>
-                uzmi lovu, kad kolega ne moze.
+                {t("home.heroSubtitle")}
               </p>
             </div>
             <div className={styles.right}></div>
@@ -124,9 +126,9 @@ const HomePage = () => {
           <div className={styles["background-container"]}>
             <div className={styles.content}>
               <div className={styles.left}>
-                <p>Uleti smenu!</p>
+                <p>{t("home.heroTitle")}</p>
                 <p className={styles["p-medium"]}>
-                  uzmi lovu, kad kolega ne moze.
+                  {t("home.heroSubtitle")}
                 </p>
               </div>
               <div className={styles.right} />
@@ -137,18 +139,18 @@ const HomePage = () => {
       {isEmployerDashboardVisible && (
         <section className={styles.dashboard}>
           <div className={styles.panel}>
-            <h2 className={styles["section-title"]}>Activity Overview</h2>
+            <h2 className={styles["section-title"]}>{t("home.activityOverview")}</h2>
             <div className={styles["overview-grid"]}>
               <article className={styles["overview-card"]}>
-                <h4>Active Job Posts</h4>
+                <h4>{t("home.activeJobPosts")}</h4>
                 <strong>{activeJobPostsCount}</strong>
               </article>
               <article className={styles["overview-card"]}>
-                <h4>Total Applicants</h4>
+                <h4>{t("home.totalApplicants")}</h4>
                 <strong>{totalApplicantsCount}</strong>
               </article>
               <article className={styles["overview-card"]}>
-                <h4>Restaurants / Branches</h4>
+                <h4>{t("home.branches")}</h4>
                 <strong>{myLocations.length}</strong>
               </article>
             </div>
@@ -156,13 +158,13 @@ const HomePage = () => {
 
           <div className={styles.panel}>
             <div className={styles["panel-header"]}>
-              <h2 className={styles["section-title"]}>Applicants Waiting</h2>
+              <h2 className={styles["section-title"]}>{t("home.applicantsWaiting")}</h2>
               <Link className={styles["inline-link"]} to="/oglasi-za-posao">
-                View all posts
+                {t("home.viewAllPosts")}
               </Link>
             </div>
             {applicantsWaitingPosts.length === 0 && (
-              <p className={styles["muted-text"]}>No applicants waiting right now.</p>
+              <p className={styles["muted-text"]}>{t("home.noApplicantsWaiting")}</p>
             )}
             <div className={styles["card-grid"]}>
               {applicantsWaitingPosts.map((post) => (
@@ -170,7 +172,7 @@ const HomePage = () => {
                   <h4>{post.title}</h4>
                   <div className={styles.meta}>
                     <div>
-                      <span>Location:</span>
+                      <span>{t("home.location")}:</span>
                       <strong>
                         {post.restaurantLocationName
                           ? `${post.restaurantLocationName}${
@@ -182,7 +184,7 @@ const HomePage = () => {
                       </strong>
                     </div>
                     <div>
-                      <span>Applicants:</span>
+                      <span>{t("home.applicants")}:</span>
                       <strong>{applicantCountsByPostId[post.id] ?? 0}</strong>
                     </div>
                   </div>
@@ -194,13 +196,13 @@ const HomePage = () => {
 
           <div className={styles.panel}>
             <div className={styles["panel-header"]}>
-              <h2 className={styles["section-title"]}>My Job Posts</h2>
+              <h2 className={styles["section-title"]}>{t("home.myJobPosts")}</h2>
               <Link className={styles["inline-link"]} to="/oglasi-za-posao">
-                View all posts
+                {t("home.viewAllPosts")}
               </Link>
             </div>
             {recentJobPosts.length === 0 && (
-              <p className={styles["muted-text"]}>No job posts yet.</p>
+              <p className={styles["muted-text"]}>{t("home.noJobPosts")}</p>
             )}
             <div className={styles["card-grid"]}>
               {recentJobPosts.map((post) => (
@@ -208,11 +210,11 @@ const HomePage = () => {
                   <h4>{post.title}</h4>
                   <div className={styles.meta}>
                     <div>
-                      <span>Position:</span>
+                      <span>{t("home.position")}:</span>
                       <strong>{post.position}</strong>
                     </div>
                     <div>
-                      <span>Location:</span>
+                      <span>{t("home.location")}:</span>
                       <strong>
                         {post.restaurantLocationName
                           ? `${post.restaurantLocationName}${post.restaurantLocationCity ? ` (${post.restaurantLocationCity})` : ""}`
@@ -220,19 +222,19 @@ const HomePage = () => {
                       </strong>
                     </div>
                     <div>
-                      <span>Starting Date:</span>
+                      <span>{t("home.startingDate")}:</span>
                       <strong>{formatDate(post.startingDate)}</strong>
                     </div>
                     <div>
-                      <span>Salary:</span>
+                      <span>{t("home.salary")}:</span>
                       <strong>{post.salary} RSD</strong>
                     </div>
                     <div>
-                      <span>Status:</span>
+                      <span>{t("home.status")}:</span>
                       <strong>{post.status}</strong>
                     </div>
                     <div>
-                      <span>Applicants:</span>
+                      <span>{t("home.applicants")}:</span>
                       <strong>{applicantCountsByPostId[post.id] ?? 0}</strong>
                     </div>
                   </div>
@@ -243,9 +245,9 @@ const HomePage = () => {
           </div>
 
           <div className={styles.panel}>
-            <h2 className={styles["section-title"]}>My Restaurants</h2>
+            <h2 className={styles["section-title"]}>{t("home.myRestaurants")}</h2>
             {myLocations.length === 0 && (
-              <p className={styles["muted-text"]}>No restaurants/branches yet.</p>
+              <p className={styles["muted-text"]}>{t("home.noBranches")}</p>
             )}
             <div className={styles["card-grid"]}>
               {myLocations.map((location) => (
@@ -255,7 +257,7 @@ const HomePage = () => {
                     {location.streetName} {location.streetNumber}, {location.city}
                   </p>
                   <p className={styles["muted-text"]}>
-                    Active posts: {activePostsByLocationId[location.id] ?? 0}
+                    {t("home.activePosts")}: {activePostsByLocationId[location.id] ?? 0}
                   </p>
                 </article>
               ))}

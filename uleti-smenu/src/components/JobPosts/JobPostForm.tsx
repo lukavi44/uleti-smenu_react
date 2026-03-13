@@ -15,6 +15,7 @@ import { CreateJobPost, UpdateMyJobPost } from "../../services/jobPost-service";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { JobPost } from "../../models/JobPost.model";
+import { useTranslation } from "react-i18next";
   
   interface JobPostFormProps {
     onClose: () => void;
@@ -33,17 +34,6 @@ import { JobPost } from "../../models/JobPost.model";
     restaurantLocationId: string;
   }
   
-  const schema = yup.object({
-    title: yup.string().required("Title is required"),
-    description: yup.string().required("Description is required"),
-    position: yup.string().required("Position is required"),
-    status: yup.string().required(),
-    salary: yup.number().required().positive().integer(),
-    startingDate: yup.string().required("Start date is required"),
-    visibleUntil: yup.string().optional(),
-    restaurantLocationId: yup.string().required("Location is required"),
-  });
-  
   const toDateTimeLocalValue = (value?: Date | string) => {
     if (!value) return "";
     const date = new Date(value);
@@ -53,8 +43,19 @@ import { JobPost } from "../../models/JobPost.model";
   };
 
   const JobPostForm = ({ onClose, onSubmit, initialData }: JobPostFormProps) => {
+    const { t } = useTranslation();
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
     const isEditMode = useMemo(() => !!initialData, [initialData]);
+    const schema = yup.object({
+      title: yup.string().required(t("jobPostForm.titleRequired")),
+      description: yup.string().required(t("jobPostForm.descriptionRequired")),
+      position: yup.string().required(t("jobPostForm.positionRequired")),
+      status: yup.string().required(),
+      salary: yup.number().required().positive().integer(),
+      startingDate: yup.string().required(t("jobPostForm.startRequired")),
+      visibleUntil: yup.string().optional(),
+      restaurantLocationId: yup.string().required(t("jobPostForm.locationRequired")),
+    });
 
     const defaultValues = useMemo(() => ({
       title: initialData?.title ?? "",
@@ -125,7 +126,7 @@ import { JobPost } from "../../models/JobPost.model";
     return (
       <Box sx={{ padding: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">{isEditMode ? "Edit Job Post" : "Create Job Post"}</Typography>
+          <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
@@ -138,7 +139,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Title"
+                label={t("jobPostForm.title")}
                 fullWidth
                 margin="normal"
                 error={!!errors.title}
@@ -153,7 +154,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Description"
+                label={t("jobPostForm.description")}
                 fullWidth
                 margin="normal"
                 multiline
@@ -170,7 +171,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Position"
+                label={t("jobPostForm.position")}
                 fullWidth
                 margin="normal"
                 error={!!errors.position}
@@ -185,14 +186,14 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Status"
+                label={t("jobPostForm.status")}
                 fullWidth
                 select
                 margin="normal"
               >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="Expired">Expired</MenuItem>
-                <MenuItem value="Cancelled">Cancelled</MenuItem>
+                <MenuItem value="Active">{t("jobPostForm.statusActive")}</MenuItem>
+                <MenuItem value="Expired">{t("jobPostForm.statusExpired")}</MenuItem>
+                <MenuItem value="Cancelled">{t("jobPostForm.statusCancelled")}</MenuItem>
               </TextField>
             )}
           />
@@ -203,7 +204,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Salary"
+                label={t("jobPostForm.salary")}
                 type="number"
                 fullWidth
                 margin="normal"
@@ -219,7 +220,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Starting Date"
+                label={t("jobPostForm.startingDate")}
                 type="datetime-local"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -236,7 +237,7 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Visible Until"
+                label={t("jobPostForm.visibleUntil")}
                 type="datetime-local"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -253,12 +254,12 @@ import { JobPost } from "../../models/JobPost.model";
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Restaurant Location"
+                label={t("jobPostForm.restaurantLocation")}
                 fullWidth
                 select
                 margin="normal"
                 error={!!errors.restaurantLocationId}
-                helperText={errors.restaurantLocationId?.message || (locations.length === 0 ? "No locations found for this brand." : "")}
+                helperText={errors.restaurantLocationId?.message || (locations.length === 0 ? t("jobPostForm.noLocations") : "")}
               >
                 {locations.map((location) => (
                   <MenuItem key={location.id} value={location.id}>
@@ -270,7 +271,7 @@ import { JobPost } from "../../models/JobPost.model";
           />
   
           <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mt: 3 }}>
-            {isEditMode ? "Save changes" : "Create"}
+            {isEditMode ? t("jobPostForm.saveChanges") : t("jobPostForm.create")}
           </Button>
         </form>
       </Box>

@@ -14,63 +14,62 @@ import {
 
 import { RegistrationEmployeeRequest, RegistrationEmployerRequest } from "../../services/auth-service";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface RegistrationFormProps {
     userType: "employer" | "employee";
   }
 
-  const commonSchema = {
-    email: yup.string().email("Invalid email").required("Email is required"),
-    phoneNumber: yup.string().required("Phone number is required"),
-    password: yup
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .matches(/[^a-zA-Z0-9]/, "Must have at least one special character")
-      .matches(/[A-Z]/, "Must have at least one uppercase letter")
-      .required("Password is required"),
-  };
-
-  const employerSchema = yup.object().shape({
-    ...commonSchema,
-    name: yup.string().required("Company name is required"),
-    pib: yup.string().length(9).required("Pib is required and must contain 9 characters"),
-    mb: yup.string().length(8).required("mb is required and must contain 8 characters"),
-    streetName: yup.string().required("Street name is required"),
-    streetNumber: yup.string().required("Street number is required"),
-    city: yup.string().required("City name is required"),
-    postalCode: yup.string().required("Postal code is required"),
-    country: yup.string().required("Country name is required"),
-    region: yup.string().required("Region name is required")
-  });
-
-  const employeeSchema = yup.object().shape({
-    ...commonSchema,
-    firstName: yup.string().required("First name is required"),
-    lastName: yup.string().required("Last name is required")
-    // dateOfBirth: yup.string().required("Date of birth is required"),
-  });
-
-  const employerFields = [
-    { name: "name", label: "Name" },
-    { name: "pib", label: "PIB" },
-    { name: "mb", label: "MB" },
-    { name: "streetName", label: "Street Name" },
-    { name: "streetNumber", label: "Street Number" },
-    { name: "city", label: "City" },
-    { name: "postalCode", label: "Postal Code" },
-    { name: "country", label: "Country" },
-    { name: "region", label: "Region" },
-  ];
-  
-  const employeeFields = [
-    { name: "firstName", label: "First Name" },
-    { name: "lastName", label: "Last Name" },
-    // { name: "dateOfBirth", label: "Date of birth", type: "date"}
-  ];
-
 const RegistrationPage = ({userType}: RegistrationFormProps) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const isEmployer = userType === "employer";
+    const commonSchema = {
+      email: yup.string().email(t("registration.invalidEmail")).required(t("registration.emailRequired")),
+      phoneNumber: yup.string().required(t("registration.phoneRequired")),
+      password: yup
+        .string()
+        .min(8, t("registration.passwordMin"))
+        .matches(/[^a-zA-Z0-9]/, t("registration.passwordSpecial"))
+        .matches(/[A-Z]/, t("registration.passwordUpper"))
+        .required(t("registration.passwordRequired")),
+    };
+
+    const employerSchema = yup.object().shape({
+      ...commonSchema,
+      name: yup.string().required(t("registration.companyRequired")),
+      pib: yup.string().length(9).required(t("registration.pibRequired")),
+      mb: yup.string().length(8).required(t("registration.mbRequired")),
+      streetName: yup.string().required(t("registration.streetNameRequired")),
+      streetNumber: yup.string().required(t("registration.streetNumberRequired")),
+      city: yup.string().required(t("registration.cityRequired")),
+      postalCode: yup.string().required(t("registration.postalCodeRequired")),
+      country: yup.string().required(t("registration.countryRequired")),
+      region: yup.string().required(t("registration.regionRequired"))
+    });
+
+    const employeeSchema = yup.object().shape({
+      ...commonSchema,
+      firstName: yup.string().required(t("registration.firstNameRequired")),
+      lastName: yup.string().required(t("registration.lastNameRequired"))
+    });
+
+    const employerFields = [
+      { name: "name", label: t("registration.name") },
+      { name: "pib", label: t("registration.pib") },
+      { name: "mb", label: t("registration.mb") },
+      { name: "streetName", label: t("registration.streetName") },
+      { name: "streetNumber", label: t("registration.streetNumber") },
+      { name: "city", label: t("registration.city") },
+      { name: "postalCode", label: t("registration.postalCode") },
+      { name: "country", label: t("registration.country") },
+      { name: "region", label: t("registration.region") },
+    ];
+    
+    const employeeFields = [
+      { name: "firstName", label: t("registration.firstName") },
+      { name: "lastName", label: t("registration.lastName") },
+    ];
 
     const {
       control,
@@ -106,18 +105,18 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
         try {
           if (isEmployer) {
             await RegistrationEmployerRequest(formData);
-            toast.success("Please check your email to confirm registration.");
+            toast.success(t("registration.success"));
             navigate("/login");
           } else if (!isEmployer) {
             await RegistrationEmployeeRequest(formData);
-            toast.success("Please check your email to confirm registration.");
+            toast.success(t("registration.success"));
             navigate("/login");
           }
         } catch (error: any) {
           if (error.response?.data?.includes("DuplicateUserName")) {
-            toast.error("User already exists.");
+            toast.error(t("registration.duplicateUser"));
           } else {
-            toast.error("An error occurred during registration.");
+            toast.error(t("registration.failed"));
           }
         }
       };
@@ -138,7 +137,7 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
         <Container maxWidth="sm">
           <Box mt={2} mb={2} p={3} sx={{ border: "1px solid #ddd", borderRadius: 2 }}>
             <Typography variant="h4" textAlign="center" gutterBottom>
-              {isEmployer ? "Employer Registration" : "Employee Registration"}
+              {isEmployer ? t("registration.employerTitle") : t("registration.employeeTitle")}
             </Typography>
     
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -146,7 +145,7 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
                 name="email"
                 control={control}
                 render={({ field }) => (
-                  <TextField {...field} label="Email" type="email" fullWidth margin="normal"
+                  <TextField {...field} label={t("registration.email")} type="email" fullWidth margin="normal"
                     error={!!errors.email} helperText={errors.email?.message} />
                 )}
               />
@@ -154,7 +153,7 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
                 name="password"
                 control={control}
                 render={({ field }) => (
-                  <TextField {...field} label="Password" type="password" fullWidth margin="normal"
+                  <TextField {...field} label={t("registration.password")} type="password" fullWidth margin="normal"
                     error={!!errors.password} helperText={errors.password?.message} />
                 )}
               />
@@ -162,7 +161,7 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
                 name="phoneNumber"
                 control={control}
                 render={({ field }) => (
-                  <TextField {...field} label="Phone Number" fullWidth margin="normal"
+                  <TextField {...field} label={t("registration.phoneNumber")} fullWidth margin="normal"
                     error={!!errors.phoneNumber} helperText={errors.phoneNumber?.message} />
                 )}
               />
@@ -207,10 +206,10 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
               {/* Submit & Navigation Buttons */}
               <Box mt={2} display="flex" flexDirection="column" gap={2}>
                 <Button variant="contained" color="primary" type="submit">
-                  Register
+                  {t("registration.submit")}
                 </Button>
                 <Button color="secondary" onClick={() => navigate("/login")}>
-                  Already have an account? Login
+                  {t("registration.hasAccount")}
                 </Button>
               </Box>
             </form>

@@ -1,5 +1,6 @@
 import { ChangeEvent } from "react";
 import styles from "./Profile.module.scss";
+import { useTranslation } from "react-i18next";
 
 interface ProfilePhotoUploadProps {
     inputId: string;
@@ -16,6 +17,7 @@ const ProfilePhotoUpload = ({
     onFileChange,
     onUpload
 }: ProfilePhotoUploadProps) => {
+    const { t } = useTranslation();
     return (
         <div className={styles.profileActions}>
             <input
@@ -26,17 +28,17 @@ const ProfilePhotoUpload = ({
                 onChange={onFileChange}
             />
             <label htmlFor={inputId} className={`${styles.button} ${styles.buttonSecondary} ${styles.filePickerButton}`}>
-                Select photo
+                {t("profile.selectPhoto")}
             </label>
             <p className={styles.fileStatusText}>
-                {selectedFile ? `Selected: ${selectedFile.name}` : "No photo selected"}
+                {selectedFile ? `${t("profile.selectedPhoto")}: ${selectedFile.name}` : t("profile.noPhotoSelected")}
             </p>
             <button
                 className={`${styles.button} ${styles.buttonPrimary}`}
                 disabled={isUploading || !selectedFile}
                 onClick={onUpload}
             >
-                {isUploading ? "Uploading..." : "Upload photo"}
+                {isUploading ? t("profile.uploading") : t("profile.uploadPhoto")}
             </button>
         </div>
     );

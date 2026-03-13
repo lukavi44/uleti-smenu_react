@@ -7,6 +7,7 @@ import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePh
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
+import { useTranslation } from "react-i18next";
 
 interface EmployeeProfileProps {
     user: Employee;
@@ -26,6 +27,7 @@ const getStatusBadgeStyle = (status: string) => {
 };
 
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
+    const { t } = useTranslation();
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [cancelInProgressId, setCancelInProgressId] = useState<string | null>(null);
@@ -41,7 +43,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                 const response = await GetMyApplications();
                 setApplications(response.data);
             } catch {
-                toast.error("Failed to load your applications.");
+                toast.error(t("profile.failedLoadApplications"));
             }
         };
 
@@ -63,7 +65,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         }))
                 );
             } catch {
-                toast.error("Failed to load favourite restaurants.");
+                toast.error(t("profile.failedLoadFavorites"));
             }
         };
 
@@ -81,9 +83,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         : application
                 )
             );
-            toast.success("Application cancelled.");
+            toast.success(t("profile.cancelSuccess"));
         } catch {
-            toast.error("Unable to cancel this application.");
+            toast.error(t("profile.cancelError"));
         } finally {
             setCancelInProgressId(null);
         }
@@ -100,7 +102,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
 
     const handleProfilePhotoUpload = async () => {
         if (!selectedPhotoFile) {
-            toast.info("Select an image first.");
+            toast.info(t("profile.selectPhotoFirst"));
             return;
         }
 
@@ -108,10 +110,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         try {
             const response = await UpdateMyProfilePhoto(selectedPhotoFile);
             setProfilePhotoUrl(getImageUrl(response.data.imagePath));
-            toast.success("Profile photo updated.");
+            toast.success(t("profile.photoUpdated"));
             setSelectedPhotoFile(null);
         } catch {
-            toast.error("Unable to update profile photo.");
+            toast.error(t("profile.photoUpdateError"));
         } finally {
             setIsPhotoUploadInProgress(false);
         }
@@ -126,9 +128,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         try {
             await PatchClientFavorite(restaurantId);
             setRestaurants((previous) => previous.filter((restaurant) => restaurant.id !== restaurantId));
-            toast.success("Removed from favourites.");
+            toast.success(t("profile.removeSuccess"));
         } catch {
-            toast.error("Unable to update favourites.");
+            toast.error(t("profile.removeError"));
         } finally {
             setFavouriteActionInProgressId(null);
         }
@@ -158,26 +160,26 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Employee Info</h2>
+                <h2 className={styles.sectionTitle}>{t("profile.employeeInfo")}</h2>
                 <div className={styles.infoGrid}>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Full name</span>
+                        <span className={styles.infoLabel}>{t("profile.fullName")}</span>
                         <span className={styles.infoValue}>{user.firstName} {user.lastName}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Email</span>
+                        <span className={styles.infoLabel}>{t("profile.email")}</span>
                         <span className={styles.infoValue}>{user.email}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Phone</span>
+                        <span className={styles.infoLabel}>{t("profile.phone")}</span>
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
                 </div>
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Favourite Restaurants</h2>
-                {restaurants.length === 0 && <p className={styles.mutedText}>You do not have favourite restaurants yet.</p>}
+                <h2 className={styles.sectionTitle}>{t("profile.favouriteRestaurants")}</h2>
+                {restaurants.length === 0 && <p className={styles.mutedText}>{t("profile.noFavouriteRestaurants")}</p>}
                 <div className={styles.branchList}>
                     {restaurants.map((restaurant) => (
                         <article key={restaurant.id} className={styles.branchCard}>
@@ -189,7 +191,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                 />
                                 <div>
                                     <strong>{restaurant.name}</strong>
-                                    <p className={styles.mutedText}>Favourite</p>
+                                    <p className={styles.mutedText}>{t("profile.favourite")}</p>
                                 </div>
                                 <button
                                     type="button"
@@ -197,7 +199,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                     disabled={favouriteActionInProgressId !== null}
                                     onClick={() => handleUnfavourite(restaurant.id)}
                                 >
-                                    {favouriteActionInProgressId === restaurant.id ? "Removing..." : "Remove"}
+                                    {favouriteActionInProgressId === restaurant.id ? t("profile.removing") : t("profile.remove")}
                                 </button>
                             </div>
                         </article>
@@ -206,46 +208,46 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Applied Job Posts</h2>
+                <h2 className={styles.sectionTitle}>{t("profile.myApplications")}</h2>
                 <div className={styles.applicantsFilters}>
                     <div className={styles.filterGroup}>
-                        <label htmlFor="myApplicationStatusFilter">Filter by status</label>
+                        <label htmlFor="myApplicationStatusFilter">{t("profile.filterByStatus")}</label>
                         <select
                             className={styles.select}
                             id="myApplicationStatusFilter"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="All">All</option>
-                            <option value="Applied">Applied</option>
-                            <option value="Accepted">Accepted</option>
-                            <option value="Denied">Denied</option>
-                            <option value="Cancelled">Cancelled</option>
+                            <option value="All">{t("profile.all")}</option>
+                            <option value="Applied">{t("jobPosts.appliedShort")}</option>
+                            <option value="Accepted">{t("profile.accept")}</option>
+                            <option value="Denied">{t("profile.deny")}</option>
+                            <option value="Cancelled">{t("common.cancel")}</option>
                         </select>
                     </div>
                 </div>
 
-                {visibleApplications.length === 0 && <p className={styles.mutedText}>No applications for this filter.</p>}
+                {visibleApplications.length === 0 && <p className={styles.mutedText}>{t("profile.noApplications")}</p>}
 
                 <div className={styles.jobPostsGrid}>
                     {visibleApplications.map((application) => (
                         <article key={application.applicationId} className={styles.jobPostCard}>
                             <h4>{application.jobPostTitle}</h4>
                             <div className={styles.cardMeta}>
-                                <div><span>Position:</span><strong>{application.position}</strong></div>
-                                <div><span>Restaurant:</span><strong>{application.employerName}</strong></div>
+                                <div><span>{t("home.position")}:</span><strong>{application.position}</strong></div>
+                                <div><span>{t("profile.restaurantName")}:</span><strong>{application.employerName}</strong></div>
                                 <div>
-                                    <span>Location:</span>
+                                    <span>{t("profile.location")}:</span>
                                     <strong>
                                         {application.restaurantLocationName
                                             ? `${application.restaurantLocationName}${application.restaurantLocationCity ? ` (${application.restaurantLocationCity})` : ""}`
                                             : "-"}
                                     </strong>
                                 </div>
-                                <div><span>Starting date:</span><strong>{formatDate(application.startingDate)}</strong></div>
-                                <div><span>Salary:</span><strong>{application.salary} RSD</strong></div>
+                                <div><span>{t("profile.startingDate")}:</span><strong>{formatDate(application.startingDate)}</strong></div>
+                                <div><span>{t("profile.salary")}:</span><strong>{application.salary} RSD</strong></div>
                                 <div>
-                                    <span>Status:</span>
+                                    <span>{t("profile.status")}:</span>
                                     <strong>
                                         <span style={getStatusBadgeStyle(application.status)}>{application.status}</span>
                                     </strong>
@@ -258,7 +260,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                         disabled={cancelInProgressId !== null}
                                         onClick={() => handleCancel(application.applicationId)}
                                     >
-                                        {cancelInProgressId === application.applicationId ? "Cancelling..." : "Cancel application"}
+                                        {cancelInProgressId === application.applicationId ? t("profile.cancelling") : t("profile.cancelApplication")}
                                     </button>
                                 </div>
                             )}

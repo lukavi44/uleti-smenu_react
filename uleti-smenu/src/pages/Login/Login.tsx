@@ -16,17 +16,21 @@ import { LoginUserRequest } from "../../services/auth-service";
 import { LoginUserDto } from "../../models/User.model";
 import { AuthContext } from "../../store/Auth-context";
 import RegistrationDialog from "../../components/Dialog/RegistrationDialog";
-
-const schema = yup.object().shape({
-  email: yup.string().email().required("Email is required"),
-  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-});
+import { useTranslation } from "react-i18next";
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const { refreshAuthState } = useContext(AuthContext);
   const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
+  const schema = yup.object().shape({
+    email: yup.string().email().required(t("login.emailRequired")),
+    password: yup
+      .string()
+      .min(6, t("login.passwordMin"))
+      .required(t("login.passwordRequired")),
+  });
 
   const {
     control,
@@ -41,7 +45,7 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const response = await LoginUserRequest(data);
-      toast.success("Login successful!");
+      toast.success(t("login.success"));
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
       await refreshAuthState();
@@ -50,7 +54,7 @@ const LoginPage = () => {
     } catch (error: unknown) {
       if (error instanceof Error) {
           console.error(error.message);
-          toast.error("Invalid username or password");
+          toast.error(t("login.invalidCredentials"));
       } else {
           console.error('Unknown error', error);
       }
@@ -63,7 +67,7 @@ const LoginPage = () => {
     <Container maxWidth="sm">
       <Box mt={4} p={3} sx={{ border: "1px solid #ddd", borderRadius: 2 }}>
         <Typography variant="h4" textAlign="center" gutterBottom>
-          Login
+          {t("login.title")}
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Controller
@@ -73,7 +77,7 @@ const LoginPage = () => {
               <TextField
                 {...field}
                 type="email"
-                label="email"
+                label={t("login.email")}
                 fullWidth
                 margin="normal"
                 error={!!errors.email}
@@ -87,7 +91,7 @@ const LoginPage = () => {
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Password"
+                label={t("login.password")}
                 type="password"
                 fullWidth
                 margin="normal"
@@ -98,10 +102,10 @@ const LoginPage = () => {
           />
           <Box mt={2} display="flex" flexDirection="column" gap={2}>
             <Button variant="contained" color="primary" type="submit" disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : "Login"}
+              {loading ? <CircularProgress size={24} /> : t("login.submit")}
             </Button>
             <Button color="secondary" onClick={() => setIsRegisterModalOpened(!isRegisterModalOpened)}>
-              Don't have an account? Register
+              {t("login.noAccount")}
             </Button>
             {isRegisterModalOpened && (
               <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
