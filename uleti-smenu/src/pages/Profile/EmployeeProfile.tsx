@@ -3,9 +3,10 @@ import { Employee } from "../../models/User.model";
 import { ChangeEvent, useEffect, useState } from "react";
 import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
-import { GetEmployersWithFavouriteStatus, UpdateMyProfilePhoto } from "../../services/user-service";
+import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePhoto } from "../../services/user-service";
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
+import ProfilePhotoUpload from "./ProfilePhotoUpload";
 
 interface EmployeeProfileProps {
     user: Employee;
@@ -27,12 +28,12 @@ const getStatusBadgeStyle = (status: string) => {
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
-    const [restaurantFilter, setRestaurantFilter] = useState<"all" | "favourites">("favourites");
     const [cancelInProgressId, setCancelInProgressId] = useState<string | null>(null);
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
     const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
+    const [favouriteActionInProgressId, setFavouriteActionInProgressId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadApplications = async () => {
@@ -51,12 +52,16 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         const loadRestaurants = async () => {
             try {
                 const response = await GetEmployersWithFavouriteStatus();
-                setRestaurants(response.data.map((restaurant) => ({
-                    id: restaurant.id,
-                    name: restaurant.name,
-                    profilePhoto: restaurant.profilePhoto,
-                    isFavourite: restaurant.isFavourite
-                })));
+                setRestaurants(
+                    response.data
+                        .filter((restaurant) => restaurant.isFavourite)
+                        .map((restaurant) => ({
+                            id: restaurant.id,
+                            name: restaurant.name,
+                            profilePhoto: restaurant.profilePhoto,
+                            isFavourite: restaurant.isFavourite
+                        }))
+                );
             } catch {
                 toast.error("Failed to load favourite restaurants.");
             }
@@ -88,10 +93,6 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         statusFilter === "All" ? true : application.status === statusFilter
     );
 
-    const visibleRestaurants = restaurants.filter((restaurant) =>
-        restaurantFilter === "all" ? true : restaurant.isFavourite
-    );
-
     const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] ?? null;
         setSelectedPhotoFile(file);
@@ -116,6 +117,23 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         }
     };
 
+    const handleUnfavourite = async (restaurantId: string) => {
+        if (favouriteActionInProgressId !== null) {
+            return;
+        }
+
+        setFavouriteActionInProgressId(restaurantId);
+        try {
+            await PatchClientFavorite(restaurantId);
+            setRestaurants((previous) => previous.filter((restaurant) => restaurant.id !== restaurantId));
+            toast.success("Removed from favourites.");
+        } catch {
+            toast.error("Unable to update favourites.");
+        } finally {
+            setFavouriteActionInProgressId(null);
+        }
+    };
+
     const formatDate = (value: string) => {
         const parsedDate = new Date(value);
         if (Number.isNaN(parsedDate.getTime())) {
@@ -129,12 +147,13 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             <section className={styles.panel}>
                 <div className={styles.profileHeader}>
                     <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
-                    <div className={styles.profileActions}>
-                        <input className={styles.fileInput} type="file" accept="image/*" onChange={handleProfilePhotoChange} />
-                        <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isPhotoUploadInProgress} onClick={handleProfilePhotoUpload}>
-                            {isPhotoUploadInProgress ? "Updating photo..." : "Update photo"}
-                        </button>
-                    </div>
+                    <ProfilePhotoUpload
+                        inputId="employeeProfilePhotoInput"
+                        selectedFile={selectedPhotoFile}
+                        isUploading={isPhotoUploadInProgress}
+                        onFileChange={handleProfilePhotoChange}
+                        onUpload={handleProfilePhotoUpload}
+                    />
                 </div>
             </section>
 
@@ -157,24 +176,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             </section>
 
             <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>Restaurants</h2>
-                <div className={styles.applicantsFilters}>
-                    <div className={styles.filterGroup}>
-                        <label htmlFor="restaurantFilter">Show restaurants</label>
-                        <select
-                            className={styles.select}
-                            id="restaurantFilter"
-                            value={restaurantFilter}
-                            onChange={(e) => setRestaurantFilter(e.target.value as "all" | "favourites")}
-                        >
-                            <option value="favourites">Favourite restaurants</option>
-                            <option value="all">All restaurants</option>
-                        </select>
-                    </div>
-                </div>
-                {visibleRestaurants.length === 0 && <p className={styles.mutedText}>No restaurants for this filter.</p>}
+                <h2 className={styles.sectionTitle}>Favourite Restaurants</h2>
+                {restaurants.length === 0 && <p className={styles.mutedText}>You do not have favourite restaurants yet.</p>}
                 <div className={styles.branchList}>
-                    {visibleRestaurants.map((restaurant) => (
+                    {restaurants.map((restaurant) => (
                         <article key={restaurant.id} className={styles.branchCard}>
                             <div className={styles.restaurantRow}>
                                 <img
@@ -184,10 +189,16 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                 />
                                 <div>
                                     <strong>{restaurant.name}</strong>
-                                    <p className={styles.mutedText}>
-                                        {restaurant.isFavourite ? "Favourite" : "Not favourite"}
-                                    </p>
+                                    <p className={styles.mutedText}>Favourite</p>
                                 </div>
+                                <button
+                                    type="button"
+                                    className={`${styles.button} ${styles.buttonSecondary} ${styles.favouriteRemoveButton}`}
+                                    disabled={favouriteActionInProgressId !== null}
+                                    onClick={() => handleUnfavourite(restaurant.id)}
+                                >
+                                    {favouriteActionInProgressId === restaurant.id ? "Removing..." : "Remove"}
+                                </button>
                             </div>
                         </article>
                     ))}

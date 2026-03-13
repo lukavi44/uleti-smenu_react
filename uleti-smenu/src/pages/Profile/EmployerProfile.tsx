@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import styles from "./Profile.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
+import ProfilePhotoUpload from "./ProfilePhotoUpload";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -209,28 +210,13 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <section className={styles.panel}>
                 <div className={styles.profileHeader}>
                     <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
-                    <div className={styles.profileActions}>
-                        <input
-                            id="employerProfilePhotoInput"
-                            className={styles.fileInputHidden}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleProfilePhotoChange}
-                        />
-                        <label htmlFor="employerProfilePhotoInput" className={`${styles.button} ${styles.buttonSecondary} ${styles.filePickerButton}`}>
-                            Select photo
-                        </label>
-                        <p className={styles.fileStatusText}>
-                            {selectedPhotoFile ? `Selected: ${selectedPhotoFile.name}` : "No photo selected"}
-                        </p>
-                        <button
-                            className={`${styles.button} ${styles.buttonPrimary}`}
-                            disabled={isPhotoUploadInProgress || !selectedPhotoFile}
-                            onClick={handleProfilePhotoUpload}
-                        >
-                            {isPhotoUploadInProgress ? "Uploading..." : "Upload photo"}
-                        </button>
-                    </div>
+                    <ProfilePhotoUpload
+                        inputId="employerProfilePhotoInput"
+                        selectedFile={selectedPhotoFile}
+                        isUploading={isPhotoUploadInProgress}
+                        onFileChange={handleProfilePhotoChange}
+                        onUpload={handleProfilePhotoUpload}
+                    />
                 </div>
             </section>
 
