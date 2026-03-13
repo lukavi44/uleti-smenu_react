@@ -19,6 +19,8 @@ const JobPosts = () => {
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
     const [favouriteFilter, setFavouriteFilter] = useState<"all" | "favourites">("all");
+    const [sortBy, setSortBy] = useState<"createdAt" | "salary">("createdAt");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
     const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
@@ -53,7 +55,7 @@ const JobPosts = () => {
 
     useEffect(() =>{
         fetchJobPosts();
-    },[role]);
+    },[role, sortBy, sortDirection]);
 
     useEffect(() => {
         const loadMyApplications = async () => {
@@ -101,7 +103,7 @@ const JobPosts = () => {
         try {
             const response = role === "Employer"
                 ? await GetMyJobPosts()
-                : await GetAllJobPosts();
+                : await GetAllJobPosts(sortBy, sortDirection);
             setJobPosts(response.data);
         }
         catch (error: unknown) {
@@ -112,6 +114,29 @@ const JobPosts = () => {
             }
         }
     }
+
+    const selectedSortValue = `${sortBy}_${sortDirection}`;
+
+    const handleSortChange = (value: string) => {
+        switch (value) {
+            case "createdAt_asc":
+                setSortBy("createdAt");
+                setSortDirection("asc");
+                break;
+            case "salary_desc":
+                setSortBy("salary");
+                setSortDirection("desc");
+                break;
+            case "salary_asc":
+                setSortBy("salary");
+                setSortDirection("asc");
+                break;
+            default:
+                setSortBy("createdAt");
+                setSortDirection("desc");
+                break;
+        }
+    };
 
     const handleApply = async (jobPostId: string) => {
         setApplyInProgressForPostId(jobPostId);
@@ -189,6 +214,18 @@ const JobPosts = () => {
                 >
                   <option value="all">All job posts</option>
                   <option value="favourites">Favourite restaurants only</option>
+                </select>
+                <label htmlFor="sortFilter">Sort:</label>
+                <select
+                  id="sortFilter"
+                  className={styles["employee-filter-select"]}
+                  value={selectedSortValue}
+                  onChange={(event) => handleSortChange(event.target.value)}
+                >
+                  <option value="createdAt_desc">Newest first</option>
+                  <option value="createdAt_asc">Oldest first</option>
+                  <option value="salary_desc">Salary high to low</option>
+                  <option value="salary_asc">Salary low to high</option>
                 </select>
               </div>
             )}
