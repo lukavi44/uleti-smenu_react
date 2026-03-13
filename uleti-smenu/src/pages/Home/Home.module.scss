@@ -58,6 +58,26 @@ p {
   }
 }
 
+.hero-employer {
+  .content {
+    .left {
+      padding: 4.25rem 3rem;
+
+      p {
+        font-size: 4rem;
+      }
+
+      .p-medium {
+        font-size: 2rem;
+      }
+    }
+
+    .right {
+      min-height: 360px;
+    }
+  }
+}
+
 .employers {
   // height: 80vh;
   position: relative;
@@ -106,6 +126,30 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+}
+
+.overview-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 0.85rem;
+}
+
+.overview-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.86rem;
+  color: #475569;
+}
+
+.overview-card strong {
+  font-size: 1.35rem;
+  color: #0f172a;
 }
 
 .button {
@@ -229,5 +273,21 @@ p {
 
   .dashboard {
     margin-top: 0.7rem;
+  }
+
+  .hero-employer {
+    .content {
+      .left {
+        padding: 3rem 2rem;
+
+        p {
+          font-size: 3rem;
+        }
+
+        .p-medium {
+          font-size: 1.5rem;
+        }
+      }
+    }
   }
 }
