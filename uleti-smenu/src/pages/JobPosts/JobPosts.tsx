@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import JobPostItem from "../../components/JobPosts/JobPostItem";
 
 import styles from './JobPosts.module.scss';
@@ -27,6 +27,7 @@ const JobPosts = () => {
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
     const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
+    const leftPanelRef = useRef<HTMLDivElement>(null);
 
     // return (
     //     <div className={styles["posts-container"]}>
@@ -55,6 +56,10 @@ const JobPosts = () => {
     const editingJobPost = jobPosts.find((post) => post.id === editingJobPostId);
     const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
     const favouriteEmployerIdSet = useMemo(() => new Set(favouriteEmployerIds), [favouriteEmployerIds]);
+
+    useEffect(() => {
+        leftPanelRef.current?.scrollTo(0, 0);
+    }, []);
 
     useEffect(() =>{
         fetchJobPosts();
@@ -216,7 +221,7 @@ const JobPosts = () => {
 
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
-            <div className={styles["left-panel"]}>
+            <div ref={leftPanelRef} className={styles["left-panel"]}>
             {role === "Employer" && (
               <div className={styles["list-filters"]}>
                 <label htmlFor="employerLifecycleFilter">{t("jobPosts.lifecycleFilter")}</label>

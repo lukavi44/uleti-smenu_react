@@ -6,13 +6,25 @@ import styles from "./Home.module.scss";
 import EmployersList from "../../components/Employers/EmployersList";
 import { AuthContext } from "../../store/Auth-context";
 import { Link } from "react-router-dom";
-import { GetMyJobPosts } from "../../services/jobPost-service";
+import {
+  GetEmployerDashboardSummary,
+  GetMyJobPosts,
+  GetMyJobPostsPaged,
+} from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
+import { EmployerDashboardSummary } from "../../models/EmployerDashboardSummary.model";
 import { GetApplicantsForJobPost } from "../../services/application-service";
+import {
+  buildApplicantCountsFromPosts,
+  buildEmployerDashboardSummaryFromPosts,
+  normalizeEmployerDashboardSummary,
+} from "../../helpers/employerDashboard";
 import { useTranslation } from "react-i18next";
+
+const HOME_PAGE_SIZE = 5;
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -22,79 +34,136 @@ const HomePage = () => {
     authStatus === "authenticated" && role === "Employee";
   const isEmployerDashboardVisible =
     authStatus === "authenticated" && role === "Employer";
-  const [myJobPosts, setMyJobPosts] = useState<JobPost[]>([]);
+  const [dashboardSummary, setDashboardSummary] =
+    useState<EmployerDashboardSummary | null>(null);
   const [myLocations, setMyLocations] = useState<RestaurantLocation[]>([]);
-  const [applicantCountsByPostId, setApplicantCountsByPostId] = useState<
-    Record<string, number>
-  >({});
+  const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
+  const [jobPostsPage, setJobPostsPage] = useState(1);
+  const [jobPostsTotalCount, setJobPostsTotalCount] = useState(0);
+  const [applicantsWaitingPosts, setApplicantsWaitingPosts] = useState<JobPost[]>([]);
+  const [applicantsWaitingPage, setApplicantsWaitingPage] = useState(1);
+  const [applicantsWaitingTotalCount, setApplicantsWaitingTotalCount] = useState(0);
 
   useEffect(() => {
-    const loadEmployerDashboardData = async () => {
-      if (!isEmployerDashboardVisible) return;
+    const loadEmployerDashboardOverview = async () => {
+      if (authStatus !== "authenticated" || role !== "Employer") {
+        return;
+      }
 
       try {
-        const [jobPostsResponse, locationsResponse] = await Promise.all([
-          GetMyJobPosts(),
-          GetMyRestaurantLocations(),
-        ]);
-
-        setMyJobPosts(jobPostsResponse.data);
+        const locationsResponse = await GetMyRestaurantLocations();
         setMyLocations(locationsResponse.data);
 
-        const applicantCountEntries = await Promise.all(
-          jobPostsResponse.data.map(async (post) => {
-            try {
-              const applicantsResponse = await GetApplicantsForJobPost(post.id);
-              return [post.id, applicantsResponse.data.length] as const;
-            } catch {
-              return [post.id, 0] as const;
-            }
-          })
+        try {
+          const summaryResponse = await GetEmployerDashboardSummary();
+          setDashboardSummary(
+            normalizeEmployerDashboardSummary(
+              summaryResponse.data as unknown as Record<string, unknown>
+            )
+          );
+          return;
+        } catch {
+          // Fall back to existing endpoints when dashboard-summary is unavailable.
+        }
+
+        const [activePostsResponse, allPostsResponse] = await Promise.all([
+          GetMyJobPostsPaged({ page: 1, pageSize: 1, lifecycle: "active" }),
+          GetMyJobPosts(),
+        ]);
+
+        const posts = allPostsResponse.data;
+        const hasApplicantCounts = posts.some(
+          (post) => typeof post.applicantCount === "number"
         );
 
-        setApplicantCountsByPostId(Object.fromEntries(applicantCountEntries));
+        let applicantCountsByPostId: Record<string, number>;
+        if (hasApplicantCounts) {
+          applicantCountsByPostId = buildApplicantCountsFromPosts(posts);
+        } else {
+          const countEntries = await Promise.all(
+            posts.map(async (post) => {
+              try {
+                const applicantsResponse = await GetApplicantsForJobPost(post.id);
+                return [post.id, applicantsResponse.data.length] as const;
+              } catch {
+                return [post.id, 0] as const;
+              }
+            })
+          );
+          applicantCountsByPostId = Object.fromEntries(countEntries);
+        }
+
+        setDashboardSummary(
+          buildEmployerDashboardSummaryFromPosts(
+            posts,
+            activePostsResponse.data.totalCount,
+            applicantCountsByPostId
+          )
+        );
       } catch (error) {
-        console.error("Failed to load employer dashboard data.", error);
+        console.error("Failed to load employer dashboard overview.", error);
       }
     };
 
-    loadEmployerDashboardData();
-  }, [isEmployerDashboardVisible]);
+    loadEmployerDashboardOverview();
+  }, [authStatus, role]);
 
-  const recentJobPosts = useMemo(() => myJobPosts.slice(0, 5), [myJobPosts]);
-  const activeJobPostsCount = useMemo(
-    () => myJobPosts.filter((post) => post.status === "Active").length,
-    [myJobPosts]
+  useEffect(() => {
+    const loadJobPosts = async () => {
+      if (!isEmployerDashboardVisible) return;
+
+      try {
+        const response = await GetMyJobPostsPaged({
+          page: jobPostsPage,
+          pageSize: HOME_PAGE_SIZE,
+          sortBy: "createdAt",
+          sortDirection: "desc",
+        });
+
+        setJobPosts(response.data.items);
+        setJobPostsTotalCount(response.data.totalCount);
+      } catch (error) {
+        console.error("Failed to load employer job posts.", error);
+      }
+    };
+
+    loadJobPosts();
+  }, [isEmployerDashboardVisible, jobPostsPage]);
+
+  useEffect(() => {
+    const loadApplicantsWaiting = async () => {
+      if (!isEmployerDashboardVisible) return;
+
+      try {
+        const response = await GetMyJobPostsPaged({
+          page: applicantsWaitingPage,
+          pageSize: HOME_PAGE_SIZE,
+          hasApplicants: true,
+          sortBy: "applicantCount",
+          sortDirection: "desc",
+        });
+
+        setApplicantsWaitingPosts(response.data.items);
+        setApplicantsWaitingTotalCount(response.data.totalCount);
+      } catch (error) {
+        console.error("Failed to load applicants waiting posts.", error);
+      }
+    };
+
+    loadApplicantsWaiting();
+  }, [isEmployerDashboardVisible, applicantsWaitingPage]);
+
+  const totalJobPostPages = useMemo(
+    () => Math.max(1, Math.ceil(jobPostsTotalCount / HOME_PAGE_SIZE)),
+    [jobPostsTotalCount]
   );
-  const applicantsWaitingPosts = useMemo(
-    () =>
-      myJobPosts
-        .filter((post) => (applicantCountsByPostId[post.id] ?? 0) > 0)
-        .sort(
-          (firstPost, secondPost) =>
-            (applicantCountsByPostId[secondPost.id] ?? 0) -
-            (applicantCountsByPostId[firstPost.id] ?? 0)
-        )
-        .slice(0, 5),
-    [myJobPosts, applicantCountsByPostId]
+
+  const totalApplicantsWaitingPages = useMemo(
+    () => Math.max(1, Math.ceil(applicantsWaitingTotalCount / HOME_PAGE_SIZE)),
+    [applicantsWaitingTotalCount]
   );
-  const totalApplicantsCount = useMemo(
-    () =>
-      myJobPosts.reduce(
-        (count, post) => count + (applicantCountsByPostId[post.id] ?? 0),
-        0
-      ),
-    [myJobPosts, applicantCountsByPostId]
-  );
-  const activePostsByLocationId = useMemo(() => {
-    const counts: Record<string, number> = {};
-    myJobPosts.forEach((post) => {
-      if (!post.restaurantLocationId || post.status !== "Active") return;
-      counts[post.restaurantLocationId] =
-        (counts[post.restaurantLocationId] ?? 0) + 1;
-    });
-    return counts;
-  }, [myJobPosts]);
+
+  const activePostsByLocationId = dashboardSummary?.activePostsByLocationId ?? {};
 
   const formatDate = (value: Date) => {
     const parsedDate = new Date(value);
@@ -103,6 +172,37 @@ const HomePage = () => {
     }
     return parsedDate.toLocaleString();
   };
+
+  const renderPagination = (
+    currentPage: number,
+    totalPages: number,
+    onPrevious: () => void,
+    onNext: () => void
+  ) => (
+    <div className={styles.paginationRow}>
+      <p className={styles.paginationInfo}>
+        {t("profile.pageOf", { page: currentPage, totalPages })}
+      </p>
+      <div className={styles.paginationActions}>
+        <button
+          type="button"
+          className={`${styles.button} ${styles.buttonSecondary}`}
+          disabled={currentPage <= 1}
+          onClick={onPrevious}
+        >
+          {t("profile.previousPage")}
+        </button>
+        <button
+          type="button"
+          className={`${styles.button} ${styles.buttonSecondary}`}
+          disabled={currentPage >= totalPages}
+          onClick={onNext}
+        >
+          {t("profile.nextPage")}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -143,11 +243,11 @@ const HomePage = () => {
             <div className={styles["overview-grid"]}>
               <article className={styles["overview-card"]}>
                 <h4>{t("home.activeJobPosts")}</h4>
-                <strong>{activeJobPostsCount}</strong>
+                <strong>{dashboardSummary?.activeJobPostsCount ?? 0}</strong>
               </article>
               <article className={styles["overview-card"]}>
                 <h4>{t("home.totalApplicants")}</h4>
-                <strong>{totalApplicantsCount}</strong>
+                <strong>{dashboardSummary?.totalApplicantsCount ?? 0}</strong>
               </article>
               <article className={styles["overview-card"]}>
                 <h4>{t("home.branches")}</h4>
@@ -185,13 +285,23 @@ const HomePage = () => {
                     </div>
                     <div>
                       <span>{t("home.applicants")}:</span>
-                      <strong>{applicantCountsByPostId[post.id] ?? 0}</strong>
+                      <strong>{post.applicantCount ?? 0}</strong>
                     </div>
                   </div>
                   <EmployerApplicantsPanel jobPostId={post.id} />
                 </article>
               ))}
             </div>
+            {applicantsWaitingTotalCount > HOME_PAGE_SIZE &&
+              renderPagination(
+                applicantsWaitingPage,
+                totalApplicantsWaitingPages,
+                () => setApplicantsWaitingPage((previous) => Math.max(1, previous - 1)),
+                () =>
+                  setApplicantsWaitingPage((previous) =>
+                    Math.min(totalApplicantsWaitingPages, previous + 1)
+                  )
+              )}
           </div>
 
           <div className={styles.panel}>
@@ -201,11 +311,11 @@ const HomePage = () => {
                 {t("home.viewAllPosts")}
               </Link>
             </div>
-            {recentJobPosts.length === 0 && (
+            {jobPosts.length === 0 && (
               <p className={styles["muted-text"]}>{t("home.noJobPosts")}</p>
             )}
             <div className={styles["card-grid"]}>
-              {recentJobPosts.map((post) => (
+              {jobPosts.map((post) => (
                 <article key={post.id} className={styles["dashboard-card"]}>
                   <h4>{post.title}</h4>
                   <div className={styles.meta}>
@@ -231,17 +341,26 @@ const HomePage = () => {
                     </div>
                     <div>
                       <span>{t("home.status")}:</span>
-                      <strong>{post.status}</strong>
+                      <strong>
+                        {post.isArchived ? t("jobPosts.lifecycleArchived") : post.status}
+                      </strong>
                     </div>
                     <div>
                       <span>{t("home.applicants")}:</span>
-                      <strong>{applicantCountsByPostId[post.id] ?? 0}</strong>
+                      <strong>{post.applicantCount ?? 0}</strong>
                     </div>
                   </div>
                   <EmployerApplicantsPanel jobPostId={post.id} />
                 </article>
               ))}
             </div>
+            {jobPostsTotalCount > HOME_PAGE_SIZE &&
+              renderPagination(
+                jobPostsPage,
+                totalJobPostPages,
+                () => setJobPostsPage((previous) => Math.max(1, previous - 1)),
+                () => setJobPostsPage((previous) => Math.min(totalJobPostPages, previous + 1))
+              )}
           </div>
 
           <div className={styles.panel}>

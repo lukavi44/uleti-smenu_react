@@ -1,4 +1,5 @@
 import { JobPostDTO } from "../DTOs/JobPost.dto";
+import { EmployerDashboardSummary } from "../models/EmployerDashboardSummary.model";
 import { JobPost } from "../models/JobPost.model";
 import { PagedResult } from "../models/PagedResult.model";
 import axiosInstance from "./axiosConfig"
@@ -10,8 +11,9 @@ export interface GetMyJobPostsPagedParams {
   position?: string;
   status?: string;
   lifecycle?: "active" | "archived" | "all";
-  sortBy?: "createdAt" | "startingDate" | "position";
+  sortBy?: "createdAt" | "startingDate" | "position" | "applicantCount";
   sortDirection?: "asc" | "desc";
+  hasApplicants?: boolean;
 }
 
 
@@ -43,9 +45,14 @@ export const GetMyJobPostsPaged = async(
             status: params.status || undefined,
             lifecycle: params.lifecycle && params.lifecycle !== "all" ? params.lifecycle : undefined,
             sortBy: params.sortBy,
-            sortDirection: params.sortDirection
+            sortDirection: params.sortDirection,
+            hasApplicants: params.hasApplicants || undefined
         }
     });
+}
+
+export const GetEmployerDashboardSummary = async(): Promise<AxiosResponse<EmployerDashboardSummary>> => {
+    return axiosInstance.get<EmployerDashboardSummary>("/api/v1/JobPost/my/dashboard-summary");
 }
 
 export const GetMyJobPostPositions = async(): Promise<AxiosResponse<string[]>> => {

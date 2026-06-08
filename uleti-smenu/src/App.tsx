@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 import './App.css'
+import ScrollToTop from "./router/ScrollToTop";
 import HomePage from './pages/Home/Home'
 import RegistrationPage from "./pages/Registration/Registration";
 import LoginPage from "./pages/Login/Login";
@@ -28,6 +29,7 @@ function App() {
       />
       <LoadingProvider>
         <AuthContextProvider>
+          <ScrollToTop />
           <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
