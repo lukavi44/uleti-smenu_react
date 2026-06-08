@@ -63,6 +63,22 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
     return parsedDate.toLocaleString();
   };
 
+  const getFinalStatusLabel = (status: string) => {
+    if (status === "Accepted") {
+      return t("applicants.finalAccepted");
+    }
+
+    if (status === "Denied") {
+      return t("applicants.finalDeclined");
+    }
+
+    if (status === "Cancelled") {
+      return t("common.cancel").toUpperCase();
+    }
+
+    return status.toUpperCase();
+  };
+
   return (
     <div className={`${styles.wrapper} ${variant === "inlineCard" ? styles.inlineCardWrapper : ""}`}>
       <button
@@ -87,23 +103,33 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                   </p>
                   <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
                   <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>
-                  <p className={styles.meta}>{t("applicants.status")}: {applicant.status}</p>
-                  <div className={styles.actions}>
-                    <button
-                      className={`${styles.button} ${styles.acceptButton}`}
-                      disabled={activeAction !== null}
-                      onClick={() => handleDecision(applicant.applicationId, "Accepted")}
-                    >
-                      {activeAction === `${applicant.applicationId}:Accepted` ? t("applicants.accepting") : t("applicants.accept")}
-                    </button>
-                    <button
-                      className={`${styles.button} ${styles.rejectButton}`}
-                      disabled={activeAction !== null}
-                      onClick={() => handleDecision(applicant.applicationId, "Denied")}
-                    >
-                      {activeAction === `${applicant.applicationId}:Denied` ? t("applicants.rejecting") : t("applicants.reject")}
-                    </button>
-                  </div>
+                  <p className={styles.meta}>
+                    {t("applicants.status")}: {applicant.status === "Applied" ? t("jobPosts.appliedShort") : getFinalStatusLabel(applicant.status)}
+                  </p>
+                  {applicant.status === "Applied" ? (
+                    <div className={styles.actions}>
+                      <button
+                        className={`${styles.button} ${styles.acceptButton}`}
+                        disabled={activeAction !== null}
+                        onClick={() => handleDecision(applicant.applicationId, "Accepted")}
+                      >
+                        {activeAction === `${applicant.applicationId}:Accepted` ? t("applicants.accepting") : t("applicants.accept")}
+                      </button>
+                      <button
+                        className={`${styles.button} ${styles.rejectButton}`}
+                        disabled={activeAction !== null}
+                        onClick={() => handleDecision(applicant.applicationId, "Denied")}
+                      >
+                        {activeAction === `${applicant.applicationId}:Denied` ? t("applicants.rejecting") : t("applicants.reject")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.finalStatusRow}>
+                      <span className={`${styles.finalStatusBadge} ${applicant.status === "Accepted" ? styles.acceptedBadge : styles.declinedBadge}`}>
+                        {getFinalStatusLabel(applicant.status)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

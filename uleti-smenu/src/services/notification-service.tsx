@@ -13,3 +13,7 @@ export const GetMyUnreadNotificationCount = async (): Promise<AxiosResponse<{ co
 export const MarkNotificationAsRead = async (notificationId: string): Promise<AxiosResponse> => {
   return axiosInstance.patch(`/api/v1/Notification/${notificationId}/read`);
 };
+
+export const DeleteNotification = async (notificationId: string): Promise<AxiosResponse> => {
+  return axiosInstance.delete(`/api/v1/Notification/${notificationId}`);
+};

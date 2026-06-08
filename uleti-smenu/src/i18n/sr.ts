@@ -24,7 +24,8 @@ const sr = {
     notifications: "Obaveštenja",
     noNotifications: "Još nema obaveštenja.",
     markAsRead: "Označi kao pročitano",
-    marking: "Označavanje..."
+    marking: "Označavanje...",
+    deleteNotification: "Obriši obaveštenje"
   },
   home: {
     heroTitle: "Uleti smenu!",
@@ -202,6 +203,8 @@ const sr = {
     reject: "Odbij",
     accepting: "Prihvatanje...",
     rejecting: "Odbijanje...",
+    finalAccepted: "PRIHVAĆEN",
+    finalDeclined: "ODBIJEN",
     loadError: "Učitavanje kandidata nije uspelo.",
     updateError: "Izmena statusa kandidata nije uspela.",
     accepted: "Kandidat je prihvaćen.",

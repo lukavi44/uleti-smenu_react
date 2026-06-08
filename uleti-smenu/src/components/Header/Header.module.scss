@@ -107,6 +107,9 @@
   background: #eff6ff;
   padding: 0.6rem;
   margin-bottom: 0.55rem;
+  touch-action: pan-y;
+  user-select: none;
+  overflow: hidden;
 }
 
 .notification-item p {
@@ -132,8 +135,44 @@
   font-size: 0.75rem;
 }
 
+.notification-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.notification-delete-button {
+  min-width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
 .notification-read {
   background: #ffffff;
+}
+
+.notification-removing {
+  transform: translateX(-140%) !important;
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
+  transition:
+    transform 0.24s ease-in,
+    opacity 0.24s ease-in,
+    max-height 0.24s ease-in,
+    margin 0.24s ease-in,
+    padding 0.24s ease-in,
+    border-color 0.24s ease-in !important;
 }
 
 .mobile {

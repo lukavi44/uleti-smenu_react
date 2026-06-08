@@ -24,7 +24,8 @@ const en = {
     notifications: "Notifications",
     noNotifications: "No notifications yet.",
     markAsRead: "Mark as read",
-    marking: "Marking..."
+    marking: "Marking...",
+    deleteNotification: "Delete notification"
   },
   home: {
     heroTitle: "Jump in a shift!",
@@ -201,6 +202,8 @@ const en = {
     reject: "Reject",
     accepting: "Accepting...",
     rejecting: "Rejecting...",
+    finalAccepted: "ACCEPTED",
+    finalDeclined: "DECLINED",
     loadError: "Unable to load applicants for this post.",
     updateError: "Unable to update applicant status.",
     accepted: "Applicant accepted.",
