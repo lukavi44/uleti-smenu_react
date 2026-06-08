@@ -3,7 +3,7 @@ import { Employer } from "../../models/User.model";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { JobPost } from "../../models/JobPost.model";
 import { Applicant } from "../../models/Application.model";
-import { GetMyJobPosts } from "../../services/jobPost-service";
+import { GetMyJobPostPositions, GetMyJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import { UpdateMyProfilePhoto } from "../../services/user-service";
 import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
@@ -32,9 +32,19 @@ const getStatusBadgeStyle = (status: string) => {
     }
 };
 
+const JOB_POSTS_PAGE_SIZE = 6;
+
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const { t } = useTranslation();
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
+    const [allJobPosts, setAllJobPosts] = useState<JobPost[]>([]);
+    const [positionOptions, setPositionOptions] = useState<string[]>([]);
+    const [jobPostsPage, setJobPostsPage] = useState(1);
+    const [jobPostsTotalCount, setJobPostsTotalCount] = useState(0);
+    const [jobPostPositionFilter, setJobPostPositionFilter] = useState("");
+    const [jobPostStatusFilter, setJobPostStatusFilter] = useState("");
+    const [jobPostLifecycleFilter, setJobPostLifecycleFilter] = useState<"all" | "active" | "archived">("all");
+    const [jobPostSortValue, setJobPostSortValue] = useState("createdAt_desc");
     const [selectedJobPostId, setSelectedJobPostId] = useState<string>("");
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -57,18 +67,40 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     });
 
     const selectedJobPost = useMemo(
-        () => jobPosts.find((post) => post.id === selectedJobPostId),
-        [jobPosts, selectedJobPostId]
+        () => allJobPosts.find((post) => post.id === selectedJobPostId),
+        [allJobPosts, selectedJobPostId]
     );
     const editingJobPost = useMemo(
-        () => jobPosts.find((post) => post.id === editingJobPostId),
-        [jobPosts, editingJobPostId]
+        () => allJobPosts.find((post) => post.id === editingJobPostId),
+        [allJobPosts, editingJobPostId]
     );
 
-    const loadJobPosts = async () => {
+    const totalJobPostPages = useMemo(
+        () => Math.max(1, Math.ceil(jobPostsTotalCount / JOB_POSTS_PAGE_SIZE)),
+        [jobPostsTotalCount]
+    );
+
+    const parseJobPostSort = (value: string) => {
+        switch (value) {
+            case "createdAt_asc":
+                return { sortBy: "createdAt" as const, sortDirection: "asc" as const };
+            case "startingDate_desc":
+                return { sortBy: "startingDate" as const, sortDirection: "desc" as const };
+            case "startingDate_asc":
+                return { sortBy: "startingDate" as const, sortDirection: "asc" as const };
+            case "position_asc":
+                return { sortBy: "position" as const, sortDirection: "asc" as const };
+            case "position_desc":
+                return { sortBy: "position" as const, sortDirection: "desc" as const };
+            default:
+                return { sortBy: "createdAt" as const, sortDirection: "desc" as const };
+        }
+    };
+
+    const loadAllJobPosts = async () => {
         try {
             const response = await GetMyJobPosts();
-            setJobPosts(response.data);
+            setAllJobPosts(response.data);
             if (response.data.length > 0) {
                 setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
             }
@@ -77,9 +109,47 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
+    const loadPagedJobPosts = async () => {
+        const { sortBy, sortDirection } = parseJobPostSort(jobPostSortValue);
+
+        try {
+            const response = await GetMyJobPostsPaged({
+                page: jobPostsPage,
+                pageSize: JOB_POSTS_PAGE_SIZE,
+                position: jobPostPositionFilter || undefined,
+                status: jobPostStatusFilter || undefined,
+                lifecycle: jobPostLifecycleFilter,
+                sortBy,
+                sortDirection
+            });
+
+            setJobPosts(response.data.items);
+            setJobPostsTotalCount(response.data.totalCount);
+        } catch {
+            toast.error(t("profile.failedLoadJobPosts"));
+        }
+    };
+
+    const reloadJobPosts = async () => {
+        await Promise.all([loadAllJobPosts(), loadPagedJobPosts()]);
+    };
+
     useEffect(() => {
-        loadJobPosts();
+        loadAllJobPosts();
+        const loadPositions = async () => {
+            try {
+                const response = await GetMyJobPostPositions();
+                setPositionOptions(response.data);
+            } catch {
+                setPositionOptions([]);
+            }
+        };
+        loadPositions();
     }, []);
+
+    useEffect(() => {
+        loadPagedJobPosts();
+    }, [jobPostsPage, jobPostPositionFilter, jobPostStatusFilter, jobPostLifecycleFilter, jobPostSortValue]);
 
     useEffect(() => {
         const loadLocations = async () => {
@@ -336,11 +406,98 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.myJobPosts")}>
-                {jobPosts.length === 0 && <p className={styles.mutedText}>{t("profile.noJobPosts")}</p>}
+                <div className={styles.jobPostsToolbar}>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="jobPostLifecycleFilter">{t("profile.filterByLifecycle")}</label>
+                        <select
+                            id="jobPostLifecycleFilter"
+                            className={styles.select}
+                            value={jobPostLifecycleFilter}
+                            onChange={(event) => {
+                                setJobPostsPage(1);
+                                setJobPostLifecycleFilter(event.target.value as "all" | "active" | "archived");
+                            }}
+                        >
+                            <option value="all">{t("jobPosts.allPosts")}</option>
+                            <option value="active">{t("jobPosts.activePosts")}</option>
+                            <option value="archived">{t("jobPosts.archivedPosts")}</option>
+                        </select>
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="jobPostPositionFilter">{t("profile.filterByPosition")}</label>
+                        <select
+                            id="jobPostPositionFilter"
+                            className={styles.select}
+                            value={jobPostPositionFilter}
+                            onChange={(event) => {
+                                setJobPostsPage(1);
+                                setJobPostPositionFilter(event.target.value);
+                            }}
+                        >
+                            <option value="">{t("profile.all")}</option>
+                            {positionOptions.map((position) => (
+                                <option key={position} value={position}>
+                                    {position}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="jobPostStatusFilter">{t("profile.filterByJobStatus")}</label>
+                        <select
+                            id="jobPostStatusFilter"
+                            className={styles.select}
+                            value={jobPostStatusFilter}
+                            onChange={(event) => {
+                                setJobPostsPage(1);
+                                setJobPostStatusFilter(event.target.value);
+                            }}
+                        >
+                            <option value="">{t("profile.all")}</option>
+                            <option value="Active">{t("jobPostForm.statusActive")}</option>
+                            <option value="Expired">{t("jobPostForm.statusExpired")}</option>
+                            <option value="Cancelled">{t("jobPostForm.statusCancelled")}</option>
+                        </select>
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="jobPostSortFilter">{t("profile.sortJobPosts")}</label>
+                        <select
+                            id="jobPostSortFilter"
+                            className={styles.select}
+                            value={jobPostSortValue}
+                            onChange={(event) => {
+                                setJobPostsPage(1);
+                                setJobPostSortValue(event.target.value);
+                            }}
+                        >
+                            <option value="createdAt_desc">{t("profile.sortCreatedNewest")}</option>
+                            <option value="createdAt_asc">{t("profile.sortCreatedOldest")}</option>
+                            <option value="startingDate_desc">{t("profile.sortDateNewest")}</option>
+                            <option value="startingDate_asc">{t("profile.sortDateOldest")}</option>
+                            <option value="position_asc">{t("profile.sortPositionAsc")}</option>
+                            <option value="position_desc">{t("profile.sortPositionDesc")}</option>
+                        </select>
+                    </div>
+                </div>
+
+                {jobPosts.length === 0 && (
+                    <p className={styles.mutedText}>
+                        {jobPostsTotalCount === 0 && jobPostPositionFilter === "" && jobPostStatusFilter === "" && jobPostLifecycleFilter === "all"
+                            ? t("profile.noJobPosts")
+                            : t("profile.noJobPostsFiltered")}
+                    </p>
+                )}
                 <div className={styles.jobPostsGrid}>
                     {jobPosts.map((post) => (
                         <article key={post.id} className={styles.jobPostCard}>
-                            <h4>{post.title}</h4>
+                            <h4>
+                                {post.title}
+                                <span
+                                    className={`${styles.lifecycleBadge} ${post.isArchived ? styles.lifecycleArchived : styles.lifecycleActive}`}
+                                >
+                                    {post.isArchived ? t("jobPosts.lifecycleArchived") : t("jobPosts.lifecycleActive")}
+                                </span>
+                            </h4>
                             <div className={styles.cardMeta}>
                                 <div><span>{t("profile.workerType")}:</span><strong>{post.position}</strong></div>
                                 <div><span>{t("profile.location")}:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
@@ -359,13 +516,42 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </article>
                     ))}
                 </div>
+                {jobPostsTotalCount > JOB_POSTS_PAGE_SIZE && (
+                    <div className={styles.paginationRow}>
+                        <p className={styles.paginationInfo}>
+                            {t("profile.pageOf", { page: jobPostsPage, totalPages: totalJobPostPages })}
+                        </p>
+                        <div className={styles.paginationActions}>
+                            <button
+                                type="button"
+                                className={`${styles.button} ${styles.buttonSecondary}`}
+                                disabled={jobPostsPage <= 1}
+                                onClick={() => setJobPostsPage((previous) => Math.max(1, previous - 1))}
+                            >
+                                {t("profile.previousPage")}
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.button} ${styles.buttonSecondary}`}
+                                disabled={jobPostsPage >= totalJobPostPages}
+                                onClick={() => setJobPostsPage((previous) => Math.min(totalJobPostPages, previous + 1))}
+                            >
+                                {t("profile.nextPage")}
+                            </button>
+                        </div>
+                    </div>
+                )}
                 {editingJobPost && (
                     <div className={styles.inlineForm}>
                         <JobPostForm
                             initialData={editingJobPost}
                             onClose={() => setEditingJobPostId(null)}
                             onSubmit={async () => {
-                                await loadJobPosts();
+                                const positionsResponse = await GetMyJobPostPositions().catch(() => null);
+                                if (positionsResponse) {
+                                    setPositionOptions(positionsResponse.data);
+                                }
+                                await reloadJobPosts();
                                 setEditingJobPostId(null);
                             }}
                         />
@@ -374,7 +560,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.applicants")}>
-                {jobPosts.length > 0 && (
+                {allJobPosts.length > 0 && (
                     <div className={styles.applicantsFilters}>
                         <div className={styles.filterGroup}>
                             <label htmlFor="jobPostSelect">{t("profile.chooseJobPost")}</label>
@@ -384,7 +570,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 value={selectedJobPostId}
                                 onChange={(e) => setSelectedJobPostId(e.target.value)}
                             >
-                                {jobPosts.map((post) => (
+                                {allJobPosts.map((post) => (
                                     <option key={post.id} value={post.id}>
                                         {post.title}
                                     </option>
@@ -408,7 +594,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </div>
                     </div>
                 )}
-                {jobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
+                {allJobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
                 {visibleApplicants.length === 0 && <p className={styles.mutedText}>{t("profile.noApplicantsForFilter")}</p>}
                 <div className={styles.applicantsList}>
                     {visibleApplicants.map((applicant) => (
