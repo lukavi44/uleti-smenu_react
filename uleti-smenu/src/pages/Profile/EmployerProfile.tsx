@@ -42,8 +42,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [jobPostsPage, setJobPostsPage] = useState(1);
     const [jobPostsTotalCount, setJobPostsTotalCount] = useState(0);
     const [jobPostPositionFilter, setJobPostPositionFilter] = useState("");
-    const [jobPostStatusFilter, setJobPostStatusFilter] = useState("");
-    const [jobPostLifecycleFilter, setJobPostLifecycleFilter] = useState<"all" | "active" | "archived">("all");
+    const [jobPostStatusFilter, setJobPostStatusFilter] = useState("active");
     const [jobPostSortValue, setJobPostSortValue] = useState("createdAt_desc");
     const [selectedJobPostId, setSelectedJobPostId] = useState<string>("");
     const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -109,16 +108,33 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
+    const resolveJobPostListFilters = (statusFilter: string) => {
+        if (statusFilter === "archived") {
+            return { lifecycle: "archived" as const };
+        }
+
+        if (statusFilter === "all") {
+            return { lifecycle: "all" as const };
+        }
+
+        if (statusFilter === "Cancelled") {
+            return { status: "Cancelled" as const, lifecycle: "all" as const };
+        }
+
+        return { lifecycle: "active" as const };
+    };
+
     const loadPagedJobPosts = async () => {
         const { sortBy, sortDirection } = parseJobPostSort(jobPostSortValue);
+        const listFilters = resolveJobPostListFilters(jobPostStatusFilter);
 
         try {
             const response = await GetMyJobPostsPaged({
                 page: jobPostsPage,
                 pageSize: JOB_POSTS_PAGE_SIZE,
                 position: jobPostPositionFilter || undefined,
-                status: jobPostStatusFilter || undefined,
-                lifecycle: jobPostLifecycleFilter,
+                status: listFilters.status,
+                lifecycle: listFilters.lifecycle,
                 sortBy,
                 sortDirection
             });
@@ -149,7 +165,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
     useEffect(() => {
         loadPagedJobPosts();
-    }, [jobPostsPage, jobPostPositionFilter, jobPostStatusFilter, jobPostLifecycleFilter, jobPostSortValue]);
+    }, [jobPostsPage, jobPostPositionFilter, jobPostStatusFilter, jobPostSortValue]);
 
     useEffect(() => {
         const loadLocations = async () => {
@@ -408,22 +424,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <CollapsibleSection title={t("profile.myJobPosts")}>
                 <div className={styles.jobPostsToolbar}>
                     <div className={styles.filterGroup}>
-                        <label htmlFor="jobPostLifecycleFilter">{t("profile.filterByLifecycle")}</label>
-                        <select
-                            id="jobPostLifecycleFilter"
-                            className={styles.select}
-                            value={jobPostLifecycleFilter}
-                            onChange={(event) => {
-                                setJobPostsPage(1);
-                                setJobPostLifecycleFilter(event.target.value as "all" | "active" | "archived");
-                            }}
-                        >
-                            <option value="all">{t("jobPosts.allPosts")}</option>
-                            <option value="active">{t("jobPosts.activePosts")}</option>
-                            <option value="archived">{t("jobPosts.archivedPosts")}</option>
-                        </select>
-                    </div>
-                    <div className={styles.filterGroup}>
                         <label htmlFor="jobPostPositionFilter">{t("profile.filterByPosition")}</label>
                         <select
                             id="jobPostPositionFilter"
@@ -453,9 +453,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 setJobPostStatusFilter(event.target.value);
                             }}
                         >
-                            <option value="">{t("profile.all")}</option>
-                            <option value="Active">{t("jobPostForm.statusActive")}</option>
-                            <option value="Expired">{t("jobPostForm.statusExpired")}</option>
+                            <option value="active">{t("jobPosts.activePosts")}</option>
+                            <option value="archived">{t("jobPosts.archivedPosts")}</option>
+                            <option value="all">{t("jobPosts.allPosts")}</option>
                             <option value="Cancelled">{t("jobPostForm.statusCancelled")}</option>
                         </select>
                     </div>
@@ -482,7 +482,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
                 {jobPosts.length === 0 && (
                     <p className={styles.mutedText}>
-                        {jobPostsTotalCount === 0 && jobPostPositionFilter === "" && jobPostStatusFilter === "" && jobPostLifecycleFilter === "all"
+                        {jobPostsTotalCount === 0 && jobPostPositionFilter === "" && jobPostStatusFilter === "active"
                             ? t("profile.noJobPosts")
                             : t("profile.noJobPostsFiltered")}
                     </p>
@@ -503,7 +503,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <div><span>{t("profile.location")}:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
                                 <div><span>{t("profile.startingDate")}:</span><strong>{formatDate(post.startingDate)}</strong></div>
                                 <div><span>{t("profile.payment")}:</span><strong>{post.salary} RSD</strong></div>
-                                <div><span>{t("profile.status")}:</span><strong>{post.status}</strong></div>
+                                <div>
+                                    <span>{t("profile.status")}:</span>
+                                    <strong>
+                                        {post.isArchived ? t("jobPosts.lifecycleArchived") : post.status}
+                                    </strong>
+                                </div>
                             </div>
                             <div className={styles.actionsRow}>
                                 <button
