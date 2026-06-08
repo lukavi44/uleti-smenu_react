@@ -14,6 +14,7 @@ import JobPosts from "./pages/JobPosts/JobPosts";
 import Header from "./components/Header/Header";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
+import MessagesPage from "./pages/Messages/MessagesPage";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             </Route>
             <Route element={<RequireAuth />}>
               <Route path='oglasi-za-posao' element={<JobPosts/>} />
+              <Route path="messages" element={<MessagesPage/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
             </Route>
           </Routes>

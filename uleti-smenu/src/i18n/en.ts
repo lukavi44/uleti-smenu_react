@@ -25,7 +25,8 @@ const en = {
     noNotifications: "No notifications yet.",
     markAsRead: "Mark as read",
     marking: "Marking...",
-    deleteNotification: "Delete notification"
+    deleteNotification: "Delete notification",
+    messages: "Messages"
   },
   home: {
     heroTitle: "Jump in a shift!",
@@ -198,6 +199,24 @@ const en = {
     startRequired: "Start date is required",
     locationRequired: "Location is required"
   },
+  chat: {
+    openChat: "Open chat",
+    hideChat: "Hide chat",
+    loading: "Loading chat...",
+    loadError: "Unable to load chat.",
+    noMessages: "No messages yet. Start the conversation.",
+    messagePlaceholder: "Write a message...",
+    send: "Send",
+    sending: "Sending..."
+  },
+  messages: {
+    title: "Messages",
+    loading: "Loading conversations...",
+    loadError: "Unable to load conversations.",
+    noConversations: "No conversations yet. Chat opens when an application is accepted.",
+    noPreview: "No messages yet",
+    selectConversation: "Select a conversation to start chatting."
+  },
   applicants: {
     seeApplicants: "See applicants",
     hideApplicants: "Hide applicants",
@@ -279,6 +298,15 @@ const en = {
     chooseJobPost: "Choose job post",
     all: "All",
     noApplicantsForFilter: "No applicants for this filter.",
+    searchApplicants: "Search applicants",
+    searchApplicantsPlaceholder: "Name or email",
+    sortApplicants: "Sort applicants",
+    sortAppliedNewest: "Applied (newest)",
+    sortAppliedOldest: "Applied (oldest)",
+    sortNameAsc: "Name A-Z",
+    sortNameDesc: "Name Z-A",
+    sortEmailAsc: "Email A-Z",
+    sortEmailDesc: "Email Z-A",
     deny: "Deny",
     denying: "Denying...",
     accept: "Accept",

@@ -1,5 +1,5 @@
 import styles from "./Header.module.scss";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { PointerEvent, useContext, useEffect, useState } from "react";
 
 import "tailwindcss";
@@ -11,6 +11,7 @@ import { AuthContext } from "../../store/Auth-context";
 import RegistrationDialog from "../Dialog/RegistrationDialog";
 import ConfirmationDialog from "../Dialog/ConfirmationDialog";
 import { DeleteNotification, GetMyNotifications, GetMyUnreadNotificationCount, MarkNotificationAsRead } from "../../services/notification-service";
+import { GetMyUnreadChatCount } from "../../services/chat-service";
 import { UserNotification } from "../../models/Notification.model";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +21,7 @@ import { useTranslation } from "react-i18next";
 
 const Header = () => {
     const { t, i18n } = useTranslation();
+    const location = useLocation();
     const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
     const [isLogoutModalOpened, setIsLogoutModalOpened] = useState(false);
     const { isLoggedIn, logout, role } = useContext(AuthContext);
@@ -27,6 +29,7 @@ const Header = () => {
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState<UserNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadChatCount, setUnreadChatCount] = useState(0);
     const [activeNotificationId, setActiveNotificationId] = useState<string | null>(null);
     const [notificationOffsets, setNotificationOffsets] = useState<Record<string, number>>({});
     const [draggingNotificationId, setDraggingNotificationId] = useState<string | null>(null);
@@ -38,6 +41,21 @@ const Header = () => {
     const removeAnimationDurationMs = 240;
 
     const isEmployeeLoggedIn = isLoggedIn && role === "Employee";
+    const canUseChat = isLoggedIn && (role === "Employee" || role === "Employer");
+
+    const loadUnreadChatCount = async () => {
+        if (!canUseChat) {
+            setUnreadChatCount(0);
+            return;
+        }
+
+        try {
+            const response = await GetMyUnreadChatCount();
+            setUnreadChatCount(response.data.count);
+        } catch (error) {
+            console.error("Failed to load unread chat count", error);
+        }
+    };
 
     const loadNotifications = async () => {
         if (!isEmployeeLoggedIn) {
@@ -62,6 +80,20 @@ const Header = () => {
     useEffect(() => {
         loadNotifications();
     }, [isEmployeeLoggedIn]);
+
+    useEffect(() => {
+        void loadUnreadChatCount();
+
+        if (!canUseChat) {
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            void loadUnreadChatCount();
+        }, 15000);
+
+        return () => window.clearInterval(intervalId);
+    }, [canUseChat, location.pathname]);
 
     const removeNotificationFromState = (notificationId: string, shouldDecreaseUnread: boolean) => {
         setNotifications((previousNotifications) =>
@@ -247,6 +279,16 @@ const Header = () => {
                             <option value="sr">{t("common.serbian")}</option>
                             <option value="en">{t("common.english")}</option>
                         </select>
+                        {canUseChat && (
+                            <NavLink to="/messages" className={styles["messages-link"]} onClick={() => void loadUnreadChatCount()}>
+                                <span className={styles["messages-button"]} aria-label={t("header.messages")}>
+                                    💬
+                                    {unreadChatCount > 0 && (
+                                        <span className={styles["messages-count"]}>{unreadChatCount}</span>
+                                    )}
+                                </span>
+                            </NavLink>
+                        )}
                         {isEmployeeLoggedIn && (
                             <div className={styles["notifications-wrapper"]}>
                                 <button

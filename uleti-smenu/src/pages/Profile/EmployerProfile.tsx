@@ -13,6 +13,7 @@ import styles from "./Profile.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
+import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import { useTranslation } from "react-i18next";
 
 interface EmployerProfileProps {
@@ -47,6 +48,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [selectedJobPostId, setSelectedJobPostId] = useState<string>("");
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
+    const [applicantSearchQuery, setApplicantSearchQuery] = useState("");
+    const [applicantSortValue, setApplicantSortValue] = useState("appliedAt_desc");
     const [actionInProgress, setActionInProgress] = useState<string | null>(null);
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
@@ -181,6 +184,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     }, []);
 
     useEffect(() => {
+        setApplicantSearchQuery("");
+        setApplicantSortValue("appliedAt_desc");
+        setStatusFilter("All");
+    }, [selectedJobPostId]);
+
+    useEffect(() => {
         if (!selectedJobPostId) {
             setApplicants([]);
             return;
@@ -198,9 +207,50 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         loadApplicants();
     }, [selectedJobPostId]);
 
-    const visibleApplicants = applicants.filter((applicant) =>
-        statusFilter === "All" ? true : applicant.status === statusFilter
-    );
+    const visibleApplicants = useMemo(() => {
+        const normalizedSearch = applicantSearchQuery.trim().toLowerCase();
+
+        const filtered = applicants.filter((applicant) => {
+            if (statusFilter !== "All" && applicant.status !== statusFilter) {
+                return false;
+            }
+
+            if (!normalizedSearch) {
+                return true;
+            }
+
+            const fullName = `${applicant.firstName} ${applicant.lastName}`.toLowerCase();
+            return (
+                fullName.includes(normalizedSearch) ||
+                applicant.firstName.toLowerCase().includes(normalizedSearch) ||
+                applicant.lastName.toLowerCase().includes(normalizedSearch) ||
+                applicant.email.toLowerCase().includes(normalizedSearch)
+            );
+        });
+
+        return [...filtered].sort((firstApplicant, secondApplicant) => {
+            switch (applicantSortValue) {
+                case "name_asc": {
+                    const firstName = `${firstApplicant.firstName} ${firstApplicant.lastName}`.toLowerCase();
+                    const secondName = `${secondApplicant.firstName} ${secondApplicant.lastName}`.toLowerCase();
+                    return firstName.localeCompare(secondName);
+                }
+                case "name_desc": {
+                    const firstName = `${firstApplicant.firstName} ${firstApplicant.lastName}`.toLowerCase();
+                    const secondName = `${secondApplicant.firstName} ${secondApplicant.lastName}`.toLowerCase();
+                    return secondName.localeCompare(firstName);
+                }
+                case "email_asc":
+                    return firstApplicant.email.localeCompare(secondApplicant.email);
+                case "email_desc":
+                    return secondApplicant.email.localeCompare(firstApplicant.email);
+                case "appliedAt_asc":
+                    return new Date(firstApplicant.appliedAt).getTime() - new Date(secondApplicant.appliedAt).getTime();
+                default:
+                    return new Date(secondApplicant.appliedAt).getTime() - new Date(firstApplicant.appliedAt).getTime();
+            }
+        });
+    }, [applicants, statusFilter, applicantSearchQuery, applicantSortValue]);
 
     const handleStatusUpdate = async (applicationId: string, status: "Accepted" | "Denied") => {
         setActionInProgress(`${applicationId}:${status}`);
@@ -597,6 +647,33 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <option value="Cancelled">{t("common.cancel")}</option>
                             </select>
                         </div>
+                        <div className={styles.filterGroup}>
+                            <label htmlFor="applicantSearch">{t("profile.searchApplicants")}</label>
+                            <input
+                                className={styles.input}
+                                id="applicantSearch"
+                                type="search"
+                                value={applicantSearchQuery}
+                                placeholder={t("profile.searchApplicantsPlaceholder")}
+                                onChange={(event) => setApplicantSearchQuery(event.target.value)}
+                            />
+                        </div>
+                        <div className={styles.filterGroup}>
+                            <label htmlFor="applicantSort">{t("profile.sortApplicants")}</label>
+                            <select
+                                className={styles.select}
+                                id="applicantSort"
+                                value={applicantSortValue}
+                                onChange={(event) => setApplicantSortValue(event.target.value)}
+                            >
+                                <option value="appliedAt_desc">{t("profile.sortAppliedNewest")}</option>
+                                <option value="appliedAt_asc">{t("profile.sortAppliedOldest")}</option>
+                                <option value="name_asc">{t("profile.sortNameAsc")}</option>
+                                <option value="name_desc">{t("profile.sortNameDesc")}</option>
+                                <option value="email_asc">{t("profile.sortEmailAsc")}</option>
+                                <option value="email_desc">{t("profile.sortEmailDesc")}</option>
+                            </select>
+                        </div>
                     </div>
                 )}
                 {allJobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
@@ -627,6 +704,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                     </button>
                                 </div>
                             )}
+                            <ApplicationChatPanel
+                                applicationId={applicant.applicationId}
+                                enabled={applicant.status === "Accepted"}
+                            />
                         </div>
                     ))}
                 </div>

@@ -25,7 +25,8 @@ const sr = {
     noNotifications: "Još nema obaveštenja.",
     markAsRead: "Označi kao pročitano",
     marking: "Označavanje...",
-    deleteNotification: "Obriši obaveštenje"
+    deleteNotification: "Obriši obaveštenje",
+    messages: "Poruke"
   },
   home: {
     heroTitle: "Uleti smenu!",
@@ -199,6 +200,24 @@ const sr = {
     startRequired: "Početak smene je obavezan",
     locationRequired: "Lokacija je obavezna"
   },
+  chat: {
+    openChat: "Otvori chat",
+    hideChat: "Sakrij chat",
+    loading: "Učitavanje chata...",
+    loadError: "Chat nije mogao da se učita.",
+    noMessages: "Još nema poruka. Započnite razgovor.",
+    messagePlaceholder: "Napišite poruku...",
+    send: "Pošalji",
+    sending: "Slanje..."
+  },
+  messages: {
+    title: "Poruke",
+    loading: "Učitavanje razgovora...",
+    loadError: "Razgovori nisu mogli da se učitaju.",
+    noConversations: "Još nema razgovora. Chat se otvara kada je prijava prihvaćena.",
+    noPreview: "Još nema poruka",
+    selectConversation: "Izaberite razgovor da započnete chat."
+  },
   applicants: {
     seeApplicants: "Prikaži kandidate",
     hideApplicants: "Sakrij kandidate",
@@ -280,6 +299,15 @@ const sr = {
     chooseJobPost: "Izaberite oglas",
     all: "Sve",
     noApplicantsForFilter: "Nema kandidata za izabrani filter.",
+    searchApplicants: "Pretraži kandidate",
+    searchApplicantsPlaceholder: "Ime ili email",
+    sortApplicants: "Sortiraj kandidate",
+    sortAppliedNewest: "Prijava (najnovije)",
+    sortAppliedOldest: "Prijava (najstarije)",
+    sortNameAsc: "Ime A-Z",
+    sortNameDesc: "Ime Z-A",
+    sortEmailAsc: "Email A-Z",
+    sortEmailDesc: "Email Z-A",
     deny: "Odbij",
     denying: "Odbijanje...",
     accept: "Prihvati",

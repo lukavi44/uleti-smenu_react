@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
+import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import { useTranslation } from "react-i18next";
 
 interface EmployeeProfileProps {
@@ -262,6 +263,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                     </button>
                                 </div>
                             )}
+                            <ApplicationChatPanel
+                                applicationId={application.applicationId}
+                                enabled={application.status === "Accepted"}
+                            />
                         </article>
                     ))}
                 </div>

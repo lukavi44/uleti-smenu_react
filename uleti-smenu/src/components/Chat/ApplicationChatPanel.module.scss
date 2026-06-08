@@ -1,0 +1,30 @@
+.chatPanel {
+  margin-top: 0.85rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.85rem;
+}
+
+.toggleButton {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 10px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggleButton:hover {
+  background: #dbeafe;
+}
+
+.chatBody {
+  margin-top: 0.75rem;
+}
+
+.mutedText {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
