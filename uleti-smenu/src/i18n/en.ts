@@ -164,6 +164,13 @@ const en = {
     apply: "Apply",
     appliedShort: "Applied",
     noPostsFiltered: "No job posts for selected filter.",
+    lifecycleFilter: "Show:",
+    activePosts: "Active posts",
+    archivedPosts: "Archived posts",
+    allPosts: "All posts",
+    lifecycleActive: "Active",
+    lifecycleArchived: "Archived",
+    noArchivedPosts: "No archived job posts.",
     createPost: "Create Job Post",
     applySuccess: "Successfully applied for this shift.",
     applyError: "Unable to apply for this shift."

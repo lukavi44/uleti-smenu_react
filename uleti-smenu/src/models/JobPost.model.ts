@@ -13,5 +13,6 @@ export interface JobPost {
     restaurantLocationId?: string,
     restaurantLocationName?: string,
     restaurantLocationCity?: string,
+    isArchived?: boolean,
     employer: Employer
 }

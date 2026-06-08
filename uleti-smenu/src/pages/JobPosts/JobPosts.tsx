@@ -26,6 +26,7 @@ const JobPosts = () => {
     const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
+    const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
 
     // return (
     //     <div className={styles["posts-container"]}>
@@ -191,9 +192,46 @@ const JobPosts = () => {
         return filteredJobPosts;
     }, [role, filteredJobPosts, favouriteFilter, favouriteEmployerIdSet]);
 
+    const employerVisibleJobPosts = useMemo(() => {
+        if (role !== "Employer") {
+            return filteredJobPosts;
+        }
+
+        if (employerLifecycleFilter === "archived") {
+            return jobPosts.filter((jobPost) => jobPost.isArchived);
+        }
+
+        if (employerLifecycleFilter === "active") {
+            return jobPosts.filter((jobPost) => !jobPost.isArchived);
+        }
+
+        return jobPosts;
+    }, [role, filteredJobPosts, jobPosts, employerLifecycleFilter]);
+
+    const visibleJobPosts = role === "Employee"
+        ? employeeVisibleJobPosts
+        : role === "Employer"
+            ? employerVisibleJobPosts
+            : filteredJobPosts;
+
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
             <div className={styles["left-panel"]}>
+            {role === "Employer" && (
+              <div className={styles["list-filters"]}>
+                <label htmlFor="employerLifecycleFilter">{t("jobPosts.lifecycleFilter")}</label>
+                <select
+                  id="employerLifecycleFilter"
+                  className={styles["list-filter-select"]}
+                  value={employerLifecycleFilter}
+                  onChange={(event) => setEmployerLifecycleFilter(event.target.value as "active" | "archived" | "all")}
+                >
+                  <option value="active">{t("jobPosts.activePosts")}</option>
+                  <option value="archived">{t("jobPosts.archivedPosts")}</option>
+                  <option value="all">{t("jobPosts.allPosts")}</option>
+                </select>
+              </div>
+            )}
             {role === "Employee" && (
               <div className={styles["employee-filters"]}>
                 <label htmlFor="employeeFilter">{t("jobPosts.show")}</label>
@@ -231,12 +269,20 @@ const JobPosts = () => {
                 </select>
               </div>
             )}
-            {(role === "Employee" ? employeeVisibleJobPosts : filteredJobPosts).map((jobPost: JobPost) => {
+            {visibleJobPosts.map((jobPost: JobPost) => {
           const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           const isEmployee = role === "Employee";
           const hasApplied = appliedJobPostIdSet.has(jobPost.id);
+          const isArchivedPost = Boolean(jobPost.isArchived);
           return (
             <div key={jobPost.id} className={styles["jobpost-card-wrapper"]}>
+              {isMyPost && (
+                <span
+                  className={`${styles["employer-lifecycle-badge"]} ${isArchivedPost ? styles["employer-lifecycle-archived"] : styles["employer-lifecycle-active"]}`}
+                >
+                  {isArchivedPost ? t("jobPosts.lifecycleArchived") : t("jobPosts.lifecycleActive")}
+                </span>
+              )}
               {!isEmployee && <JobPostItem jobPost={jobPost} disableCardHover={isMyPost} />}
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
@@ -298,6 +344,13 @@ const JobPosts = () => {
         })}
             {role === "Employee" && employeeVisibleJobPosts.length === 0 && (
               <p className={styles["empty-message"]}>{t("jobPosts.noPostsFiltered")}</p>
+            )}
+            {role === "Employer" && employerVisibleJobPosts.length === 0 && (
+              <p className={styles["empty-message"]}>
+                {employerLifecycleFilter === "archived"
+                  ? t("jobPosts.noArchivedPosts")
+                  : t("jobPosts.noPostsFiltered")}
+              </p>
             )}
             </div>
 

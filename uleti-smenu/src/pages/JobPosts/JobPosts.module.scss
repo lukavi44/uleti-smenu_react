@@ -135,6 +135,32 @@
     z-index: 3;
   }
 
+  .employer-lifecycle-badge {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+  }
+
+  .employer-lifecycle-active {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .employer-lifecycle-archived {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .list-filters,
   .employee-filters {
     width: min(100%, 48rem);
     display: flex;
@@ -144,12 +170,14 @@
     margin-bottom: -1.2rem;
   }
 
+  .list-filters label,
   .employee-filters label {
     color: #4b5563;
     font-size: 0.9rem;
     font-weight: 600;
   }
 
+  .list-filter-select,
   .employee-filter-select {
     border: 1px solid #d1d5db;
     border-radius: 10px;

@@ -165,6 +165,13 @@ const sr = {
     apply: "Prijavi se",
     appliedShort: "Prijavljeno",
     noPostsFiltered: "Nema oglasa za izabrani filter.",
+    lifecycleFilter: "Prikaži:",
+    activePosts: "Aktivni oglasi",
+    archivedPosts: "Arhivirani oglasi",
+    allPosts: "Svi oglasi",
+    lifecycleActive: "Aktivan",
+    lifecycleArchived: "Arhiviran",
+    noArchivedPosts: "Nema arhiviranih oglasa.",
     createPost: "Napravi oglas",
     applySuccess: "Uspešno ste se prijavili za ovu smenu.",
     applyError: "Prijava na smenu nije uspela."
