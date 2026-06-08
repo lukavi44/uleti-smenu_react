@@ -7,6 +7,7 @@ import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePh
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
+import CollapsibleSection from "./CollapsibleSection";
 import { useTranslation } from "react-i18next";
 
 interface EmployeeProfileProps {
@@ -159,8 +160,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                 </div>
             </section>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.employeeInfo")}</h2>
+            <CollapsibleSection title={t("profile.employeeInfo")}>
                 <div className={styles.infoGrid}>
                     <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>{t("profile.fullName")}</span>
@@ -175,10 +175,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
                 </div>
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.favouriteRestaurants")}</h2>
+            <CollapsibleSection title={t("profile.favouriteRestaurants")}>
                 {restaurants.length === 0 && <p className={styles.mutedText}>{t("profile.noFavouriteRestaurants")}</p>}
                 <div className={styles.branchList}>
                     {restaurants.map((restaurant) => (
@@ -205,10 +204,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         </article>
                     ))}
                 </div>
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.myApplications")}</h2>
+            <CollapsibleSection title={t("profile.myApplications")}>
                 <div className={styles.applicantsFilters}>
                     <div className={styles.filterGroup}>
                         <label htmlFor="myApplicationStatusFilter">{t("profile.filterByStatus")}</label>
@@ -267,7 +265,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         </article>
                     ))}
                 </div>
-            </section>
+            </CollapsibleSection>
         </div>
     );
 };

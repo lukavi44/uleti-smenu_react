@@ -12,6 +12,7 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import styles from "./Profile.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
+import CollapsibleSection from "./CollapsibleSection";
 import { useTranslation } from "react-i18next";
 
 interface EmployerProfileProps {
@@ -44,7 +45,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [isCreatingLocation, setIsCreatingLocation] = useState(false);
-    const [isBranchFormOpen, setIsBranchFormOpen] = useState(false);
     const [newBranch, setNewBranch] = useState({
         name: "",
         phoneNumber: "",
@@ -190,7 +190,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 country: "",
                 region: ""
             });
-            setIsBranchFormOpen(false);
             toast.success(t("profile.branchAdded"));
         } catch {
             toast.error(t("profile.branchAddError"));
@@ -222,8 +221,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 </div>
             </section>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.employerInfo")}</h2>
+            <CollapsibleSection title={t("profile.employerInfo")}>
                 <div className={styles.infoGrid}>
                     <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
@@ -254,91 +252,77 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         <span className={styles.infoValue}>{user.mb}</span>
                     </div>
                 </div>
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <div className={styles.collapsibleHeader}>
-                    <h2 className={styles.sectionTitle}>{t("profile.addBranch")}</h2>
-                    <button
-                        className={`${styles.button} ${styles.buttonSecondary}`}
-                        onClick={() => setIsBranchFormOpen((previousState) => !previousState)}
-                    >
-                        {isBranchFormOpen ? t("profile.hideForm") : t("profile.openForm")}
+            <CollapsibleSection title={t("profile.addBranch")}>
+                <div className={styles.branchForm}>
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("profile.restaurantName")}
+                        value={newBranch.name}
+                        onChange={(e) => handleBranchFieldChange("name", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.phoneNumber")}
+                        value={newBranch.phoneNumber}
+                        onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
+                    />
+                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
+                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.streetName")}
+                        value={newBranch.streetName}
+                        onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.streetNumber")}
+                        value={newBranch.streetNumber}
+                        onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.city")}
+                        value={newBranch.city}
+                        onChange={(e) => handleBranchFieldChange("city", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.postalCode")}
+                        value={newBranch.postalCode}
+                        onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.country")}
+                        value={newBranch.country}
+                        onChange={(e) => handleBranchFieldChange("country", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.region")}
+                        value={newBranch.region}
+                        onChange={(e) => handleBranchFieldChange("region", e.target.value)}
+                    />
+                </div>
+                <div className={styles.actionsRow}>
+                    <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
+                        {isCreatingLocation ? t("profile.addingBranch") : t("profile.addBranchAction")}
                     </button>
                 </div>
-                {isBranchFormOpen && (
-                    <>
-                        <div className={styles.branchForm}>
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("profile.restaurantName")}
-                                value={newBranch.name}
-                                onChange={(e) => handleBranchFieldChange("name", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.phoneNumber")}
-                                value={newBranch.phoneNumber}
-                                onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
-                            />
-                            <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
-                            <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.streetName")}
-                                value={newBranch.streetName}
-                                onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.streetNumber")}
-                                value={newBranch.streetNumber}
-                                onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.city")}
-                                value={newBranch.city}
-                                onChange={(e) => handleBranchFieldChange("city", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.postalCode")}
-                                value={newBranch.postalCode}
-                                onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.country")}
-                                value={newBranch.country}
-                                onChange={(e) => handleBranchFieldChange("country", e.target.value)}
-                            />
-                            <input
-                                className={styles.input}
-                                type="text"
-                                placeholder={t("registration.region")}
-                                value={newBranch.region}
-                                onChange={(e) => handleBranchFieldChange("region", e.target.value)}
-                            />
-                        </div>
-                        <div className={styles.actionsRow}>
-                            <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
-                                {isCreatingLocation ? t("profile.addingBranch") : t("profile.addBranchAction")}
-                            </button>
-                        </div>
-                    </>
-                )}
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <h3 className={styles.subTitle}>{t("profile.yourBranches")}</h3>
+            <CollapsibleSection title={t("profile.yourBranches")} titleTag="h3">
                 {locations.length === 0 && <p className={styles.mutedText}>{t("profile.noBranches")}</p>}
                 <div className={styles.branchList}>
                     {locations.map((location) => (
@@ -349,10 +333,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </div>
                     ))}
                 </div>
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.myJobPosts")}</h2>
+            <CollapsibleSection title={t("profile.myJobPosts")}>
                 {jobPosts.length === 0 && <p className={styles.mutedText}>{t("profile.noJobPosts")}</p>}
                 <div className={styles.jobPostsGrid}>
                     {jobPosts.map((post) => (
@@ -388,10 +371,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         />
                     </div>
                 )}
-            </section>
+            </CollapsibleSection>
 
-            <section className={styles.panel}>
-                <h2 className={styles.sectionTitle}>{t("profile.applicants")}</h2>
+            <CollapsibleSection title={t("profile.applicants")}>
                 {jobPosts.length > 0 && (
                     <div className={styles.applicantsFilters}>
                         <div className={styles.filterGroup}>
@@ -457,7 +439,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </div>
                     ))}
                 </div>
-            </section>
+            </CollapsibleSection>
         </div>
     )
 };
