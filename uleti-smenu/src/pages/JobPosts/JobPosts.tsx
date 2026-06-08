@@ -237,7 +237,7 @@ const JobPosts = () => {
           const hasApplied = appliedJobPostIdSet.has(jobPost.id);
           return (
             <div key={jobPost.id} className={styles["jobpost-card-wrapper"]}>
-              {!isEmployee && <JobPostItem jobPost={jobPost}/>}
+              {!isEmployee && <JobPostItem jobPost={jobPost} disableCardHover={isMyPost} />}
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
                   <div className={styles["employee-card-header"]}>

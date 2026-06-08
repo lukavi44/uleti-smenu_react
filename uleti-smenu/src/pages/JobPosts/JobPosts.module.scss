@@ -84,9 +84,12 @@
       background-color: #ffffff;
       box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
       animation: slideIn 0.3s ease forwards;
-      padding: 2rem;
-      overflow-y: hidden;
+      padding: 0;
+      overflow: hidden;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
   }
   
   @keyframes slideIn {
@@ -123,6 +126,13 @@
     position: relative;
     align-self: center;
     overflow: visible;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transform-origin: center center;
+  }
+
+  .jobpost-card-wrapper:hover {
+    transform: scale(1.05);
+    z-index: 3;
   }
 
   .employee-filters {

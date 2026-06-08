@@ -16,6 +16,7 @@ import { GetMyRestaurantLocations } from "../../services/restaurantLocation-serv
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { JobPost } from "../../models/JobPost.model";
 import { useTranslation } from "react-i18next";
+import styles from "./JobPostForm.module.scss";
   
   interface JobPostFormProps {
     onClose: () => void;
@@ -124,15 +125,16 @@ import { useTranslation } from "react-i18next";
     };
   
     return (
-      <Box sx={{ padding: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box className={styles.formRoot}>
+        <Box className={styles.formHeader} display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </Box>
   
-        <form onSubmit={handleSubmit(submitForm)}>
+        <Box component="form" className={styles.formContent} onSubmit={handleSubmit(submitForm)}>
+          <Box className={styles.formBody}>
           <Controller
             name="title"
             control={control}
@@ -269,11 +271,14 @@ import { useTranslation } from "react-i18next";
               </TextField>
             )}
           />
-  
-          <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mt: 3 }}>
-            {isEditMode ? t("jobPostForm.saveChanges") : t("jobPostForm.create")}
-          </Button>
-        </form>
+          </Box>
+
+          <Box className={styles.formActions}>
+            <Button variant="contained" color="primary" type="submit" fullWidth>
+              {isEditMode ? t("jobPostForm.saveChanges") : t("jobPostForm.create")}
+            </Button>
+          </Box>
+        </Box>
       </Box>
     );
   };

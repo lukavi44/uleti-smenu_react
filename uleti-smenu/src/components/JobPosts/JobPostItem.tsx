@@ -1,4 +1,5 @@
-import Card from "../UI/Card/Card"
+import Card from "../UI/Card/Card";
+import cardStyles from "../UI/Card/Card.module.scss";
 import { JobPost } from "../../models/JobPost.model";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { useContext, useState } from "react";
@@ -9,9 +10,10 @@ import { useTranslation } from "react-i18next";
 
 interface JobPostItemProps {
     jobPost: JobPost;
+    disableCardHover?: boolean;
   }
 
-  const JobPostItem = ({ jobPost }: JobPostItemProps) => {
+  const JobPostItem = ({ jobPost, disableCardHover = false }: JobPostItemProps) => {
     const { t } = useTranslation();
     const { role, isLoggedIn } = useContext(AuthContext);
     const [isApplying, setIsApplying] = useState(false);
@@ -35,6 +37,7 @@ interface JobPostItemProps {
           img={getImageUrl(jobPost.employer?.profilePhoto)}
           description={`${jobPost.description}${jobPost.restaurantLocationName ? ` | ${t("jobPosts.location")}: ${jobPost.restaurantLocationName}${jobPost.restaurantLocationCity ? ` (${jobPost.restaurantLocationCity})` : ""}` : ""}`}
           orientation="horizontal"
+          className={disableCardHover ? cardStyles.noHover : ""}
         />
         {isLoggedIn && role === "Employee" && (
           <button onClick={handleApply} disabled={isApplying}>
