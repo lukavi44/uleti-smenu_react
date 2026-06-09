@@ -1,0 +1,175 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 1rem;
+}
+
+.header {
+  margin-bottom: 1.75rem;
+}
+
+.header h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  color: #111827;
+}
+
+.intro {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.section p {
+  margin: 0 0 0.75rem;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 1.1rem 1.15rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.card h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.02rem;
+  color: #0f172a;
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.55rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabActive {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.ctaPrimary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.ctaPrimary:hover {
+  background: #1d4ed8;
+}
+
+.ctaSecondary {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.ctaSecondary:hover {
+  background: #f9fafb;
+}
+
+.faqItem {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.9rem 0;
+}
+
+.faqItem:last-child {
+  border-bottom: none;
+}
+
+.faqItem h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.faqItem p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.bulletList {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #374151;
+  line-height: 1.65;
+}
+
+.bulletList li {
+  margin-bottom: 0.45rem;
+}
+
+.legalUpdated {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  color: #6b7280;
+}

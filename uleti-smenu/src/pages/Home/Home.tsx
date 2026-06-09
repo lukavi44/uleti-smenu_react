@@ -5,7 +5,8 @@ import JobPosts from "../JobPosts/JobPosts";
 import styles from "./Home.module.scss";
 import EmployersList from "../../components/Employers/EmployersList";
 import { AuthContext } from "../../store/Auth-context";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import MarketingSection from "../../components/Home/MarketingSection";
 import {
   GetEmployerDashboardSummary,
   GetMyJobPosts,
@@ -34,6 +35,8 @@ const HomePage = () => {
     authStatus === "authenticated" && role === "Employee";
   const isEmployerDashboardVisible =
     authStatus === "authenticated" && role === "Employer";
+  const showMarketingSection = !isEmployerDashboardVisible;
+  const isLoggedOut = authStatus === "unauthenticated";
   const [dashboardSummary, setDashboardSummary] =
     useState<EmployerDashboardSummary | null>(null);
   const [myLocations, setMyLocations] = useState<RestaurantLocation[]>([]);
@@ -218,6 +221,19 @@ const HomePage = () => {
               <p className={styles["p-medium"]}>
                 {t("home.heroSubtitle")}
               </p>
+              {isLoggedOut && (
+                <div className={styles.heroCtas}>
+                  <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
+                    {t("home.heroCtaEmployee")}
+                  </NavLink>
+                  <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
+                    {t("home.heroCtaEmployer")}
+                  </NavLink>
+                  <NavLink className={styles.heroLink} to="/how-it-works">
+                    {t("home.heroCtaHowItWorks")}
+                  </NavLink>
+                </div>
+              )}
             </div>
             <div className={styles.right}></div>
           </div>
@@ -230,6 +246,19 @@ const HomePage = () => {
                 <p className={styles["p-medium"]}>
                   {t("home.heroSubtitle")}
                 </p>
+                {isLoggedOut && (
+                  <div className={styles.heroCtas}>
+                    <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
+                      {t("home.heroCtaEmployee")}
+                    </NavLink>
+                    <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
+                      {t("home.heroCtaEmployer")}
+                    </NavLink>
+                    <NavLink className={styles.heroLink} to="/how-it-works">
+                      {t("home.heroCtaHowItWorks")}
+                    </NavLink>
+                  </div>
+                )}
               </div>
               <div className={styles.right} />
             </div>
@@ -384,6 +413,7 @@ const HomePage = () => {
           </div>
         </section>
       )}
+      {showMarketingSection && <MarketingSection />}
       {!isMobile && canSeeEmployersCarousel && (
         <section className={styles.employers}>
           <EmployersList />

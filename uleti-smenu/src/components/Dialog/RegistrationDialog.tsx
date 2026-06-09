@@ -16,7 +16,7 @@ const RegistrationDialog = ({ onClose }: { onClose: () => void }) => {
                     <div className={styles.faq}>
                         <p className="text-xl font-bold">{t("dialogs.chooseAccountType")}</p>
                         <p className="text-sm text-gray-600 font-semibold">{t("dialogs.needMoreInfo")}</p>
-                        <NavLink to="">
+                        <NavLink to="/faq" onClick={onClose}>
                             <p className="text-sm text-blue-600 hover:text-blue-800 transition font-semibold">{t("footer.faq")}</p>
                         </NavLink>
                     </div>

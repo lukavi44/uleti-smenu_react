@@ -49,6 +49,25 @@ p {
     }
   }
 
+  .heroCtas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+
+  .heroLink {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .heroLink:hover {
+    text-decoration: underline;
+  }
+
   .right {
     padding: 0rem 3rem;
     background-image: url("../../assets/cover_img.jpg");
@@ -275,6 +294,14 @@ p {
         margin-top: 1rem;
         font-size: 3rem;
         color: beige;
+      }
+
+      .heroCtas {
+        margin-top: 1.25rem;
+      }
+
+      .heroLink {
+        color: #ffffff;
       }
     }
 

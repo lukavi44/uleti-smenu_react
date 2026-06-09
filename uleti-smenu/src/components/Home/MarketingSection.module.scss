@@ -1,0 +1,121 @@
+.section {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  padding: 2.5rem 1.25rem 3rem;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+}
+
+.header h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.85rem;
+  color: #111827;
+}
+
+.header p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.valueCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 1.15rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.valueCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.valueCard p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.audienceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.audienceCard {
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+  padding: 1.25rem;
+}
+
+.audienceCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #1e3a8a;
+}
+
+.audienceCard p {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #1e40af;
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.ctaPrimary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.ctaPrimary:hover {
+  background: #1d4ed8;
+}
+
+.footerCta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.ctaSecondary {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.ctaSecondary:hover {
+  background: #f9fafb;
+}

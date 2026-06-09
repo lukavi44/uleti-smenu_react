@@ -5,39 +5,78 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import logo from "../../assets/logo.png";
 import { useTranslation } from "react-i18next";
 
+interface FooterLink {
+  label: string;
+  to?: string;
+  external?: boolean;
+}
+
 const Footer = () => {
     const { t } = useTranslation();
     const isMobile = useMediaQuery('(max-width:768px)');
-    const footerSections = [
+    const footerSections: { title: string; links: FooterLink[] }[] = [
         {
             title: t("footer.platform"),
-            links: [t("footer.about"), t("footer.howItWorks"), t("footer.faq")]
+            links: [
+                { label: t("footer.about"), to: "/about" },
+                { label: t("footer.howItWorks"), to: "/how-it-works" },
+                { label: t("footer.faq"), to: "/faq" },
+            ]
         },
         {
             title: t("footer.forCandidates"),
-            links: [t("footer.findShift"), t("footer.howToApply"), t("footer.profileTips")]
+            links: [
+                { label: t("footer.findShift"), to: "/for-candidates" },
+                { label: t("footer.howToApply"), to: "/how-it-works#candidates" },
+                { label: t("footer.profileTips"), to: "/for-candidates" },
+            ]
         },
         {
             title: t("footer.forRestaurants"),
-            links: [t("footer.postAd"), t("footer.candidateOverview"), t("footer.subscriptions")]
+            links: [
+                { label: t("footer.postAd"), to: "/for-employers" },
+                { label: t("footer.candidateOverview"), to: "/for-employers" },
+                { label: t("footer.subscriptions"), to: "/for-employers#pricing" },
+            ]
         },
         {
             title: t("footer.legal"),
-            links: [t("footer.terms"), t("footer.privacy"), t("footer.cookies")]
+            links: [
+                { label: t("footer.terms"), to: "/terms" },
+                { label: t("footer.privacy"), to: "/privacy" },
+                { label: t("footer.cookies"), to: "/cookies" },
+            ]
         },
         {
             title: t("footer.contact"),
-            links: ["support@uletismenu.com", "+381 11 123 456", "Novi Sad, Srbija"]
+            links: [
+                { label: "support@uletismenu.com", external: true },
+                { label: "+381 11 123 456", external: true },
+                { label: "Novi Sad, Srbija", external: true },
+            ]
         }
     ];
+
+    const renderFooterLink = (link: FooterLink) => {
+        if (!link.to) {
+            return <span>{link.label}</span>;
+        }
+
+        return (
+            <NavLink to={link.to} className={styles.footerLink}>
+                {link.label}
+            </NavLink>
+        );
+    };
+
     return (
         <>
             {isMobile && (
                 <footer className={`${styles['footer-container']} fixed bottom-0 left-0 w-full bg-blue-600 text-white text-center py-3 md:hidden flex justify-between p-5 gap-x-3`}>
-                    <NavLink to="/">{t("header.posts")}</NavLink>
-                    <NavLink to="/">{t("footer.candidates")}</NavLink>
-                    <NavLink to="/">{t("footer.employers")}</NavLink>
-                    <NavLink to="/">{t("header.profile")}</NavLink>
+                    <NavLink to="/oglasi-za-posao">{t("header.posts")}</NavLink>
+                    <NavLink to="/for-candidates">{t("footer.candidates")}</NavLink>
+                    <NavLink to="/for-employers">{t("footer.employers")}</NavLink>
+                    <NavLink to="/profile">{t("header.profile")}</NavLink>
                 </footer>
             )}
             {!isMobile && (
@@ -53,8 +92,8 @@ const Footer = () => {
                             <div key={section.title} className={styles["footer-column"]}>
                                 <p className={styles["column-title"]}>{section.title}</p>
                                 <ul>
-                                    {section.links.map((linkText) => (
-                                        <li key={linkText}>{linkText}</li>
+                                    {section.links.map((link) => (
+                                        <li key={link.label}>{renderFooterLink(link)}</li>
                                     ))}
                                 </ul>
                             </div>
