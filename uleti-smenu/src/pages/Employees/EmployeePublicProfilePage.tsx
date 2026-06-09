@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Footer from "../../components/Footer/Footer";
 import PlatformShiftList from "../../components/Profile/PlatformShiftList";
+import RatingBadge from "../../components/Reviews/RatingBadge";
+import ReviewList from "../../components/Reviews/ReviewList";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
@@ -72,6 +74,10 @@ const EmployeePublicProfilePage = () => {
                 <h1>
                   {profile.firstName} {profile.lastName}
                 </h1>
+                <RatingBadge
+                  averageRating={profile.reviewSummary.averageRating}
+                  reviewCount={profile.reviewSummary.reviewCount}
+                />
                 <p className={styles.meta}>{profile.email}</p>
                 <p className={styles.meta}>{profile.phoneNumber}</p>
               </div>
@@ -98,6 +104,11 @@ const EmployeePublicProfilePage = () => {
                   ))}
                 </div>
               )}
+            </section>
+
+            <section className={styles.section}>
+              <h2>{t("reviews.title")}</h2>
+              <ReviewList reviews={profile.reviews} />
             </section>
 
             <section className={styles.section}>

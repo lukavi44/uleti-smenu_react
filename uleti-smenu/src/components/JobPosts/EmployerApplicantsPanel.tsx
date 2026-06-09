@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Applicant } from "../../models/Application.model";
+import RatingBadge from "../Reviews/RatingBadge";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import styles from "./EmployerApplicantsPanel.module.scss";
 import { useTranslation } from "react-i18next";
@@ -102,7 +103,12 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                   <p className={styles.name}>
                     <Link className={styles.profileLink} to={`/employees/${applicant.userId}`}>
                       {applicant.firstName} {applicant.lastName}
-                    </Link>
+                    </Link>{" "}
+                    <RatingBadge
+                      averageRating={applicant.averageRating}
+                      reviewCount={applicant.reviewCount}
+                      compact
+                    />
                   </p>
                   <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
                   <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>

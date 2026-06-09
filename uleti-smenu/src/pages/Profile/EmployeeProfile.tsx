@@ -10,6 +10,7 @@ import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import WorkExperienceSection from "../../components/Profile/WorkExperienceSection";
+import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
 import PlatformShiftList from "../../components/Profile/PlatformShiftList";
 import { GetMyPlatformShifts } from "../../services/employee-profile-service";
 import { EmployeePlatformShift } from "../../models/WorkExperience.model";
@@ -194,6 +195,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
                 </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection title={t("reviews.pendingTitle")}>
+                <PendingReviewsSection />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("employeeProfile.workExperience")}>

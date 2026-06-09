@@ -352,6 +352,24 @@ const en = {
     send: "Send",
     sending: "Sending..."
   },
+  reviews: {
+    title: "Reviews",
+    pendingTitle: "Leave a review",
+    noPending: "No completed shifts waiting for your review.",
+    noReviews: "No reviews yet.",
+    leaveReview: "Leave review",
+    hideForm: "Hide form",
+    reviewing: "Reviewing",
+    rating: "Rating",
+    comment: "Comment (optional)",
+    commentPlaceholder: "Share how the shift went...",
+    submit: "Submit review",
+    submitting: "Submitting...",
+    submitSuccess: "Review submitted.",
+    submitError: "Unable to submit review.",
+    failedLoadPending: "Unable to load pending reviews.",
+    ratingRequired: "Please select a rating."
+  },
   employeeProfile: {
     workExperience: "Work experience",
     platformHistory: "UletiSmenu shift history",

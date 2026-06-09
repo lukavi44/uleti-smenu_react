@@ -1,3 +1,5 @@
+import { Review, ReviewSummary } from "./Review.model";
+
 export interface WorkExperience {
   id: string;
   companyName: string;
@@ -29,6 +31,8 @@ export interface EmployeePublicProfile {
   profilePhoto?: string;
   workExperiences: WorkExperience[];
   platformShifts: EmployeePlatformShift[];
+  reviewSummary: ReviewSummary;
+  reviews: Review[];
 }
 
 export interface UpsertWorkExperiencePayload {

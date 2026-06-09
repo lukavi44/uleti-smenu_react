@@ -353,6 +353,24 @@ const sr = {
     send: "Pošalji",
     sending: "Slanje..."
   },
+  reviews: {
+    title: "Recenzije",
+    pendingTitle: "Ostavi recenziju",
+    noPending: "Nema završenih smena koje čekaju vašu recenziju.",
+    noReviews: "Još nema recenzija.",
+    leaveReview: "Ostavi recenziju",
+    hideForm: "Sakrij formu",
+    reviewing: "Ocenjujete",
+    rating: "Ocena",
+    comment: "Komentar (opciono)",
+    commentPlaceholder: "Podelite kako je prošla smena...",
+    submit: "Pošalji recenziju",
+    submitting: "Slanje...",
+    submitSuccess: "Recenzija je poslata.",
+    submitError: "Recenzija nije mogla da se pošalje.",
+    failedLoadPending: "Recenzije na čekanju nisu mogle da se učitaju.",
+    ratingRequired: "Izaberite ocenu."
+  },
   employeeProfile: {
     workExperience: "Radno iskustvo",
     platformHistory: "Istorija smena na UletiSmenu",

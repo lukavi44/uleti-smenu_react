@@ -8,6 +8,8 @@ export interface Applicant {
   profilePhoto?: string;
   status: string;
   appliedAt: string;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export interface EmployeeApplication {

@@ -14,6 +14,8 @@ import JobPostForm from "../../components/JobPosts/JobPostForm";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
+import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
+import RatingBadge from "../../components/Reviews/RatingBadge";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -615,6 +617,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 )}
             </CollapsibleSection>
 
+            <CollapsibleSection title={t("reviews.pendingTitle")}>
+                <PendingReviewsSection />
+            </CollapsibleSection>
+
             <CollapsibleSection title={t("profile.applicants")}>
                 {allJobPosts.length > 0 && (
                     <div className={styles.applicantsFilters}>
@@ -686,6 +692,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <Link className={styles.applicantProfileLink} to={`/employees/${applicant.userId}`}>
                                     {applicant.firstName} {applicant.lastName}
                                 </Link>{" "}
+                                <RatingBadge
+                                    averageRating={applicant.averageRating}
+                                    reviewCount={applicant.reviewCount}
+                                    compact
+                                />{" "}
                                 <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
                             </p>
                             <p className={styles.mutedText}>{applicant.email}</p>
