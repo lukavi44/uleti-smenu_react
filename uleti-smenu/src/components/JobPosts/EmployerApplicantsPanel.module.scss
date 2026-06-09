@@ -73,6 +73,15 @@
   color: #111827;
 }
 
+.profileLink {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.profileLink:hover {
+  text-decoration: underline;
+}
+
 .meta {
   margin: 0.2rem 0;
   color: #4b5563;

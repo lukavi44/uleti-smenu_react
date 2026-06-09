@@ -79,6 +79,15 @@
   font-weight: 600;
 }
 
+.applicantProfileLink {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.applicantProfileLink:hover {
+  text-decoration: underline;
+}
+
 .favouriteRemoveButton {
   margin-left: auto;
   min-width: 96px;

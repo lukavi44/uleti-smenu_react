@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Applicant } from "../../models/Application.model";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
@@ -99,7 +100,9 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
               {applicants.map((applicant) => (
                 <div key={applicant.applicationId} className={styles.applicantRow}>
                   <p className={styles.name}>
-                    {applicant.firstName} {applicant.lastName}
+                    <Link className={styles.profileLink} to={`/employees/${applicant.userId}`}>
+                      {applicant.firstName} {applicant.lastName}
+                    </Link>
                   </p>
                   <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
                   <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>

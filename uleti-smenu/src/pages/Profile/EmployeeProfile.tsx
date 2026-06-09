@@ -9,6 +9,10 @@ import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
+import WorkExperienceSection from "../../components/Profile/WorkExperienceSection";
+import PlatformShiftList from "../../components/Profile/PlatformShiftList";
+import { GetMyPlatformShifts } from "../../services/employee-profile-service";
+import { EmployeePlatformShift } from "../../models/WorkExperience.model";
 import { useTranslation } from "react-i18next";
 
 interface EmployeeProfileProps {
@@ -38,6 +42,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
     const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
     const [favouriteActionInProgressId, setFavouriteActionInProgressId] = useState<string | null>(null);
+    const [platformShifts, setPlatformShifts] = useState<EmployeePlatformShift[]>([]);
 
     useEffect(() => {
         const loadApplications = async () => {
@@ -72,6 +77,19 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         };
 
         loadRestaurants();
+    }, []);
+
+    useEffect(() => {
+        const loadPlatformShifts = async () => {
+            try {
+                const response = await GetMyPlatformShifts();
+                setPlatformShifts(response.data);
+            } catch {
+                toast.error(t("employeeProfile.failedLoadPlatformShifts"));
+            }
+        };
+
+        void loadPlatformShifts();
     }, []);
 
     const handleCancel = async (applicationId: string) => {
@@ -176,6 +194,14 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
                     </div>
                 </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection title={t("employeeProfile.workExperience")}>
+                <WorkExperienceSection />
+            </CollapsibleSection>
+
+            <CollapsibleSection title={t("employeeProfile.platformHistory")}>
+                <PlatformShiftList shifts={platformShifts} />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.favouriteRestaurants")}>

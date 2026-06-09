@@ -14,6 +14,7 @@ import JobPostForm from "../../components/JobPosts/JobPostForm";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 interface EmployerProfileProps {
@@ -682,7 +683,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                     {visibleApplicants.map((applicant) => (
                         <div key={applicant.applicationId} className={styles.applicantCard}>
                             <p className={styles.applicantName}>
-                                {applicant.firstName} {applicant.lastName}{" "}
+                                <Link className={styles.applicantProfileLink} to={`/employees/${applicant.userId}`}>
+                                    {applicant.firstName} {applicant.lastName}
+                                </Link>{" "}
                                 <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
                             </p>
                             <p className={styles.mutedText}>{applicant.email}</p>

@@ -1,0 +1,33 @@
+.list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+}
+
+.card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.meta {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.meta span {
+  color: #6b7280;
+}
+
+.mutedText {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}

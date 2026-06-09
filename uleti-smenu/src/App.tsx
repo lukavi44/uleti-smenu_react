@@ -21,6 +21,7 @@ import FaqPage from "./pages/Info/FaqPage";
 import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
 import LegalPage from "./pages/Info/LegalPage";
+import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
             <Route element={<RequireAuth />}>
               <Route path='oglasi-za-posao' element={<JobPosts/>} />
               <Route path="messages" element={<MessagesPage/>}/>
+              <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
             </Route>
           </Routes>
