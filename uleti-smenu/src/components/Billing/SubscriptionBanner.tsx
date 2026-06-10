@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { EmployerSubscription } from "../../models/Subscription.model";
 import styles from "./SubscriptionBanner.module.scss";
@@ -17,6 +18,9 @@ const SubscriptionBanner = ({ subscription }: SubscriptionBannerProps) => {
       <div className={`${styles.banner} ${styles.expired}`}>
         <strong>{t("billing.expiredTitle")}</strong>
         <p>{t("billing.expiredText")}</p>
+        <Link className={styles.upgradeLink} to="/billing/upgrade">
+          {t("billing.viewPlans")}
+        </Link>
       </div>
     );
   }
@@ -31,6 +35,11 @@ const SubscriptionBanner = ({ subscription }: SubscriptionBannerProps) => {
             ? t("billing.trialEndingSoon")
             : t("billing.trialActive", { date: formatDate(subscription.subscriptionStop) })}
         </p>
+        {isEndingSoon && (
+          <Link className={styles.upgradeLink} to="/billing/upgrade">
+            {t("billing.viewPlans")}
+          </Link>
+        )}
       </div>
     );
   }

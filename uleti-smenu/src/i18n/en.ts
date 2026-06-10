@@ -163,36 +163,77 @@ const en = {
       ctaHowItWorks: "How it works"
     },
     legal: {
-      lastUpdated: "Last updated: June 2026. This is placeholder legal text and should be reviewed before production launch.",
+      lastUpdated: "Last updated: June 2026 (draft).",
+      lawyerDisclaimer:
+        "Draft only — not legal advice. These documents must be reviewed and approved by a qualified lawyer before production launch, especially for Serbia/EU GDPR and local consumer rules.",
       terms: {
         title: "Terms of use",
-        intro: "These terms describe how UletiSmenu may be used by candidates and restaurants.",
-        section1Title: "Using the platform",
-        section1Text: "Users must provide accurate information and use the service only for legitimate shift matching.",
-        section2Title: "Accounts and responsibility",
-        section2Text: "You are responsible for activity on your account and for agreements made after a match.",
-        section3Title: "Changes",
-        section3Text: "UletiSmenu may update these terms. Continued use means acceptance of the updated version."
+        intro:
+          "These draft terms describe how employers and candidates may use UletiSmenu to publish shifts, apply, communicate, and manage short-term restaurant work.",
+        section1Title: "Who may use UletiSmenu",
+        section1Text:
+          "You must be at least 18 years old and able to enter binding agreements. Employers represent that they act on behalf of a legitimate restaurant or hospitality business. Candidates must provide accurate profile and contact information.",
+        section2Title: "Platform role",
+        section2Text:
+          "UletiSmenu is a matching platform, not an employer. Shift terms (pay, hours, duties) are agreed directly between restaurant and candidate. We do not guarantee placement, candidate availability, or shift outcomes.",
+        section3Title: "Employer subscriptions and trial",
+        section3Text:
+          "New employer accounts receive a 90-day free trial for posting shifts. After trial expiry, new posts require an active paid plan unless we agree otherwise in writing. Existing posts and applications remain readable; only new publishing is restricted.",
+        section4Title: "Acceptable use",
+        section4Text:
+          "You may not post misleading jobs, harass users, scrape data, bypass billing controls, or use the service for unlawful discrimination. We may suspend accounts that violate these rules or pose a security risk.",
+        section5Title: "Content and intellectual property",
+        section5Text:
+          "You retain rights to content you submit but grant UletiSmenu a limited licence to display it on the platform. You must not upload content that infringes third-party rights or contains malware.",
+        section6Title: "Liability and changes",
+        section6Text:
+          "The service is provided as available. To the extent permitted by law, UletiSmenu is not liable for indirect losses arising from shift arrangements. We may update these terms; material changes will be communicated on the site."
       },
       privacy: {
         title: "Privacy policy",
-        intro: "This policy explains what information UletiSmenu processes and why.",
+        intro:
+          "This draft privacy policy explains what personal data UletiSmenu processes when you register, apply for shifts, message other users, or manage a restaurant account.",
         section1Title: "Data we collect",
-        section1Text: "We collect account details, application activity, and messages needed to operate the service.",
-        section2Title: "How data is used",
-        section2Text: "Data is used to match candidates with restaurants, provide messaging, and improve the platform.",
-        section3Title: "Your rights",
-        section3Text: "You may request correction or deletion of personal data by contacting support@uletismenu.com."
+        section1Text:
+          "Account data (name, email, phone, role), employer business details, job posts, applications, messages, reviews, technical logs, and billing-related identifiers when payments are enabled.",
+        section2Title: "Why we process data",
+        section2Text:
+          "To provide the service, authenticate users, match candidates with restaurants, send service notifications, prevent abuse, comply with law, and improve reliability. Marketing emails are sent only where permitted.",
+        section3Title: "Legal bases (GDPR)",
+        section3Text:
+          "Processing is based on contract performance, legitimate interests (security, product improvement), consent where required (e.g. optional cookies), and legal obligations. Final legal bases must be confirmed by counsel.",
+        section4Title: "Sharing and processors",
+        section4Text:
+          "Data may be shared with hosting providers, email delivery services, and payment processors (e.g. Stripe) when billing is active. We do not sell personal data. Sub-processors must provide appropriate safeguards.",
+        section5Title: "Retention and security",
+        section5Text:
+          "We retain data while your account is active and as needed for legal, tax, or dispute purposes. Technical and organisational measures protect data; no system is 100% secure.",
+        section6Title: "Your rights",
+        section6Text:
+          "Depending on applicable law, you may request access, correction, deletion, restriction, portability, or object to processing. Contact support@uletismenu.com. You may lodge a complaint with your supervisory authority."
       },
       cookies: {
         title: "Cookie policy",
-        intro: "UletiSmenu uses cookies and similar technologies for basic site functionality.",
-        section1Title: "Essential cookies",
-        section1Text: "Required cookies keep you signed in and remember language preferences.",
-        section2Title: "Analytics",
-        section2Text: "We may add analytics cookies later to understand how the platform is used.",
-        section3Title: "Managing cookies",
-        section3Text: "You can control cookies through your browser settings at any time."
+        intro:
+          "This draft cookie policy describes how UletiSmenu uses cookies and similar storage on web and mobile browsers.",
+        section1Title: "What cookies are",
+        section1Text:
+          "Cookies are small files stored on your device. They help the site remember login state, language, and security tokens.",
+        section2Title: "Essential cookies",
+        section2Text:
+          "Required for authentication, session security, and core navigation. These cannot be disabled without breaking the service.",
+        section3Title: "Functional preferences",
+        section3Text:
+          "We may store language choice and UI preferences locally to improve your experience.",
+        section4Title: "Analytics (future)",
+        section4Text:
+          "We may introduce analytics cookies to understand usage patterns. Where required, we will ask for consent before enabling non-essential cookies.",
+        section5Title: "Third-party cookies",
+        section5Text:
+          "Payment pages (e.g. Stripe Checkout) may set their own cookies governed by the provider's policy.",
+        section6Title: "Managing cookies",
+        section6Text:
+          "You can delete or block cookies in your browser settings. Blocking essential cookies may prevent sign-in."
       }
     }
   },
@@ -336,7 +377,19 @@ const en = {
     activeTitle: "{{plan}} is active",
     activeText: "Your subscription is active until {{date}}.",
     expiredTitle: "Trial or subscription expired",
-    expiredText: "You can still manage existing posts, but new shifts cannot be published until you subscribe."
+    expiredText: "You can still manage existing posts, but new shifts cannot be published until you subscribe.",
+    viewPlans: "View plans & upgrade",
+    upgradeTitle: "Plans & billing",
+    upgradeIntro: "Choose a plan to keep posting new shifts after your free trial. Existing posts and applications stay available.",
+    backToProfile: "Back to profile",
+    perMonth: "month",
+    perYear: "year",
+    subscribe: "Subscribe",
+    contactToUpgrade: "Contact support to upgrade",
+    paymentsComingSoon: "Online checkout is coming soon. Contact support@uletismenu.com to upgrade manually.",
+    upgradeLoadError: "Unable to load billing information.",
+    noPlans: "No paid plans are available yet.",
+    postingBlocked: "Your trial or subscription has expired. Upgrade to post new shifts."
   },
   jobPostForm: {
     createTitle: "Create Job Post",

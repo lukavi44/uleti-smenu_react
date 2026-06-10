@@ -163,36 +163,77 @@ const sr = {
       ctaHowItWorks: "Kako funkcioniše"
     },
     legal: {
-      lastUpdated: "Poslednje ažuriranje: jun 2026. Ovo je privremeni pravni tekst i treba ga pregledati pre produkcije.",
+      lastUpdated: "Poslednje ažuriranje: jun 2026 (nacrt).",
+      lawyerDisclaimer:
+        "Samo nacrt — nije pravni savet. Ove dokumente mora pregledati i odobriti kvalifikovani advokat pre produkcije, posebno u kontekstu GDPR-a i lokalnih propisa u Srbiji.",
       terms: {
         title: "Uslovi korišćenja",
-        intro: "Ovi uslovi opisuju kako UletiSmenu mogu koristiti kandidati i restorani.",
-        section1Title: "Korišćenje platforme",
-        section1Text: "Korisnici moraju uneti tačne podatke i koristiti uslugu samo za legitimno povezivanje na smenama.",
-        section2Title: "Nalozi i odgovornost",
-        section2Text: "Odgovorni ste za aktivnost na nalogu i za dogovore nakon match-a.",
-        section3Title: "Izmene",
-        section3Text: "UletiSmenu može ažurirati ove uslove. Nastavak korišćenja znači prihvatanje nove verzije."
+        intro:
+          "Ovaj nacrt uslova opisuje kako poslodavci i kandidati mogu koristiti UletiSmenu za objavu smena, prijave, komunikaciju i kratkoročne angažmane u ugostiteljstvu.",
+        section1Title: "Ko može koristiti UletiSmenu",
+        section1Text:
+          "Morate imati najmanje 18 godina i biti sposobni za zaključivanje ugovora. Poslodavci potvrđuju da deluju u ime legitimnog restorana ili ugostiteljskog objekta. Kandidati moraju uneti tačne podatke profila i kontakta.",
+        section2Title: "Uloga platforme",
+        section2Text:
+          "UletiSmenu je platforma za povezivanje, a ne poslodavac. Uslovi smene (plata, sati, obaveze) dogovaraju se direktno između restorana i kandidata. Ne garantujemo zaposlenje, dostupnost kandidata niti ishod smene.",
+        section3Title: "Pretplata poslodavca i probni period",
+        section3Text:
+          "Novi poslodavački nalozi dobijaju 90 dana besplatnog probnog perioda za objavu smena. Posle isteka, nove objave zahtevaju aktivnu plaćenu pretplatu, osim ako drugačije ne dogovorimo pisano. Postojeći oglasi i prijave ostaju vidljivi; ograničena je samo nova objava.",
+        section4Title: "Dozvoljeno korišćenje",
+        section4Text:
+          "Zabranjeno je objavljivati lažne oglase, uznemiravati korisnike, prikupljati podatke automatski, zaobilaziti naplatu ili koristiti uslugu za nezakonitu diskriminaciju. Naloge možemo suspendovati pri kršenju pravila ili sigurnosnom riziku.",
+        section5Title: "Sadržaj i intelektualna svojina",
+        section5Text:
+          "Zadržavate prava na sadržaj koji šaljete, ali dajete UletiSmenu ograničenu licencu za prikaz na platformi. Ne smete postavljati sadržaj koji krši tuđa prava ili sadrži malver.",
+        section6Title: "Odgovornost i izmene",
+        section6Text:
+          "Usluga se pruža u viđenom stanju. U meri dozvoljenoj zakonom, UletiSmenu nije odgovoran za indirektne štete iz aranžmana o smenama. Uslove možemo ažurirati; o bitnim izmenama obavestićemo na sajtu."
       },
       privacy: {
         title: "Politika privatnosti",
-        intro: "Ova politika objašnjava koje podatke UletiSmenu obrađuje i zašto.",
+        intro:
+          "Ovaj nacrt politike privatnosti objašnjava koje lične podatke UletiSmenu obrađuje kada se registrujete, aplicirate, šaljete poruke ili upravljate restoranskim nalogom.",
         section1Title: "Podaci koje prikupljamo",
-        section1Text: "Prikupljamo podatke naloga, aktivnost prijava i poruke potrebne za rad platforme.",
-        section2Title: "Kako koristimo podatke",
-        section2Text: "Podaci se koriste za povezivanje kandidata i restorana, chat i unapređenje platforme.",
-        section3Title: "Vaša prava",
-        section3Text: "Možete zatražiti ispravku ili brisanje ličnih podataka putem support@uletismenu.com."
+        section1Text:
+          "Podaci naloga (ime, email, telefon, uloga), poslovni podaci poslodavca, oglasi, prijave, poruke, recenzije, tehnički logovi i identifikatori naplate kada je plaćanje uključeno.",
+        section2Title: "Zašto obrađujemo podatke",
+        section2Text:
+          "Radi pružanja usluge, autentifikacije, povezivanja kandidata i restorana, servisnih obaveštenja, sprečavanja zloupotrebe, usklađenosti sa zakonom i poboljšanja pouzdanosti. Marketing šaljemo samo gde je dozvoljeno.",
+        section3Title: "Pravni osnovi (GDPR)",
+        section3Text:
+          "Obrada se zasniva na izvršenju ugovora, legitimnom interesu (bezbednost, unapređenje proizvoda), saglasnosti gde je potrebna (npr. opcioni kolačići) i zakonskim obavezama. Konačne osnove mora potvrditi advokat.",
+        section4Title: "Deljenje i obrađivači",
+        section4Text:
+          "Podaci se mogu deliti sa hosting provajderima, email servisima i procesorima plaćanja (npr. Stripe) kada je naplata aktivna. Ne prodajemo lične podatke. Pod-obrađivači moraju obezbediti odgovarajuću zaštitu.",
+        section5Title: "Čuvanje i bezbednost",
+        section5Text:
+          "Podatke čuvamo dok je nalog aktivan i koliko je potrebno za pravne, poreske ili sporove. Primenujemo tehničke i organizacione mere; nijedan sistem nije 100% siguran.",
+        section6Title: "Vaša prava",
+        section6Text:
+          "U zavisnosti od zakona, možete zatražiti pristup, ispravku, brisanje, ograničenje, prenosivost ili prigovor. Pišite na support@uletismenu.com. Možete podneti pritužbu nadzornom organu."
       },
       cookies: {
         title: "Politika kolačića",
-        intro: "UletiSmenu koristi kolačiće i slične tehnologije za osnovnu funkcionalnost sajta.",
-        section1Title: "Neophodni kolačići",
-        section1Text: "Neophodni kolačići održavaju prijavu i pamte jezičke postavke.",
-        section2Title: "Analitika",
-        section2Text: "Analitičke kolačiće možemo dodati kasnije radi boljeg razumevanja korišćenja platforme.",
-        section3Title: "Upravljanje kolačićima",
-        section3Text: "Kolačiće možete kontrolisati kroz podešavanja pregledača u bilo kom trenutku."
+        intro:
+          "Ovaj nacrt objašnjava kako UletiSmenu koristi kolačiće i slično skladištenje u pregledaču.",
+        section1Title: "Šta su kolačići",
+        section1Text:
+          "Kolačići su male datoteke na uređaju. Pomažu sajtu da zapamti prijavu, jezik i sigurnosne tokene.",
+        section2Title: "Neophodni kolačići",
+        section2Text:
+          "Potrebni za autentifikaciju, sigurnost sesije i osnovnu navigaciju. Ne mogu se isključiti bez prekida rada usluge.",
+        section3Title: "Funkcionalne postavke",
+        section3Text:
+          "Možemo lokalno čuvati izbor jezika i UI postavke radi boljeg iskustva.",
+        section4Title: "Analitika (ubuduće)",
+        section4Text:
+          "Možemo uvesti analitičke kolačiće radi razumevanja korišćenja. Gde je potrebno, tražićemo saglasnost pre ne-essential kolačića.",
+        section5Title: "Kolačići trećih strana",
+        section5Text:
+          "Stranice za plaćanje (npr. Stripe Checkout) mogu postavljati sopstvene kolačiće prema politici provajdera.",
+        section6Title: "Upravljanje kolačićima",
+        section6Text:
+          "Kolačiće možete brisati ili blokirati u pregledaču. Blokiranje neophodnih kolačića može sprečiti prijavu."
       }
     }
   },
@@ -337,7 +378,19 @@ const sr = {
     activeTitle: "{{plan}} je aktivna",
     activeText: "Pretplata je aktivna do {{date}}.",
     expiredTitle: "Probni period ili pretplata su istekli",
-    expiredText: "I dalje možete upravljati postojećim oglasima, ali nove smene ne možete objaviti dok se ne pretplatite."
+    expiredText: "I dalje možete upravljati postojećim oglasima, ali nove smene ne možete objaviti dok se ne pretplatite.",
+    viewPlans: "Pogledaj pakete i nadogradnju",
+    upgradeTitle: "Paketi i naplata",
+    upgradeIntro: "Izaberite paket da biste nastavili sa objavljivanjem novih smena posle probnog perioda. Postojeći oglasi i prijave ostaju dostupni.",
+    backToProfile: "Nazad na profil",
+    perMonth: "mesec",
+    perYear: "godina",
+    subscribe: "Pretplati se",
+    contactToUpgrade: "Kontaktirajte podršku za nadogradnju",
+    paymentsComingSoon: "Online plaćanje stiže uskoro. Pišite na support@uletismenu.com za ručnu nadogradnju.",
+    upgradeLoadError: "Podaci o naplati nisu učitani.",
+    noPlans: "Trenutno nema dostupnih plaćenih paketa.",
+    postingBlocked: "Probni period ili pretplata su istekli. Nadogradite nalog da biste objavili nove smene."
   },
   jobPostForm: {
     createTitle: "Kreiranje oglasa",

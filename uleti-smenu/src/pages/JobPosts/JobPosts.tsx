@@ -13,9 +13,12 @@ import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { Employer } from "../../models/User.model";
 
 const JobPosts = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const { role, me } = useContext(AuthContext);
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
@@ -376,6 +379,14 @@ const JobPosts = () => {
                 <button
                     className={styles["floating-button"]}
                     onClick={() => {
+                        const employer = me as Employer;
+                        const subscription = employer?.subscription;
+                        if (subscription && !subscription.isActive) {
+                            toast.error(t("billing.postingBlocked"));
+                            navigate("/billing/upgrade");
+                            return;
+                        }
+
                         setEditingJobPostId(null);
                         setJobPostCreatFormOpened(true);
                     }}

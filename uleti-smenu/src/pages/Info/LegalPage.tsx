@@ -8,7 +8,7 @@ interface LegalPageProps {
   type: LegalPageType;
 }
 
-const LEGAL_SECTIONS = [1, 2, 3] as const;
+const LEGAL_SECTIONS = [1, 2, 3, 4, 5, 6] as const;
 
 const LegalPage = ({ type }: LegalPageProps) => {
   const { t } = useTranslation();
@@ -16,6 +16,9 @@ const LegalPage = ({ type }: LegalPageProps) => {
 
   return (
     <InfoPageLayout title={t(`${prefix}.title`)} intro={t(`${prefix}.intro`)}>
+      <div className={styles.legalDisclaimer} role="note">
+        <strong>{t("info.legal.lawyerDisclaimer")}</strong>
+      </div>
       <p className={styles.legalUpdated}>{t("info.legal.lastUpdated")}</p>
       {LEGAL_SECTIONS.map((section) => (
         <section key={section} className={styles.section}>

@@ -24,6 +24,7 @@ import LegalPage from "./pages/Info/LegalPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
 import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
 import ReviewSubjectPage from "./pages/Reviews/ReviewSubjectPage";
+import UpgradePage from "./pages/Billing/UpgradePage";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
               <Route path="employers/:employerId" element={<EmployerPublicProfilePage/>}/>
               <Route path="employers/:employerId/reviews" element={<ReviewSubjectPage subjectType="employer"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
+              <Route path="billing/upgrade" element={<UpgradePage/>}/>
             </Route>
           </Routes>
         </AuthContextProvider>

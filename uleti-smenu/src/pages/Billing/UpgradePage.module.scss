@@ -1,0 +1,80 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0 0 1.25rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.notice {
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.planGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.planCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  background: #fff;
+}
+
+.planCard h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.price {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.description {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.subscribeBtn {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.subscribeBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.mutedText {
+  color: #6b7280;
+}
