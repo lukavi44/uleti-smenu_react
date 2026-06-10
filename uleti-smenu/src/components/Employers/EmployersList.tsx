@@ -1,6 +1,7 @@
 import { useEmployers } from "../../hooks/useEmployers";
 import LoadingContext from "../../store/Loading-context";
 import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "./EmployersList.module.scss";
 import { Employer } from "../../models/User.model";
 
@@ -22,6 +23,7 @@ const EmployersList = () => {
   const [employers, setEmployers] = useState(initialEmployers);
   const [reviewSummaries, setReviewSummaries] = useState<Record<string, ReviewSummary>>({});
   const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
+  const canViewProfile = authStatus === "authenticated" && role === "Employee";
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
     mode: "free",
@@ -108,11 +110,21 @@ const EmployersList = () => {
               className={`keen-slider__slide ${styles["employer-card"]}`}
               key={employer.id}
             >
-              <img
-                src={getImageUrl(employer.profilePhoto)}
-                alt={employer.name}
-                className={styles["employer-img"]}
-              />
+              {canViewProfile ? (
+                <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
+                  <img
+                    src={getImageUrl(employer.profilePhoto)}
+                    alt={employer.name}
+                    className={styles["employer-img"]}
+                  />
+                </Link>
+              ) : (
+                <img
+                  src={getImageUrl(employer.profilePhoto)}
+                  alt={employer.name}
+                  className={styles["employer-img"]}
+                />
+              )}
               {canToggleFavourite && (
                 <button
                   type="button"
@@ -128,7 +140,13 @@ const EmployersList = () => {
                 </button>
               )}
               <div className={styles.cardFooter}>
-                <p className={styles.employerName}>{employer.name}</p>
+                {canViewProfile ? (
+                  <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
+                    <p className={styles.employerName}>{employer.name}</p>
+                  </Link>
+                ) : (
+                  <p className={styles.employerName}>{employer.name}</p>
+                )}
                 {authStatus === "authenticated" && reviewSummaries[employer.id] && (
                   <RatingBadge
                     averageRating={reviewSummaries[employer.id].averageRating}

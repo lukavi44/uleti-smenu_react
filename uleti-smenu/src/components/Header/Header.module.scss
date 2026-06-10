@@ -175,6 +175,15 @@
   gap: 0.6rem;
 }
 
+.notification-link {
+  cursor: pointer;
+  color: #1d4ed8;
+}
+
+.notification-link:hover {
+  text-decoration: underline;
+}
+
 .notification-delete-button {
   min-width: 1.7rem;
   height: 1.7rem;

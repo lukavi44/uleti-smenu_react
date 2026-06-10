@@ -1,0 +1,108 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.6rem;
+  color: #111827;
+}
+
+.meta {
+  margin: 0.15rem 0;
+  color: #4b5563;
+}
+
+.favouriteBtn {
+  margin-top: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7280;
+  font-size: 1.1rem;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+}
+
+.isFavourite {
+  color: #f59e0b;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.2rem;
+  color: #111827;
+}
+
+.locationList,
+.jobPostList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.locationCard,
+.jobPostCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+}
+
+.locationCard h3,
+.jobPostCard h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.jobMeta {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.mutedText {
+  margin: 0;
+  color: #6b7280;
+}
+
+.jobPostLink {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}

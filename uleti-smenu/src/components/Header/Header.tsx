@@ -1,5 +1,5 @@
 import styles from "./Header.module.scss";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PointerEvent, useContext, useEffect, useState } from "react";
 
 import "tailwindcss";
@@ -12,6 +12,12 @@ import RegistrationDialog from "../Dialog/RegistrationDialog";
 import ConfirmationDialog from "../Dialog/ConfirmationDialog";
 import { DeleteNotification, GetMyNotifications, GetMyUnreadNotificationCount, MarkNotificationAsRead } from "../../services/notification-service";
 import { GetMyUnreadChatCount } from "../../services/chat-service";
+import {
+    startRealtimeConnection,
+    stopRealtimeConnection,
+    subscribeChatUnreadCount,
+    subscribeNotifications,
+} from "../../services/realtime-service";
 import { UserNotification } from "../../models/Notification.model";
 import { useTranslation } from "react-i18next";
 
@@ -22,6 +28,7 @@ import { useTranslation } from "react-i18next";
 const Header = () => {
     const { t, i18n } = useTranslation();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
     const [isLogoutModalOpened, setIsLogoutModalOpened] = useState(false);
     const { isLoggedIn, logout, role } = useContext(AuthContext);
@@ -40,8 +47,8 @@ const Header = () => {
     const maxSwipeDistance = 140;
     const removeAnimationDurationMs = 240;
 
-    const isEmployeeLoggedIn = isLoggedIn && role === "Employee";
     const canUseChat = isLoggedIn && (role === "Employee" || role === "Employer");
+    const canUseNotifications = canUseChat;
 
     const loadUnreadChatCount = async () => {
         if (!canUseChat) {
@@ -58,7 +65,7 @@ const Header = () => {
     };
 
     const loadNotifications = async () => {
-        if (!isEmployeeLoggedIn) {
+        if (!canUseNotifications) {
             setNotifications([]);
             setUnreadCount(0);
             return;
@@ -78,22 +85,41 @@ const Header = () => {
     };
 
     useEffect(() => {
-        loadNotifications();
-    }, [isEmployeeLoggedIn]);
+        void loadNotifications();
+    }, [canUseNotifications]);
 
     useEffect(() => {
         void loadUnreadChatCount();
+    }, [canUseChat, location.pathname]);
 
-        if (!canUseChat) {
+    useEffect(() => {
+        if (!isLoggedIn) {
+            void stopRealtimeConnection();
             return;
         }
 
-        const intervalId = window.setInterval(() => {
-            void loadUnreadChatCount();
-        }, 15000);
+        void startRealtimeConnection();
 
-        return () => window.clearInterval(intervalId);
-    }, [canUseChat, location.pathname]);
+        const unsubscribeChatUnread = subscribeChatUnreadCount((count) => {
+            setUnreadChatCount(count);
+        });
+
+        const unsubscribeNotifications = subscribeNotifications((notification, count) => {
+            setNotifications((previousNotifications) => {
+                if (previousNotifications.some((item) => item.id === notification.id)) {
+                    return previousNotifications;
+                }
+
+                return [notification, ...previousNotifications];
+            });
+            setUnreadCount(count);
+        });
+
+        return () => {
+            unsubscribeChatUnread();
+            unsubscribeNotifications();
+        };
+    }, [isLoggedIn]);
 
     const removeNotificationFromState = (notificationId: string, shouldDecreaseUnread: boolean) => {
         setNotifications((previousNotifications) =>
@@ -289,7 +315,7 @@ const Header = () => {
                                 </span>
                             </NavLink>
                         )}
-                        {isEmployeeLoggedIn && (
+                        {canUseNotifications && (
                             <div className={styles["notifications-wrapper"]}>
                                 <button
                                     type="button"
@@ -321,7 +347,23 @@ const Header = () => {
                                                 onPointerCancel={() => void handlePointerEnd(notification.id)}
                                             >
                                                 <div className={styles["notification-item-header"]}>
-                                                    <p>{notification.message}</p>
+                                                    <p
+                                                        className={notification.type === "ReviewReminder" ? styles["notification-link"] : undefined}
+                                                        onClick={() => {
+                                                            if (notification.type !== "ReviewReminder") {
+                                                                return;
+                                                            }
+
+                                                            if (!notification.isRead) {
+                                                                void handleMarkAsRead(notification.id);
+                                                            }
+
+                                                            setIsNotificationsOpen(false);
+                                                            navigate("/profile");
+                                                        }}
+                                                    >
+                                                        {notification.message}
+                                                    </p>
                                                     <button
                                                         type="button"
                                                         className={styles["notification-delete-button"]}

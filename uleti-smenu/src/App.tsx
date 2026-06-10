@@ -22,6 +22,7 @@ import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
 import LegalPage from "./pages/Info/LegalPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
+import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
 import ReviewSubjectPage from "./pages/Reviews/ReviewSubjectPage";
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
               <Route path="employees/:employeeId/reviews" element={<ReviewSubjectPage subjectType="employee"/>}/>
+              <Route path="employers/:employerId" element={<EmployerPublicProfilePage/>}/>
               <Route path="employers/:employerId/reviews" element={<ReviewSubjectPage subjectType="employer"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
             </Route>

@@ -373,6 +373,7 @@ const sr = {
     loadError: "Recenzije nisu mogle da se učitaju.",
     backToProfile: "Nazad na profil",
     backToRestaurants: "Nazad na restorane",
+    backToEmployerProfile: "Nazad na profil restorana",
     employeeReviewsTitle: "Recenzije za {{name}}",
     restaurantReviewsTitle: "Recenzije za {{name}}",
     reviewCountLabel: "recenzija",
@@ -405,6 +406,18 @@ const sr = {
     shiftDate: "Datum smene",
     salary: "Dnevnica",
     viewProfile: "Pogledaj profil"
+  },
+  employerProfile: {
+    backToRestaurants: "Nazad na restorane",
+    loadError: "Profil restorana nije mogao da se učita.",
+    locations: "Lokacije",
+    noLocations: "Još nema dodatih lokacija.",
+    activeJobPosts: "Aktivni oglasi",
+    noActiveJobPosts: "Trenutno nema aktivnih oglasa.",
+    browseAllJobPosts: "Pogledaj sve oglase",
+    location: "Lokacija",
+    shiftDate: "Datum smene",
+    salary: "Dnevnica"
   },
   messages: {
     title: "Poruke",

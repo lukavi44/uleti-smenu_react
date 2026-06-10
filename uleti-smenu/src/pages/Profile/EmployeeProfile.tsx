@@ -15,6 +15,7 @@ import PlatformShiftList from "../../components/Profile/PlatformShiftList";
 import { GetMyPlatformShifts } from "../../services/employee-profile-service";
 import { EmployeePlatformShift } from "../../models/WorkExperience.model";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 interface EmployeeProfileProps {
     user: Employee;
@@ -215,13 +216,17 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                     {restaurants.map((restaurant) => (
                         <article key={restaurant.id} className={styles.branchCard}>
                             <div className={styles.restaurantRow}>
-                                <img
-                                    src={getImageUrl(restaurant.profilePhoto)}
-                                    alt={restaurant.name}
-                                    className={styles.restaurantLogo}
-                                />
+                                <Link to={`/employers/${restaurant.id}`}>
+                                    <img
+                                        src={getImageUrl(restaurant.profilePhoto)}
+                                        alt={restaurant.name}
+                                        className={styles.restaurantLogo}
+                                    />
+                                </Link>
                                 <div>
-                                    <strong>{restaurant.name}</strong>
+                                    <Link to={`/employers/${restaurant.id}`} className={styles.restaurantNameLink}>
+                                        <strong>{restaurant.name}</strong>
+                                    </Link>
                                     <p className={styles.mutedText}>{t("profile.favourite")}</p>
                                 </div>
                                 <button

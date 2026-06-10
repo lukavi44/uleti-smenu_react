@@ -372,6 +372,7 @@ const en = {
     loadError: "Unable to load reviews.",
     backToProfile: "Back to profile",
     backToRestaurants: "Back to restaurants",
+    backToEmployerProfile: "Back to restaurant profile",
     employeeReviewsTitle: "Reviews for {{name}}",
     restaurantReviewsTitle: "Reviews for {{name}}",
     reviewCountLabel: "reviews",
@@ -404,6 +405,18 @@ const en = {
     shiftDate: "Shift date",
     salary: "Salary",
     viewProfile: "View profile"
+  },
+  employerProfile: {
+    backToRestaurants: "Back to restaurants",
+    loadError: "Unable to load restaurant profile.",
+    locations: "Locations",
+    noLocations: "No branch locations added yet.",
+    activeJobPosts: "Active job posts",
+    noActiveJobPosts: "No active job posts right now.",
+    browseAllJobPosts: "Browse all job posts",
+    location: "Location",
+    shiftDate: "Shift date",
+    salary: "Salary"
   },
   messages: {
     title: "Messages",

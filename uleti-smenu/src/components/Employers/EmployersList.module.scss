@@ -72,4 +72,14 @@
         color: #111827;
         font-size: 0.95rem;
     }
+
+    .cardLink {
+        display: block;
+        text-decoration: none;
+    }
+
+    .employerNameLink {
+        text-decoration: none;
+        color: inherit;
+    }
 }

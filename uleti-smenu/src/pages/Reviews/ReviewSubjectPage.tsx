@@ -5,8 +5,8 @@ import Footer from "../../components/Footer/Footer";
 import ReviewList from "../../components/Reviews/ReviewList";
 import { ReviewPage } from "../../models/Review.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
+import { GetEmployerPublicProfile } from "../../services/employer-profile-service";
 import { GetEmployeeReviewPage, GetEmployerReviewPage } from "../../services/review-service";
-import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 import { AuthContext } from "../../store/Auth-context";
 import styles from "./ReviewSubjectPage.module.scss";
 
@@ -52,11 +52,10 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
             }
           } else {
             try {
-              const employersResponse = await GetEmployersWithFavouriteStatus();
-              const employer = employersResponse.data.find((item) => item.id === subjectId);
+              const profileResponse = await GetEmployerPublicProfile(subjectId);
               pageData = {
                 ...pageData,
-                subjectName: employer?.name ?? t("reviews.unknownSubject"),
+                subjectName: profileResponse.data.name,
               };
             } catch {
               pageData = { ...pageData, subjectName: t("reviews.unknownSubject") };
@@ -88,13 +87,17 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
   }
 
   const backTo =
-    subjectType === "employee" && employeeId ? `/employees/${employeeId}` : "/restaurants";
+    subjectType === "employee" && employeeId
+      ? `/employees/${employeeId}`
+      : employerId
+        ? `/employers/${employerId}`
+        : "/restaurants";
 
   return (
     <>
       <main className={styles.page}>
         <Link className={styles.backLink} to={backTo}>
-          {subjectType === "employee" ? t("reviews.backToProfile") : t("reviews.backToRestaurants")}
+          {subjectType === "employee" ? t("reviews.backToProfile") : t("reviews.backToEmployerProfile")}
         </Link>
 
         {isLoading && <p className={styles.mutedText}>{t("common.loading")}</p>}
