@@ -381,7 +381,7 @@ const JobPosts = () => {
                     onClick={() => {
                         const employer = me as Employer;
                         const subscription = employer?.subscription;
-                        if (subscription && !subscription.isActive) {
+                        if (subscription && subscription.canPost === false) {
                             toast.error(t("billing.postingBlocked"));
                             navigate("/billing/upgrade");
                             return;

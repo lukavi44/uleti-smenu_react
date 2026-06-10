@@ -5,15 +5,35 @@ import styles from "./SubscriptionBanner.module.scss";
 
 interface SubscriptionBannerProps {
   subscription?: EmployerSubscription;
+  onManageBilling?: () => void;
 }
 
-const SubscriptionBanner = ({ subscription }: SubscriptionBannerProps) => {
+const SubscriptionBanner = ({ subscription, onManageBilling }: SubscriptionBannerProps) => {
   const { t } = useTranslation();
 
   if (!subscription || subscription.status === "None")
     return null;
 
-  if (subscription.status === "Expired") {
+  if (subscription.needsAttention || subscription.status === "PastDue") {
+    return (
+      <div className={`${styles.banner} ${styles.warning}`}>
+        <strong>{t("billing.needsAttentionTitle")}</strong>
+        <p>{t("billing.needsAttentionText")}</p>
+        <div className={styles.actions}>
+          <Link className={styles.upgradeLink} to="/billing/upgrade">
+            {t("billing.viewPlans")}
+          </Link>
+          {subscription.canManageBilling && onManageBilling && (
+            <button type="button" className={styles.manageBtn} onClick={onManageBilling}>
+              {t("billing.manageBilling")}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (subscription.status === "Expired" || subscription.status === "Incomplete") {
     return (
       <div className={`${styles.banner} ${styles.expired}`}>
         <strong>{t("billing.expiredTitle")}</strong>
@@ -25,7 +45,7 @@ const SubscriptionBanner = ({ subscription }: SubscriptionBannerProps) => {
     );
   }
 
-  if (subscription.status === "Trial") {
+  if (subscription.status === "Trialing") {
     const isEndingSoon = subscription.daysRemaining <= 14;
     return (
       <div className={`${styles.banner} ${isEndingSoon ? styles.warning : styles.trial}`}>
@@ -39,6 +59,20 @@ const SubscriptionBanner = ({ subscription }: SubscriptionBannerProps) => {
           <Link className={styles.upgradeLink} to="/billing/upgrade">
             {t("billing.viewPlans")}
           </Link>
+        )}
+      </div>
+    );
+  }
+
+  if (subscription.status === "Canceled") {
+    return (
+      <div className={`${styles.banner} ${styles.warning}`}>
+        <strong>{t("billing.canceledTitle")}</strong>
+        <p>{t("billing.canceledText", { date: formatDate(subscription.subscriptionStop) })}</p>
+        {subscription.canManageBilling && onManageBilling && (
+          <button type="button" className={styles.manageBtn} onClick={onManageBilling}>
+            {t("billing.manageBilling")}
+          </button>
         )}
       </div>
     );

@@ -6,7 +6,10 @@ export interface BillingPlan {
   description: string;
   cost: number;
   durationInDays: number;
-  billingInterval: "month" | "year";
+  creditsIncluded: number;
+  billingInterval: "month" | "year" | "pack";
+  planKind: string;
+  checkoutMode: "subscription" | "payment";
   currency: string;
 }
 
@@ -15,4 +18,12 @@ export interface BillingOverview {
   plans: BillingPlan[];
   paymentsEnabled: boolean;
   message: string;
+}
+
+export interface CheckoutSessionResponse {
+  checkoutUrl: string;
+}
+
+export interface PortalSessionResponse {
+  portalUrl: string;
 }

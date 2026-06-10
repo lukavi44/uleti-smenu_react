@@ -389,7 +389,20 @@ const en = {
     paymentsComingSoon: "Online checkout is coming soon. Contact support@uletismenu.com to upgrade manually.",
     upgradeLoadError: "Unable to load billing information.",
     noPlans: "No paid plans are available yet.",
-    postingBlocked: "Your trial or subscription has expired. Upgrade to post new shifts."
+    postingBlocked: "Your trial or subscription has expired. Upgrade to post new shifts.",
+    needsAttentionTitle: "Your subscription needs attention",
+    needsAttentionText: "Update your payment method or choose a plan to keep posting new shifts.",
+    manageBilling: "Manage billing",
+    buyCredits: "Buy credits",
+    perPack: "pack",
+    creditsIncluded: "{{count}} post credits included",
+    usageSummary: "Credits: {{credits}} · Max active posts: {{maxPosts}}",
+    checkoutSuccess: "Payment received. Your plan will update shortly.",
+    checkoutCanceled: "Checkout was canceled.",
+    checkoutError: "Unable to start checkout.",
+    portalError: "Unable to open billing portal.",
+    canceledTitle: "Subscription canceled",
+    canceledText: "Access continues until {{date}}. Renew to keep posting after that."
   },
   jobPostForm: {
     createTitle: "Create Job Post",

@@ -390,7 +390,20 @@ const sr = {
     paymentsComingSoon: "Online plaćanje stiže uskoro. Pišite na support@uletismenu.com za ručnu nadogradnju.",
     upgradeLoadError: "Podaci o naplati nisu učitani.",
     noPlans: "Trenutno nema dostupnih plaćenih paketa.",
-    postingBlocked: "Probni period ili pretplata su istekli. Nadogradite nalog da biste objavili nove smene."
+    postingBlocked: "Probni period ili pretplata su istekli. Nadogradite nalog da biste objavili nove smene.",
+    needsAttentionTitle: "Pretplata zahteva pažnju",
+    needsAttentionText: "Ažurirajte način plaćanja ili izaberite paket da biste nastavili sa objavljivanjem.",
+    manageBilling: "Upravljaj naplatom",
+    buyCredits: "Kupi kredite",
+    perPack: "paket",
+    creditsIncluded: "{{count}} kredita za objave uključeno",
+    usageSummary: "Krediti: {{credits}} · Maks. aktivnih oglasa: {{maxPosts}}",
+    checkoutSuccess: "Uplata je primljena. Paket će uskoro biti ažuriran.",
+    checkoutCanceled: "Plaćanje je otkazano.",
+    checkoutError: "Checkout nije mogao da se pokrene.",
+    portalError: "Portal za naplatu nije dostupan.",
+    canceledTitle: "Pretplata je otkazana",
+    canceledText: "Pristup traje do {{date}}. Obnovite pretplatu da biste nastavili sa objavljivanjem."
   },
   jobPostForm: {
     createTitle: "Kreiranje oglasa",
