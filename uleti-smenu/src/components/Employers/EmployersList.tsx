@@ -8,7 +8,7 @@ import { Employer } from "../../models/User.model";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { getImageUrl } from "../../helpers/getHelperUrl";
-import { PatchClientFavorite } from "../../services/user-service";
+import { GetEmployerCities, PatchClientFavorite } from "../../services/user-service";
 import { GetEmployerReviewSummary } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,9 @@ const EmployersList = () => {
   const { t } = useTranslation();
   const { isLoading } = useContext(LoadingContext);
   const { authStatus, role } = useContext(AuthContext);
-  const { employers: initialEmployers, error } = useEmployers();
+  const [selectedCity, setSelectedCity] = useState("");
+  const [cities, setCities] = useState<string[]>([]);
+  const { employers: initialEmployers, error } = useEmployers(selectedCity || undefined);
   const [employers, setEmployers] = useState(initialEmployers);
   const [reviewSummaries, setReviewSummaries] = useState<Record<string, ReviewSummary>>({});
   const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
@@ -28,7 +30,7 @@ const EmployersList = () => {
     loop: false,
     mode: "free",
     slides: {
-      perView: "auto", // ← key change!
+      perView: "auto",
       spacing: 50,
     },
     breakpoints: {
@@ -40,6 +42,19 @@ const EmployersList = () => {
       },
     },
   });
+
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const response = await GetEmployerCities();
+        setCities(response.data);
+      } catch {
+        setCities([]);
+      }
+    };
+
+    void loadCities();
+  }, []);
 
   useEffect(() => {
     setEmployers(initialEmployers);
@@ -92,8 +107,6 @@ const EmployersList = () => {
   if (isLoading) return <div className="text-center py-6">{t("common.loading")}</div>;
   if (error)
     return <div className="text-center py-6 text-red-600">{error}</div>;
-  if (employers.length === 0)
-    return <div className="text-center py-6">{t("employers.noEmployers")}</div>;
 
   return (
     <div className={styles.wrapper}>
@@ -103,64 +116,88 @@ const EmployersList = () => {
           {t("employers.subtitle")}
         </p>
       </div>
-      <div ref={sliderRef} className="keen-slider px-2 py-4">
-        {employers.map((employer: Employer) => {
-          return (
-            <div
-              className={`keen-slider__slide ${styles["employer-card"]}`}
-              key={employer.id}
-            >
-              {canViewProfile ? (
-                <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
+
+      <div className={styles.filters}>
+        <label htmlFor="employerCityFilter">{t("employers.filterByCity")}</label>
+        <select
+          id="employerCityFilter"
+          className={styles.cityFilterSelect}
+          value={selectedCity}
+          onChange={(event) => setSelectedCity(event.target.value)}
+        >
+          <option value="">{t("employers.allCities")}</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {employers.length === 0 ? (
+        <div className="text-center py-6">
+          {selectedCity ? t("employers.noEmployersInCity") : t("employers.noEmployers")}
+        </div>
+      ) : (
+        <div ref={sliderRef} className="keen-slider px-2 py-4">
+          {employers.map((employer: Employer) => {
+            return (
+              <div
+                className={`keen-slider__slide ${styles["employer-card"]}`}
+                key={employer.id}
+              >
+                {canViewProfile ? (
+                  <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
+                    <img
+                      src={getImageUrl(employer.profilePhoto)}
+                      alt={employer.name}
+                      className={styles["employer-img"]}
+                    />
+                  </Link>
+                ) : (
                   <img
                     src={getImageUrl(employer.profilePhoto)}
                     alt={employer.name}
                     className={styles["employer-img"]}
                   />
-                </Link>
-              ) : (
-                <img
-                  src={getImageUrl(employer.profilePhoto)}
-                  alt={employer.name}
-                  className={styles["employer-img"]}
-                />
-              )}
-              {canToggleFavourite && (
-                <button
-                  type="button"
-                  className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
-                  aria-label={
-                    employer.isFavourite
-                              ? t("employers.removeFromFavorites")
-                              : t("employers.addToFavorites")
-                  }
-                  onClick={(e) => handleChangeFavourite(employer, e)}
-                >
-                  {employer.isFavourite ? "★" : "☆"}
-                </button>
-              )}
-              <div className={styles.cardFooter}>
-                {canViewProfile ? (
-                  <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
+                )}
+                {canToggleFavourite && (
+                  <button
+                    type="button"
+                    className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
+                    aria-label={
+                      employer.isFavourite
+                                ? t("employers.removeFromFavorites")
+                                : t("employers.addToFavorites")
+                    }
+                    onClick={(e) => handleChangeFavourite(employer, e)}
+                  >
+                    {employer.isFavourite ? "★" : "☆"}
+                  </button>
+                )}
+                <div className={styles.cardFooter}>
+                  {canViewProfile ? (
+                    <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
+                      <p className={styles.employerName}>{employer.name}</p>
+                    </Link>
+                  ) : (
                     <p className={styles.employerName}>{employer.name}</p>
-                  </Link>
-                ) : (
-                  <p className={styles.employerName}>{employer.name}</p>
-                )}
-                {authStatus === "authenticated" && reviewSummaries[employer.id] && (
-                  <RatingBadge
-                    averageRating={reviewSummaries[employer.id].averageRating}
-                    reviewCount={reviewSummaries[employer.id].reviewCount}
-                    compact
-                    subjectType="employer"
-                    subjectId={employer.id}
-                  />
-                )}
+                  )}
+                  {authStatus === "authenticated" && reviewSummaries[employer.id] && (
+                    <RatingBadge
+                      averageRating={reviewSummaries[employer.id].averageRating}
+                      reviewCount={reviewSummaries[employer.id].reviewCount}
+                      compact
+                      subjectType="employer"
+                      subjectId={employer.id}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

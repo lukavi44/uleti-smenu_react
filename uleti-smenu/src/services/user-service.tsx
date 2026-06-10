@@ -2,13 +2,21 @@ import { AxiosResponse } from "axios";
 import axiosInstance from "./axiosConfig"
 import { Employer } from "../models/User.model";
 
-export const GetAllEmployers = async (): Promise<AxiosResponse<Employer[]>> => {
-    return axiosInstance.get<Employer[]>("/api/v1/User/role/employer");
-}
+export const GetAllEmployers = async (city?: string): Promise<AxiosResponse<Employer[]>> => {
+    return axiosInstance.get<Employer[]>("/api/v1/User/role/employer", {
+        params: city ? { city } : undefined,
+    });
+};
 
-export const GetEmployersWithFavouriteStatus = async (): Promise<AxiosResponse<Employer[]>> => {
-    return axiosInstance.get<Employer[]>("/api/v1/User/employers/");
-}
+export const GetEmployersWithFavouriteStatus = async (city?: string): Promise<AxiosResponse<Employer[]>> => {
+    return axiosInstance.get<Employer[]>("/api/v1/User/employers/", {
+        params: city ? { city } : undefined,
+    });
+};
+
+export const GetEmployerCities = async (): Promise<AxiosResponse<string[]>> => {
+    return axiosInstance.get<string[]>("/api/v1/User/employers/cities");
+};
 
 export const GetCurrentUserRole = async (): Promise<AxiosResponse<string>> => {
     return axiosInstance.get<string>("/api/v1/User/me/role");

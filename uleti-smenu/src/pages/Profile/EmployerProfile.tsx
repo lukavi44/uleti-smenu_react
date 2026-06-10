@@ -16,6 +16,7 @@ import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
 import RatingBadge from "../../components/Reviews/RatingBadge";
+import SubscriptionBanner from "../../components/Billing/SubscriptionBanner";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -347,6 +348,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
     return (
         <div className={styles.profilePage}>
+            <SubscriptionBanner subscription={user.subscription} />
+
             <section className={styles.panel}>
                 <div className={styles.profileHeader}>
                     <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
@@ -390,6 +393,17 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         <span className={styles.infoLabel}>{t("registration.mb")}</span>
                         <span className={styles.infoValue}>{user.mb}</span>
                     </div>
+                    {user.subscription && user.subscription.status !== "None" && (
+                        <div className={styles.infoRow}>
+                            <span className={styles.infoLabel}>{t("billing.planLabel")}</span>
+                            <span className={styles.infoValue}>
+                                {user.subscription.planTitle}
+                                {user.subscription.isActive
+                                    ? ` · ${t("billing.until", { date: new Date(user.subscription.subscriptionStop ?? "").toLocaleDateString() })}`
+                                    : ` · ${t("billing.expiredShort")}`}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </CollapsibleSection>
 

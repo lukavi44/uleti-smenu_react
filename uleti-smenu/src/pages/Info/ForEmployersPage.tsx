@@ -20,7 +20,13 @@ const ForEmployersPage = () => {
 
       <section className={styles.section} id="pricing">
         <h2>{t("info.forEmployers.pricingTitle")}</h2>
-        <p>{t("info.forEmployers.pricingText")}</p>
+        <p>{t("info.forEmployers.pricingIntro")}</p>
+        <div className={styles.pricingCard}>
+          <h3>{t("info.forEmployers.trialPlanTitle")}</h3>
+          <p className={styles.pricingHighlight}>{t("info.forEmployers.trialPlanPrice")}</p>
+          <p>{t("info.forEmployers.trialPlanText")}</p>
+        </div>
+        <p className={styles.pricingNote}>{t("info.forEmployers.pricingNote")}</p>
       </section>
 
       <div className={styles.ctaRow}>

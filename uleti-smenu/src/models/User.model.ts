@@ -1,4 +1,5 @@
 import { Address } from "./Address.model";
+import { EmployerSubscription } from "./Subscription.model";
 
 export interface User {
     id: string;
@@ -14,6 +15,7 @@ export interface Employer extends User {
     pib: string;
     mb: string;
     isFavourite: boolean;
+    subscription?: EmployerSubscription;
 }
 
 

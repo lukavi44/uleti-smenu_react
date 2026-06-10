@@ -154,8 +154,11 @@ const en = {
       candidatesTitle: "Candidate overview",
       candidatesText: "Review applicants from your dashboard or job post page, filter by status, and accept the best match.",
       pricingTitle: "Subscriptions and pricing",
-      pricingText:
-        "Subscription plans for employers are being prepared. For now, contact us at support@uletismenu.com for early access details.",
+      pricingIntro: "Every new restaurant account starts with a free trial. After that, paid plans will keep your shifts visible to candidates.",
+      trialPlanTitle: "3-month free trial",
+      trialPlanPrice: "Free for 90 days",
+      trialPlanText: "Post shifts, manage applicants, and use messaging during your first 3 months at no cost.",
+      pricingNote: "Paid plans after the trial are coming soon. Contact support@uletismenu.com for early access.",
       ctaRegister: "Create employer account",
       ctaHowItWorks: "How it works"
     },
@@ -283,6 +286,9 @@ const en = {
     subtitle: "Click a logo to learn more about companies you're interested in.",
     loadError: "Failed to fetch employers.",
     noEmployers: "No employers available.",
+    noEmployersInCity: "No restaurants found in this city.",
+    filterByCity: "City",
+    allCities: "All cities",
     removeFromFavorites: "Remove from favorites",
     addToFavorites: "Add to favorites"
   },
@@ -317,7 +323,20 @@ const en = {
     noArchivedPosts: "No archived job posts.",
     createPost: "Create Job Post",
     applySuccess: "Successfully applied for this shift.",
-    applyError: "Unable to apply for this shift."
+    applyError: "Unable to apply for this shift.",
+    saveError: "Unable to save the job post."
+  },
+  billing: {
+    planLabel: "Subscription",
+    until: "Active until {{date}}",
+    expiredShort: "Expired",
+    trialTitle: "Free trial · {{days}} days left",
+    trialActive: "Your 3-month free trial is active until {{date}}.",
+    trialEndingSoon: "Your free trial is ending soon. Paid plans will be required to keep posting shifts.",
+    activeTitle: "{{plan}} is active",
+    activeText: "Your subscription is active until {{date}}.",
+    expiredTitle: "Trial or subscription expired",
+    expiredText: "You can still manage existing posts, but new shifts cannot be published until you subscribe."
   },
   jobPostForm: {
     createTitle: "Create Job Post",

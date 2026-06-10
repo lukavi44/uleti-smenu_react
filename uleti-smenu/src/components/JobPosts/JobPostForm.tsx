@@ -16,6 +16,8 @@ import { GetMyRestaurantLocations } from "../../services/restaurantLocation-serv
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { JobPost } from "../../models/JobPost.model";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import axios from "axios";
 import styles from "./JobPostForm.module.scss";
   
   interface JobPostFormProps {
@@ -100,6 +102,16 @@ import styles from "./JobPostForm.module.scss";
       loadLocations();
     }, []);
   
+    const getSubmitErrorMessage = (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        const responseData = error.response?.data;
+        if (typeof responseData === "string" && responseData.trim().length > 0)
+          return responseData;
+      }
+
+      return t("jobPosts.saveError");
+    };
+
     const submitForm = async (formData: JobPostFormData) => {
         const fixedData = {
             ...formData,
@@ -116,11 +128,9 @@ import styles from "./JobPostForm.module.scss";
             onClose();
           }
           catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error(error.message);
-            } else {
-                console.error('Unknown error', error);
-            }
+            const message = getSubmitErrorMessage(error);
+            toast.error(message);
+            console.error(message, error);
           }
     };
   

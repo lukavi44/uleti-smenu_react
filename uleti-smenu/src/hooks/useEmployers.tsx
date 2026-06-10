@@ -5,7 +5,7 @@ import { Employer } from "../models/User.model";
 import { AuthContext } from "../store/Auth-context";
 import { useTranslation } from "react-i18next";
 
-export const useEmployers = () => {
+export const useEmployers = (city?: string) => {
     const { t } = useTranslation();
     const [employers, setEmployers] = useState<Employer[]>([]);
     const { setLoading } = useContext(LoadingContext);
@@ -17,9 +17,10 @@ export const useEmployers = () => {
             setLoading(true);
             try {
                 const isEmployeeView = authStatus === "authenticated" && role === "Employee";
+                const normalizedCity = city?.trim() || undefined;
                 const response = isEmployeeView
-                    ? await GetEmployersWithFavouriteStatus()
-                    : await GetAllEmployers();
+                    ? await GetEmployersWithFavouriteStatus(normalizedCity)
+                    : await GetAllEmployers(normalizedCity);
 
                 const normalizedEmployers = response.data.map((employer) => ({
                     ...employer,
@@ -27,6 +28,7 @@ export const useEmployers = () => {
                 }));
 
                 setEmployers(normalizedEmployers);
+                setError(null);
             } catch (err) {
                 console.log(t("employers.loadError"))
                 setError(t("employers.loadError"));
@@ -36,7 +38,7 @@ export const useEmployers = () => {
         };
 
         fetchEmployers();
-    }, [authStatus, role, setLoading, t]);
+    }, [authStatus, role, setLoading, t, city]);
 
     return { employers, error };
 };

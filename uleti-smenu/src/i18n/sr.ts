@@ -154,8 +154,11 @@ const sr = {
       candidatesTitle: "Pregled kandidata",
       candidatesText: "Pregledajte kandidate sa kontrolne table ili stranice oglasa, filtrirajte po statusu i prihvatite najbolji match.",
       pricingTitle: "Pretplate i cene",
-      pricingText:
-        "Paketi pretplate za poslodavce su u pripremi. Za sada nas kontaktirajte na support@uletismenu.com za raniji pristup.",
+      pricingIntro: "Svaki novi restoran počinje sa besplatnim probnim periodom. Posle toga, plaćene pretplate će održavati vaše smene vidljivim kandidatima.",
+      trialPlanTitle: "3 meseca besplatno",
+      trialPlanPrice: "Besplatno 90 dana",
+      trialPlanText: "Objavljujte smene, upravljajte kandidatima i koristite chat tokom prva 3 meseca bez troškova.",
+      pricingNote: "Plaćeni paketi posle probnog perioda stižu uskoro. Pišite na support@uletismenu.com za raniji pristup.",
       ctaRegister: "Napravi nalog poslodavca",
       ctaHowItWorks: "Kako funkcioniše"
     },
@@ -284,6 +287,9 @@ const sr = {
       "Klikom na logo možeš saznati više o kompanijama koje te posebno zanimaju.",
     loadError: "Greška prilikom preuzimanja poslodavaca.",
     noEmployers: "Nema dostupnih poslodavaca.",
+    noEmployersInCity: "Nema restorana u izabranom gradu.",
+    filterByCity: "Grad",
+    allCities: "Svi gradovi",
     removeFromFavorites: "Ukloni iz omiljenih",
     addToFavorites: "Dodaj u omiljene"
   },
@@ -318,7 +324,20 @@ const sr = {
     noArchivedPosts: "Nema arhiviranih oglasa.",
     createPost: "Napravi oglas",
     applySuccess: "Uspešno ste se prijavili za ovu smenu.",
-    applyError: "Prijava na smenu nije uspela."
+    applyError: "Prijava na smenu nije uspela.",
+    saveError: "Oglas nije mogao da se sačuva."
+  },
+  billing: {
+    planLabel: "Pretplata",
+    until: "Aktivno do {{date}}",
+    expiredShort: "Isteklo",
+    trialTitle: "Besplatni probni period · još {{days}} dana",
+    trialActive: "Vaš besplatni probni period od 3 meseca traje do {{date}}.",
+    trialEndingSoon: "Probni period uskoro ističe. Za nove oglase će biti potrebna plaćena pretplata.",
+    activeTitle: "{{plan}} je aktivna",
+    activeText: "Pretplata je aktivna do {{date}}.",
+    expiredTitle: "Probni period ili pretplata su istekli",
+    expiredText: "I dalje možete upravljati postojećim oglasima, ali nove smene ne možete objaviti dok se ne pretplatite."
   },
   jobPostForm: {
     createTitle: "Kreiranje oglasa",
