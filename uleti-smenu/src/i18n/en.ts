@@ -368,7 +368,14 @@ const en = {
     submitSuccess: "Review submitted.",
     submitError: "Unable to submit review.",
     failedLoadPending: "Unable to load pending reviews.",
-    ratingRequired: "Please select a rating."
+    ratingRequired: "Please select a rating.",
+    loadError: "Unable to load reviews.",
+    backToProfile: "Back to profile",
+    backToRestaurants: "Back to restaurants",
+    employeeReviewsTitle: "Reviews for {{name}}",
+    restaurantReviewsTitle: "Reviews for {{name}}",
+    reviewCountLabel: "reviews",
+    unknownSubject: "User"
   },
   employeeProfile: {
     workExperience: "Work experience",

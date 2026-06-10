@@ -8,8 +8,11 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { PatchClientFavorite } from "../../services/user-service";
+import { GetEmployerReviewSummary } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
 import { useTranslation } from "react-i18next";
+import RatingBadge from "../Reviews/RatingBadge";
+import { ReviewSummary } from "../../models/Review.model";
 
 const EmployersList = () => {
   const { t } = useTranslation();
@@ -17,6 +20,7 @@ const EmployersList = () => {
   const { authStatus, role } = useContext(AuthContext);
   const { employers: initialEmployers, error } = useEmployers();
   const [employers, setEmployers] = useState(initialEmployers);
+  const [reviewSummaries, setReviewSummaries] = useState<Record<string, ReviewSummary>>({});
   const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
@@ -38,6 +42,30 @@ const EmployersList = () => {
   useEffect(() => {
     setEmployers(initialEmployers);
   }, [initialEmployers]);
+
+  useEffect(() => {
+    const loadSummaries = async () => {
+      if (authStatus !== "authenticated" || initialEmployers.length === 0) {
+        setReviewSummaries({});
+        return;
+      }
+
+      const entries = await Promise.all(
+        initialEmployers.map(async (employer) => {
+          try {
+            const response = await GetEmployerReviewSummary(employer.id);
+            return [employer.id, response.data] as const;
+          } catch {
+            return [employer.id, { averageRating: 0, reviewCount: 0 }] as const;
+          }
+        })
+      );
+
+      setReviewSummaries(Object.fromEntries(entries));
+    };
+
+    void loadSummaries();
+  }, [authStatus, initialEmployers]);
 
   const handleChangeFavourite = async (
     employer: Employer,
@@ -99,6 +127,18 @@ const EmployersList = () => {
                   {employer.isFavourite ? "★" : "☆"}
                 </button>
               )}
+              <div className={styles.cardFooter}>
+                <p className={styles.employerName}>{employer.name}</p>
+                {authStatus === "authenticated" && reviewSummaries[employer.id] && (
+                  <RatingBadge
+                    averageRating={reviewSummaries[employer.id].averageRating}
+                    reviewCount={reviewSummaries[employer.id].reviewCount}
+                    compact
+                    subjectType="employer"
+                    subjectId={employer.id}
+                  />
+                )}
+              </div>
             </div>
           );
         })}

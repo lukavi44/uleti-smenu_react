@@ -22,6 +22,13 @@ export interface ReviewSummary {
   reviewCount: number;
 }
 
+export interface ReviewPage {
+  subjectId: string;
+  subjectName: string;
+  summary: ReviewSummary;
+  reviews: Review[];
+}
+
 export interface SubmitReviewPayload {
   applicationId: string;
   rating: number;

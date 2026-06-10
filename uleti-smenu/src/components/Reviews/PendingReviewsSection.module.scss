@@ -60,26 +60,14 @@
   margin-bottom: 0.35rem;
 }
 
-.ratingOptions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
+.revieweeLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
 }
 
-.ratingOption {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 999px;
-  padding: 0.35rem 0.65rem;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 0.86rem;
-}
-
-.ratingOption input {
-  display: none;
+.revieweeLink:hover {
+  text-decoration: underline;
 }
 
 .commentLabel {

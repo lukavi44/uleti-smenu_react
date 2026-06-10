@@ -5,6 +5,7 @@
 .inlineCardWrapper {
   margin-top: 0;
   position: relative;
+  z-index: 1;
 }
 
 .toggleButton {
@@ -43,7 +44,7 @@
   right: 0;
   bottom: calc(100% + 0.45rem);
   width: min(27rem, 78vw);
-  z-index: 5;
+  z-index: 20;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
   max-height: min(22rem, 50vh);
   overflow-y: auto;

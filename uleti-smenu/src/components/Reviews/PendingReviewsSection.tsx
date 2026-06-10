@@ -1,14 +1,16 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../store/Auth-context";
 import { PendingReview } from "../../models/Review.model";
 import { GetMyPendingReviews, SubmitReview } from "../../services/review-service";
+import StarRatingInput from "./StarRatingInput";
 import styles from "./PendingReviewsSection.module.scss";
-
-const RATING_OPTIONS = [1, 2, 3, 4, 5] as const;
 
 const PendingReviewsSection = () => {
   const { t } = useTranslation();
+  const { role } = useContext(AuthContext);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeApplicationId, setActiveApplicationId] = useState<string | null>(null);
@@ -78,7 +80,17 @@ const PendingReviewsSection = () => {
               <div>
                 <h4>{pendingReview.jobPostTitle}</h4>
                 <p className={styles.meta}>
-                  {t("reviews.reviewing")}: {pendingReview.revieweeName}
+                  {t("reviews.reviewing")}:{" "}
+                  <Link
+                    className={styles.revieweeLink}
+                    to={
+                      role === "Employee"
+                        ? `/employers/${pendingReview.revieweeId}/reviews`
+                        : `/employees/${pendingReview.revieweeId}/reviews`
+                    }
+                  >
+                    {pendingReview.revieweeName}
+                  </Link>
                 </p>
                 <p className={styles.meta}>
                   {t("employeeProfile.shiftDate")}: {new Date(pendingReview.shiftDate).toLocaleDateString()}
@@ -101,25 +113,16 @@ const PendingReviewsSection = () => {
               <form className={styles.form} onSubmit={(event) => void handleSubmit(event, pendingReview)}>
                 <fieldset className={styles.ratingFieldset}>
                   <legend>{t("reviews.rating")}</legend>
-                  <div className={styles.ratingOptions}>
-                    {RATING_OPTIONS.map((value) => (
-                      <label key={value} className={styles.ratingOption}>
-                        <input
-                          type="radio"
-                          name={`rating-${pendingReview.applicationId}`}
-                          value={value}
-                          checked={(ratings[pendingReview.applicationId] ?? 0) === value}
-                          onChange={() =>
-                            setRatings((previous) => ({
-                              ...previous,
-                              [pendingReview.applicationId]: value,
-                            }))
-                          }
-                        />
-                        <span>{value} ★</span>
-                      </label>
-                    ))}
-                  </div>
+                  <StarRatingInput
+                    name={`rating-${pendingReview.applicationId}`}
+                    value={ratings[pendingReview.applicationId] ?? 0}
+                    onChange={(value) =>
+                      setRatings((previous) => ({
+                        ...previous,
+                        [pendingReview.applicationId]: value,
+                      }))
+                    }
+                  />
                 </fieldset>
                 <label className={styles.commentLabel}>
                   {t("reviews.comment")}

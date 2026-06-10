@@ -369,7 +369,14 @@ const sr = {
     submitSuccess: "Recenzija je poslata.",
     submitError: "Recenzija nije mogla da se pošalje.",
     failedLoadPending: "Recenzije na čekanju nisu mogle da se učitaju.",
-    ratingRequired: "Izaberite ocenu."
+    ratingRequired: "Izaberite ocenu.",
+    loadError: "Recenzije nisu mogle da se učitaju.",
+    backToProfile: "Nazad na profil",
+    backToRestaurants: "Nazad na restorane",
+    employeeReviewsTitle: "Recenzije za {{name}}",
+    restaurantReviewsTitle: "Recenzije za {{name}}",
+    reviewCountLabel: "recenzija",
+    unknownSubject: "Korisnik"
   },
   employeeProfile: {
     workExperience: "Radno iskustvo",

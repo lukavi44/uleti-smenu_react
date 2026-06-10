@@ -696,6 +696,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                     averageRating={applicant.averageRating}
                                     reviewCount={applicant.reviewCount}
                                     compact
+                                    subjectType="employee"
+                                    subjectId={applicant.userId}
                                 />{" "}
                                 <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
                             </p>

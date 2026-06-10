@@ -16,15 +16,17 @@
 
 .employer-card {
     width: 290px !important;
-    height: 290px;
+    min-height: 290px;
     position: relative;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 0;
     flex-shrink: 0;
   
     .employer-img {
-        width: 100%;
-        height: 100%;
+        width: 290px;
+        height: 290px;
         display: block;
         border-radius: 50%;
         object-fit: cover;
@@ -53,5 +55,21 @@
 
     .is-favourite {
         color: #f59e0b;
+    }
+
+    .cardFooter {
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+    }
+
+    .employerName {
+        margin: 0;
+        font-weight: 700;
+        color: #111827;
+        font-size: 0.95rem;
     }
 }

@@ -22,6 +22,7 @@ import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
 import LegalPage from "./pages/Info/LegalPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
+import ReviewSubjectPage from "./pages/Reviews/ReviewSubjectPage";
 
 function App() {
   return (
@@ -59,6 +60,8 @@ function App() {
               <Route path='oglasi-za-posao' element={<JobPosts/>} />
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
+              <Route path="employees/:employeeId/reviews" element={<ReviewSubjectPage subjectType="employee"/>}/>
+              <Route path="employers/:employerId/reviews" element={<ReviewSubjectPage subjectType="employer"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
             </Route>
           </Routes>

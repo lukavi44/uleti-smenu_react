@@ -1,0 +1,23 @@
+.starRow {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.starButton {
+  border: none;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0.1rem;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.starButton:hover {
+  transform: scale(1.08);
+}
+
+.starSelected {
+  color: #f59e0b;
+}

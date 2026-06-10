@@ -82,7 +82,10 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
   };
 
   return (
-    <div className={`${styles.wrapper} ${variant === "inlineCard" ? styles.inlineCardWrapper : ""}`}>
+    <div
+      className={`${styles.wrapper} ${variant === "inlineCard" ? styles.inlineCardWrapper : ""}`}
+      data-applicants-open={variant === "inlineCard" && isExpanded ? "true" : undefined}
+    >
       <button
         className={`${styles.toggleButton} ${variant === "inlineCard" ? styles.inlineCardToggleButton : ""}`}
         onClick={toggleApplicants}
@@ -108,6 +111,8 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                       averageRating={applicant.averageRating}
                       reviewCount={applicant.reviewCount}
                       compact
+                      subjectType="employee"
+                      subjectId={applicant.userId}
                     />
                   </p>
                   <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
