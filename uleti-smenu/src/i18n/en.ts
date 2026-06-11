@@ -545,6 +545,19 @@ const en = {
     phone: "Phone",
     myApplications: "Applied Job Posts",
     filterByStatus: "Filter by status",
+    applicationFilter: {
+      all: "All applications",
+      applied: "Awaiting response",
+      accepted: "Accepted",
+      denied: "Declined",
+      cancelled: "Cancelled"
+    },
+    applicationStatus: {
+      applied: "Awaiting response",
+      accepted: "Accepted",
+      denied: "Declined",
+      cancelled: "Cancelled"
+    },
     noApplications: "No applications for this filter.",
     cancelApplication: "Cancel application",
     cancelling: "Cancelling...",

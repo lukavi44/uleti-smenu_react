@@ -34,6 +34,21 @@ const getStatusBadgeStyle = (status: string) => {
     }
 };
 
+const getApplicationStatusLabel = (status: string, t: (key: string) => string) => {
+    switch (status) {
+        case "Applied":
+            return t("profile.applicationStatus.applied");
+        case "Accepted":
+            return t("profile.applicationStatus.accepted");
+        case "Denied":
+            return t("profile.applicationStatus.denied");
+        case "Cancelled":
+            return t("profile.applicationStatus.cancelled");
+        default:
+            return status;
+    }
+};
+
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const { t } = useTranslation();
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
@@ -253,11 +268,11 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="All">{t("profile.all")}</option>
-                            <option value="Applied">{t("jobPosts.appliedShort")}</option>
-                            <option value="Accepted">{t("profile.accept")}</option>
-                            <option value="Denied">{t("profile.deny")}</option>
-                            <option value="Cancelled">{t("common.cancel")}</option>
+                            <option value="All">{t("profile.applicationFilter.all")}</option>
+                            <option value="Applied">{t("profile.applicationFilter.applied")}</option>
+                            <option value="Accepted">{t("profile.applicationFilter.accepted")}</option>
+                            <option value="Denied">{t("profile.applicationFilter.denied")}</option>
+                            <option value="Cancelled">{t("profile.applicationFilter.cancelled")}</option>
                         </select>
                     </div>
                 </div>
@@ -284,7 +299,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                 <div>
                                     <span>{t("profile.status")}:</span>
                                     <strong>
-                                        <span style={getStatusBadgeStyle(application.status)}>{application.status}</span>
+                                        <span style={getStatusBadgeStyle(application.status)}>
+                                            {getApplicationStatusLabel(application.status, t)}
+                                        </span>
                                     </strong>
                                 </div>
                             </div>

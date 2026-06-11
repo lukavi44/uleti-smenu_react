@@ -546,6 +546,19 @@ const sr = {
     phone: "Telefon",
     myApplications: "Prijavljeni oglasi",
     filterByStatus: "Filtriraj po statusu",
+    applicationFilter: {
+      all: "Sve prijave",
+      applied: "Čeka odgovor",
+      accepted: "Prihvaćeno",
+      denied: "Odbijeno",
+      cancelled: "Otkazano"
+    },
+    applicationStatus: {
+      applied: "Čeka odgovor",
+      accepted: "Prihvaćeno",
+      denied: "Odbijeno",
+      cancelled: "Otkazano"
+    },
     noApplications: "Nema prijava za izabrani filter.",
     cancelApplication: "Otkaži prijavu",
     cancelling: "Otkazivanje...",
