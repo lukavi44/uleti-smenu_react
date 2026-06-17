@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,7 +11,7 @@ import {
   CircularProgress
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LoginUserRequest } from "../../services/auth-service";
 import { LoginUserDto } from "../../models/User.model";
 import { AuthContext } from "../../store/Auth-context";
@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = React.useState(false);
   const { refreshAuthState } = useContext(AuthContext);
   const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
@@ -40,6 +41,17 @@ const LoginPage = () => {
     resolver: yupResolver(schema),
     defaultValues: { email: "", password: "" },
   });
+
+  useEffect(() => {
+    if (searchParams.get("registered") !== "1") {
+      return;
+    }
+
+    toast.success(t("registration.success"));
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("registered");
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, setSearchParams, t]);
 
   const onSubmit = async (data: LoginUserDto) => {
     setLoading(true);

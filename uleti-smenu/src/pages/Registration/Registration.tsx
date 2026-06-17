@@ -101,19 +101,18 @@ const RegistrationPage = ({userType}: RegistrationFormProps) => {
           } as RegisterEmployeeDTO)),
         });
 
-      const onSubmit = async (formData: any) => {
+      const onSubmit = async (formData: RegisterEmployerDTO | RegisterEmployeeDTO) => {
         try {
           if (isEmployer) {
-            await RegistrationEmployerRequest(formData);
-            toast.success(t("registration.success"));
-            navigate("/login");
-          } else if (!isEmployer) {
-            await RegistrationEmployeeRequest(formData);
-            toast.success(t("registration.success"));
-            navigate("/login");
+            await RegistrationEmployerRequest(formData as RegisterEmployerDTO);
+          } else {
+            await RegistrationEmployeeRequest(formData as RegisterEmployeeDTO);
           }
-        } catch (error: any) {
-          if (error.response?.data?.includes("DuplicateUserName")) {
+
+          navigate("/login?registered=1", { replace: true });
+        } catch (error: unknown) {
+          const message = (error as { response?: { data?: string } })?.response?.data;
+          if (typeof message === "string" && message.includes("DuplicateUserName")) {
             toast.error(t("registration.duplicateUser"));
           } else {
             toast.error(t("registration.failed"));
