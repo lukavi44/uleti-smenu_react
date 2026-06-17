@@ -1,0 +1,19 @@
+# Render Blueprint - UletiSmenu frontend (staging)
+# Repo: https://github.com/lukavi44/uleti-smenu_react
+# Dashboard: New > Blueprint > connect repo, Blueprint path: render.yaml
+
+services:
+  - type: web
+    name: uletismenu-web-staging
+    runtime: static
+    plan: free
+    rootDir: uleti-smenu
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://uletismenu-api-staging.onrender.com
