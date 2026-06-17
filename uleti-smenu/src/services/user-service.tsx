@@ -30,11 +30,7 @@ export const UpdateMyProfilePhoto = async (file: File): Promise<AxiosResponse<{ 
     const formData = new FormData();
     formData.append("file", file);
 
-    return axiosInstance.patch<{ imagePath: string }>("/api/v1/User/me/profile-photo", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
+    return axiosInstance.patch<{ imagePath: string }>("/api/v1/User/me/profile-photo", formData);
 };
 
 export const PatchClientFavorite = async (

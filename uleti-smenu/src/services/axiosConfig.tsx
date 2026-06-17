@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import getApiBaseUrl from "../configuration/config";
 import i18n from "../i18n";
+import { LoginResponseData } from "./auth-service";
 
 const apiBaseURL = getApiBaseUrl();
 
@@ -19,13 +20,15 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   return config;
 });
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const errorMessage = error.response?.data as unknown as string;
     const originalRequest = error.config;
 
     const handleSessionExpired = () => {
@@ -35,32 +38,33 @@ axiosInstance.interceptors.response.use(
       window.location.href = "/login";
     };
 
-    if (error.response.status === 401 && !originalRequest._retry && errorMessage !== "Invalid refresh token.") {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const _accessToken = localStorage.getItem("AccessToken");
-        const _refreshToken = localStorage.getItem("RefreshToken");
+        const refreshToken = localStorage.getItem("RefreshToken");
+        if (refreshToken) {
+          const { data } = await axios.post<LoginResponseData>(
+            `${apiBaseURL}/refresh`,
+            { refreshToken },
+            { headers: { Accept: "application/json", "Content-Type": "application/json" } }
+          );
 
-        if (_accessToken && _refreshToken) {
-          const body = {
-            accessToken: _accessToken,
-            refreshToken: _refreshToken
-          };
-        //   const { data } = await RefreshToken(body);
+          localStorage.setItem("AccessToken", data.accessToken);
+          localStorage.setItem("RefreshToken", data.refreshToken);
 
-          localStorage.setItem('AccessToken', body.accessToken);
-          localStorage.setItem('RefreshToken', body.refreshToken)
-
-          originalRequest.headers['Authorization'] = `Bearer ${body.accessToken}`;
+          originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
 
           return axiosInstance(originalRequest);
         }
-      } catch (err) {
-        return Promise.reject(err)
+      } catch {
+        handleSessionExpired();
+        return Promise.reject(error);
       }
-    } else if (error.response.status === 401 && errorMessage === "Invalid refresh token.") {
+
       handleSessionExpired();
-    } else if (error.response.status === 500) {
+    } else if (error.response?.status === 401) {
+      handleSessionExpired();
+    } else if (error.response?.status === 500) {
       toast.error(i18n.t("common.unexpectedServerError"));
     }
     return Promise.reject(error);
