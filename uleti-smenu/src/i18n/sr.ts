@@ -31,6 +31,7 @@ const sr = {
   home: {
     heroTitle: "Uleti smenu!",
     heroSubtitle: "uzmi lovu, kad kolega ne može.",
+    heroEyebrow: "Platforma za ugostiteljstvo u Srbiji",
     activityOverview: "Pregled aktivnosti",
     activeJobPosts: "Aktivni oglasi",
     totalApplicants: "Ukupno kandidata",
@@ -591,8 +592,8 @@ const sr = {
     sortJobPosts: "Sortiraj",
     sortCreatedNewest: "Najnoviji prvo",
     sortCreatedOldest: "Najstariji prvo",
-    sortDateNewest: "Datum smene (najskoriji)",
-    sortDateOldest: "Datum smene (najraniji)",
+    sortDateNewest: "Datum smene (najdalji)",
+    sortDateOldest: "Datum smene (najskoriji)",
     sortPositionAsc: "Pozicija A-Z",
     sortPositionDesc: "Pozicija Z-A",
     previousPage: "Prethodna",

@@ -1,6 +1,6 @@
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { Employee } from "../../models/User.model";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
 import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePhoto } from "../../services/user-service";
@@ -16,10 +16,9 @@ import { GetMyPlatformShifts } from "../../services/employee-profile-service";
 import { EmployeePlatformShift } from "../../models/WorkExperience.model";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-interface EmployeeProfileProps {
-    user: Employee;
-}
+import Pagination from "../../components/Common/Pagination";
+import { FAVOURITE_RESTAURANTS_PAGE_SIZE, LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useClientPagination } from "../../hooks/useClientPagination";
 
 const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -49,10 +48,15 @@ const getApplicationStatusLabel = (status: string, t: (key: string) => string) =
     }
 };
 
+interface EmployeeProfileProps {
+    user: Employee;
+}
+
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const { t } = useTranslation();
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
+    const [applicationSortValue, setApplicationSortValue] = useState("startingDate_asc");
     const [cancelInProgressId, setCancelInProgressId] = useState<string | null>(null);
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
@@ -60,6 +64,43 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
     const [favouriteActionInProgressId, setFavouriteActionInProgressId] = useState<string | null>(null);
     const [platformShifts, setPlatformShifts] = useState<EmployeePlatformShift[]>([]);
+
+    const visibleApplications = useMemo(() => {
+        const filtered = applications.filter((application) =>
+            statusFilter === "All" ? true : application.status === statusFilter
+        );
+
+        return [...filtered].sort((first, second) => {
+            const firstTime = new Date(first.startingDate).getTime();
+            const secondTime = new Date(second.startingDate).getTime();
+
+            if (applicationSortValue === "startingDate_asc") {
+                return firstTime - secondTime;
+            }
+
+            return secondTime - firstTime;
+        });
+    }, [applications, statusFilter, applicationSortValue]);
+
+    const applicationsResetKey = `${statusFilter}|${applicationSortValue}`;
+
+    const {
+        page: applicationsPage,
+        setPage: setApplicationsPage,
+        totalPages: totalApplicationPages,
+        totalCount: applicationsTotalCount,
+        pageSize: applicationsPageSize,
+        pagedItems: pagedApplications,
+    } = useClientPagination(visibleApplications, LIST_PAGE_SIZE, applicationsResetKey);
+
+    const {
+        page: favouritesPage,
+        setPage: setFavouritesPage,
+        totalPages: favouritesTotalPages,
+        totalCount: favouritesTotalCount,
+        pageSize: favouritesPageSize,
+        pagedItems: pagedRestaurants,
+    } = useClientPagination(restaurants, FAVOURITE_RESTAURANTS_PAGE_SIZE);
 
     useEffect(() => {
         const loadApplications = async () => {
@@ -128,10 +169,6 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         }
     };
 
-    const visibleApplications = applications.filter((application) =>
-        statusFilter === "All" ? true : application.status === statusFilter
-    );
-
     const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] ?? null;
         setSelectedPhotoFile(file);
@@ -165,6 +202,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         try {
             await PatchClientFavorite(restaurantId);
             setRestaurants((previous) => previous.filter((restaurant) => restaurant.id !== restaurantId));
+            if (pagedRestaurants.length === 1 && favouritesPage > 1) {
+                setFavouritesPage(favouritesPage - 1);
+            }
             toast.success(t("profile.removeSuccess"));
         } catch {
             toast.error(t("profile.removeError"));
@@ -184,34 +224,36 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     return (
         <div className={styles.profilePage}>
             <section className={styles.panel}>
-                <div className={styles.profileHeader}>
-                    <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
-                    <ProfilePhotoUpload
-                        inputId="employeeProfilePhotoInput"
-                        selectedFile={selectedPhotoFile}
-                        isUploading={isPhotoUploadInProgress}
-                        onFileChange={handleProfilePhotoChange}
-                        onUpload={handleProfilePhotoUpload}
-                    />
+                <div className={styles.profileHero}>
+                    <div className={styles.profilePhotoColumn}>
+                        <img src={profilePhotoUrl} alt="Profile" className={styles.profileImageLarge} />
+                        <ProfilePhotoUpload
+                            inputId="employeeProfilePhotoInput"
+                            selectedFile={selectedPhotoFile}
+                            isUploading={isPhotoUploadInProgress}
+                            onFileChange={handleProfilePhotoChange}
+                            onUpload={handleProfilePhotoUpload}
+                        />
+                    </div>
+                    <div className={styles.profileInfoColumn}>
+                        <h2 className={styles.profileInfoTitle}>{t("profile.employeeInfo")}</h2>
+                        <div className={styles.infoGrid}>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.fullName")}</span>
+                                <span className={styles.infoValue}>{user.firstName} {user.lastName}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.email")}</span>
+                                <span className={styles.infoValue}>{user.email}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.phone")}</span>
+                                <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            <CollapsibleSection title={t("profile.employeeInfo")}>
-                <div className={styles.infoGrid}>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.fullName")}</span>
-                        <span className={styles.infoValue}>{user.firstName} {user.lastName}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.email")}</span>
-                        <span className={styles.infoValue}>{user.email}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.phone")}</span>
-                        <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
-                    </div>
-                </div>
-            </CollapsibleSection>
 
             <CollapsibleSection title={t("reviews.pendingTitle")}>
                 <PendingReviewsSection />
@@ -228,7 +270,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             <CollapsibleSection title={t("profile.favouriteRestaurants")}>
                 {restaurants.length === 0 && <p className={styles.mutedText}>{t("profile.noFavouriteRestaurants")}</p>}
                 <div className={styles.branchList}>
-                    {restaurants.map((restaurant) => (
+                    {pagedRestaurants.map((restaurant) => (
                         <article key={restaurant.id} className={styles.branchCard}>
                             <div className={styles.restaurantRow}>
                                 <Link to={`/employers/${restaurant.id}`}>
@@ -256,6 +298,14 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         </article>
                     ))}
                 </div>
+                <Pagination
+                    page={favouritesPage}
+                    totalPages={favouritesTotalPages}
+                    totalCount={favouritesTotalCount}
+                    pageSize={favouritesPageSize}
+                    onPrevious={() => setFavouritesPage((previous) => Math.max(1, previous - 1))}
+                    onNext={() => setFavouritesPage((previous) => Math.min(favouritesTotalPages, previous + 1))}
+                />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.myApplications")}>
@@ -275,12 +325,24 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                             <option value="Cancelled">{t("profile.applicationFilter.cancelled")}</option>
                         </select>
                     </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="myApplicationSortFilter">{t("profile.sortJobPosts")}</label>
+                        <select
+                            className={styles.select}
+                            id="myApplicationSortFilter"
+                            value={applicationSortValue}
+                            onChange={(event) => setApplicationSortValue(event.target.value)}
+                        >
+                            <option value="startingDate_asc">{t("profile.sortDateOldest")}</option>
+                            <option value="startingDate_desc">{t("profile.sortDateNewest")}</option>
+                        </select>
+                    </div>
                 </div>
 
                 {visibleApplications.length === 0 && <p className={styles.mutedText}>{t("profile.noApplications")}</p>}
 
                 <div className={styles.jobPostsGrid}>
-                    {visibleApplications.map((application) => (
+                    {pagedApplications.map((application) => (
                         <article key={application.applicationId} className={styles.jobPostCard}>
                             <h4>{application.jobPostTitle}</h4>
                             <div className={styles.cardMeta}>
@@ -323,6 +385,18 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         </article>
                     ))}
                 </div>
+                <Pagination
+                    page={applicationsPage}
+                    totalPages={totalApplicationPages}
+                    totalCount={applicationsTotalCount}
+                    pageSize={applicationsPageSize}
+                    onPrevious={() => setApplicationsPage((previous) => Math.max(1, previous - 1))}
+                    onNext={() =>
+                        setApplicationsPage((previous) =>
+                            Math.min(totalApplicationPages, previous + 1)
+                        )
+                    }
+                />
             </CollapsibleSection>
         </div>
     );

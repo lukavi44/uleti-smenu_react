@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./utils/font.scss";
 
 /* 1. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
@@ -11,10 +12,12 @@
 }
 
 body {
+  font-family: var(--font-sans);
   /* 3. Add accessible line-height */
   line-height: 1.5;
   /* 4. Improve text rendering */
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 5. Improve media defaults */
@@ -31,7 +34,7 @@ input, button, textarea, select {
 /* 7. Avoid text overflows */
 p, h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
-  font-family: sans-serif;
+  font-family: inherit;
 }
 
 /* 8. Improve line wrapping */

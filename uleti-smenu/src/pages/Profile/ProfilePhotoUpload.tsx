@@ -31,7 +31,7 @@ const ProfilePhotoUpload = ({
                 {t("profile.selectPhoto")}
             </label>
             <p className={styles.fileStatusText}>
-                {selectedFile ? `${t("profile.selectedPhoto")}: ${selectedFile.name}` : t("profile.noPhotoSelected")}
+                {selectedFile ? selectedFile.name : t("profile.noPhotoSelected")}
             </p>
             <button
                 className={`${styles.button} ${styles.buttonPrimary}`}

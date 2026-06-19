@@ -31,6 +31,7 @@ const en = {
   home: {
     heroTitle: "Jump in a shift!",
     heroSubtitle: "earn money when a colleague can't work.",
+    heroEyebrow: "Hospitality jobs platform in Serbia",
     activityOverview: "Activity Overview",
     activeJobPosts: "Active Job Posts",
     totalApplicants: "Total Applicants",
@@ -590,8 +591,8 @@ const en = {
     sortJobPosts: "Sort",
     sortCreatedNewest: "Newest first",
     sortCreatedOldest: "Oldest first",
-    sortDateNewest: "Shift date (newest)",
-    sortDateOldest: "Shift date (oldest)",
+    sortDateNewest: "Shift date (furthest)",
+    sortDateOldest: "Shift date (soonest)",
     sortPositionAsc: "Position A-Z",
     sortPositionDesc: "Position Z-A",
     previousPage: "Previous",

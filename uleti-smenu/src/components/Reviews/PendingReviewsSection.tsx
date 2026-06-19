@@ -7,6 +7,9 @@ import { PendingReview } from "../../models/Review.model";
 import { GetMyPendingReviews, SubmitReview } from "../../services/review-service";
 import StarRatingInput from "./StarRatingInput";
 import styles from "./PendingReviewsSection.module.scss";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useClientPagination } from "../../hooks/useClientPagination";
+import Pagination from "../Common/Pagination";
 
 const PendingReviewsSection = () => {
   const { t } = useTranslation();
@@ -17,6 +20,15 @@ const PendingReviewsSection = () => {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [submittingId, setSubmittingId] = useState<string | null>(null);
+
+  const {
+    page,
+    setPage,
+    totalPages,
+    totalCount,
+    pageSize,
+    pagedItems: pagedReviews,
+  } = useClientPagination(pendingReviews, LIST_PAGE_SIZE);
 
   const loadPendingReviews = async () => {
     setIsLoading(true);
@@ -72,7 +84,7 @@ const PendingReviewsSection = () => {
 
   return (
     <div className={styles.section}>
-      {pendingReviews.map((pendingReview) => {
+      {pagedReviews.map((pendingReview) => {
         const isOpen = activeApplicationId === pendingReview.applicationId;
         return (
           <article key={pendingReview.applicationId} className={styles.card}>
@@ -154,6 +166,14 @@ const PendingReviewsSection = () => {
           </article>
         );
       })}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPrevious={() => setPage((previous) => Math.max(1, previous - 1))}
+        onNext={() => setPage((previous) => Math.min(totalPages, previous + 1))}
+      />
     </div>
   );
 };

@@ -24,8 +24,7 @@ import {
   normalizeEmployerDashboardSummary,
 } from "../../helpers/employerDashboard";
 import { useTranslation } from "react-i18next";
-
-const HOME_PAGE_SIZE = 5;
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -118,7 +117,7 @@ const HomePage = () => {
       try {
         const response = await GetMyJobPostsPaged({
           page: jobPostsPage,
-          pageSize: HOME_PAGE_SIZE,
+          pageSize: LIST_PAGE_SIZE,
           sortBy: "createdAt",
           sortDirection: "desc",
         });
@@ -140,7 +139,7 @@ const HomePage = () => {
       try {
         const response = await GetMyJobPostsPaged({
           page: applicantsWaitingPage,
-          pageSize: HOME_PAGE_SIZE,
+          pageSize: LIST_PAGE_SIZE,
           hasApplicants: true,
           sortBy: "applicantCount",
           sortDirection: "desc",
@@ -157,12 +156,12 @@ const HomePage = () => {
   }, [isEmployerDashboardVisible, applicantsWaitingPage]);
 
   const totalJobPostPages = useMemo(
-    () => Math.max(1, Math.ceil(jobPostsTotalCount / HOME_PAGE_SIZE)),
+    () => Math.max(1, Math.ceil(jobPostsTotalCount / LIST_PAGE_SIZE)),
     [jobPostsTotalCount]
   );
 
   const totalApplicantsWaitingPages = useMemo(
-    () => Math.max(1, Math.ceil(applicantsWaitingTotalCount / HOME_PAGE_SIZE)),
+    () => Math.max(1, Math.ceil(applicantsWaitingTotalCount / LIST_PAGE_SIZE)),
     [applicantsWaitingTotalCount]
   );
 
@@ -211,59 +210,48 @@ const HomePage = () => {
     <>
       <section
         className={`${styles.hero} ${
-          isEmployerDashboardVisible ? styles["hero-employer"] : ""
+          isEmployerDashboardVisible ? styles.heroEmployer : ""
         }`}
       >
-        {!isMobile && (
-          <div className={styles.content}>
-            <div className={styles.left}>
-              <p>{t("home.heroTitle")}</p>
-              <p className={styles["p-medium"]}>
-                {t("home.heroSubtitle")}
-              </p>
-              {isLoggedOut && (
-                <div className={styles.heroCtas}>
-                  <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
-                    {t("home.heroCtaEmployee")}
-                  </NavLink>
-                  <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
-                    {t("home.heroCtaEmployer")}
-                  </NavLink>
-                  <NavLink className={styles.heroLink} to="/how-it-works">
-                    {t("home.heroCtaHowItWorks")}
-                  </NavLink>
-                </div>
-              )}
-            </div>
-            <div className={styles.right}></div>
-          </div>
-        )}
-        {isMobile && (
-          <div className={styles["background-container"]}>
-            <div className={styles.content}>
-              <div className={styles.left}>
-                <p>{t("home.heroTitle")}</p>
-                <p className={styles["p-medium"]}>
-                  {t("home.heroSubtitle")}
-                </p>
-                {isLoggedOut && (
-                  <div className={styles.heroCtas}>
-                    <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
-                      {t("home.heroCtaEmployee")}
-                    </NavLink>
-                    <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
-                      {t("home.heroCtaEmployer")}
-                    </NavLink>
-                    <NavLink className={styles.heroLink} to="/how-it-works">
-                      {t("home.heroCtaHowItWorks")}
-                    </NavLink>
-                  </div>
-                )}
+        <div className={styles.heroBackdrop} aria-hidden="true" />
+        <div className={styles.heroOrbs} aria-hidden="true">
+          <span className={styles.orbOne} />
+          <span className={styles.orbTwo} />
+          <span className={styles.orbThree} />
+        </div>
+
+        <div className={styles.heroInner}>
+          <div className={`${styles.heroContent} ${styles.heroAnimate}`}>
+            {!isEmployerDashboardVisible && (
+              <span className={styles.heroEyebrow}>{t("home.heroEyebrow")}</span>
+            )}
+            <h1 className={styles.heroTitle}>{t("home.heroTitle")}</h1>
+            <p className={styles.heroSubtitle}>{t("home.heroSubtitle")}</p>
+            {isLoggedOut && (
+              <div className={styles.heroCtas}>
+                <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
+                  {t("home.heroCtaEmployee")}
+                </NavLink>
+                <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
+                  {t("home.heroCtaEmployer")}
+                </NavLink>
+                <NavLink className={styles.heroLink} to="/how-it-works">
+                  {t("home.heroCtaHowItWorks")}
+                </NavLink>
               </div>
-              <div className={styles.right} />
-            </div>
+            )}
           </div>
-        )}
+
+          {!isMobile && !isEmployerDashboardVisible && (
+            <div className={styles.heroVisual} aria-hidden="true">
+              <div className={styles.heroVisualCard}>
+                <span className={styles.heroVisualLabel}>{t("home.activeJobPosts")}</span>
+                <strong>24/7</strong>
+                <p>{t("home.marketingSubtitle")}</p>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
       {isEmployerDashboardVisible && (
         <section className={styles.dashboard}>
@@ -321,7 +309,7 @@ const HomePage = () => {
                 </article>
               ))}
             </div>
-            {applicantsWaitingTotalCount > HOME_PAGE_SIZE &&
+            {applicantsWaitingTotalCount > LIST_PAGE_SIZE &&
               renderPagination(
                 applicantsWaitingPage,
                 totalApplicantsWaitingPages,
@@ -383,7 +371,7 @@ const HomePage = () => {
                 </article>
               ))}
             </div>
-            {jobPostsTotalCount > HOME_PAGE_SIZE &&
+            {jobPostsTotalCount > LIST_PAGE_SIZE &&
               renderPagination(
                 jobPostsPage,
                 totalJobPostPages,
@@ -416,7 +404,14 @@ const HomePage = () => {
       {showMarketingSection && <MarketingSection />}
       {!isMobile && canSeeEmployersCarousel && (
         <section className={styles.employers}>
-          <EmployersList />
+          <div className={styles.employersBackdrop} aria-hidden="true" />
+          <div className={styles.employersOrbs} aria-hidden="true">
+            <span className={styles.employersOrbOne} />
+            <span className={styles.employersOrbTwo} />
+          </div>
+          <div className={styles.employersInner}>
+            <EmployersList />
+          </div>
         </section>
       )}
       {isMobile && !isEmployerDashboardVisible && <JobPosts />}

@@ -19,6 +19,9 @@ import RatingBadge from "../../components/Reviews/RatingBadge";
 import SubscriptionBanner from "../../components/Billing/SubscriptionBanner";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/Common/Pagination";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useClientPagination } from "../../hooks/useClientPagination";
 
 interface EmployerProfileProps {
     user: Employer;
@@ -36,8 +39,6 @@ const getStatusBadgeStyle = (status: string) => {
             return { backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "12px" };
     }
 };
-
-const JOB_POSTS_PAGE_SIZE = 6;
 
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const { t } = useTranslation();
@@ -82,7 +83,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     );
 
     const totalJobPostPages = useMemo(
-        () => Math.max(1, Math.ceil(jobPostsTotalCount / JOB_POSTS_PAGE_SIZE)),
+        () => Math.max(1, Math.ceil(jobPostsTotalCount / LIST_PAGE_SIZE)),
         [jobPostsTotalCount]
     );
 
@@ -138,7 +139,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         try {
             const response = await GetMyJobPostsPaged({
                 page: jobPostsPage,
-                pageSize: JOB_POSTS_PAGE_SIZE,
+                pageSize: LIST_PAGE_SIZE,
                 position: jobPostPositionFilter || undefined,
                 status: listFilters.status,
                 lifecycle: listFilters.lifecycle,
@@ -256,6 +257,25 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         });
     }, [applicants, statusFilter, applicantSearchQuery, applicantSortValue]);
 
+    const applicantsResetKey = `${selectedJobPostId}|${statusFilter}|${applicantSearchQuery}|${applicantSortValue}`;
+    const {
+        page: applicantsPage,
+        setPage: setApplicantsPage,
+        totalPages: applicantsTotalPages,
+        totalCount: applicantsTotalCount,
+        pageSize: applicantsPageSize,
+        pagedItems: pagedApplicants,
+    } = useClientPagination(visibleApplicants, LIST_PAGE_SIZE, applicantsResetKey);
+
+    const {
+        page: branchesPage,
+        setPage: setBranchesPage,
+        totalPages: branchesTotalPages,
+        totalCount: branchesTotalCount,
+        pageSize: branchesPageSize,
+        pagedItems: pagedLocations,
+    } = useClientPagination(locations, LIST_PAGE_SIZE);
+
     const handleStatusUpdate = async (applicationId: string, status: "Accepted" | "Denied") => {
         setActionInProgress(`${applicationId}:${status}`);
         try {
@@ -351,61 +371,63 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <SubscriptionBanner subscription={user.subscription} />
 
             <section className={styles.panel}>
-                <div className={styles.profileHeader}>
-                    <img src={profilePhotoUrl} alt="Profile" className={styles.profileImage} />
-                    <ProfilePhotoUpload
-                        inputId="employerProfilePhotoInput"
-                        selectedFile={selectedPhotoFile}
-                        isUploading={isPhotoUploadInProgress}
-                        onFileChange={handleProfilePhotoChange}
-                        onUpload={handleProfilePhotoUpload}
-                    />
+                <div className={styles.profileHero}>
+                    <div className={styles.profilePhotoColumn}>
+                        <img src={profilePhotoUrl} alt="Profile" className={styles.profileImageLarge} />
+                        <ProfilePhotoUpload
+                            inputId="employerProfilePhotoInput"
+                            selectedFile={selectedPhotoFile}
+                            isUploading={isPhotoUploadInProgress}
+                            onFileChange={handleProfilePhotoChange}
+                            onUpload={handleProfilePhotoUpload}
+                        />
+                    </div>
+                    <div className={styles.profileInfoColumn}>
+                        <h2 className={styles.profileInfoTitle}>{t("profile.employerInfo")}</h2>
+                        <div className={styles.infoGrid}>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
+                                <span className={styles.infoValue}>{user.name}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.address")}</span>
+                                <span className={styles.infoValue}>
+                                    {locations[0]
+                                        ? `${locations[0].streetName} ${locations[0].streetNumber}, ${locations[0].city}`
+                                        : "-"}
+                                </span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.phone")}</span>
+                                <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("profile.email")}</span>
+                                <span className={styles.infoValue}>{user.email}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("registration.pib")}</span>
+                                <span className={styles.infoValue}>{user.pib}</span>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>{t("registration.mb")}</span>
+                                <span className={styles.infoValue}>{user.mb}</span>
+                            </div>
+                            {user.subscription && user.subscription.status !== "None" && (
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("billing.planLabel")}</span>
+                                    <span className={styles.infoValue}>
+                                        {user.subscription.planTitle}
+                                        {user.subscription.isActive
+                                            ? ` · ${t("billing.until", { date: new Date(user.subscription.subscriptionStop ?? "").toLocaleDateString() })}`
+                                            : ` · ${t("billing.expiredShort")}`}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            <CollapsibleSection title={t("profile.employerInfo")}>
-                <div className={styles.infoGrid}>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
-                        <span className={styles.infoValue}>{user.name}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.address")}</span>
-                        <span className={styles.infoValue}>
-                            {locations[0]
-                                ? `${locations[0].streetName} ${locations[0].streetNumber}, ${locations[0].city}`
-                                : "-"}
-                        </span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.phone")}</span>
-                        <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("profile.email")}</span>
-                        <span className={styles.infoValue}>{user.email}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("registration.pib")}</span>
-                        <span className={styles.infoValue}>{user.pib}</span>
-                    </div>
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>{t("registration.mb")}</span>
-                        <span className={styles.infoValue}>{user.mb}</span>
-                    </div>
-                    {user.subscription && user.subscription.status !== "None" && (
-                        <div className={styles.infoRow}>
-                            <span className={styles.infoLabel}>{t("billing.planLabel")}</span>
-                            <span className={styles.infoValue}>
-                                {user.subscription.planTitle}
-                                {user.subscription.isActive
-                                    ? ` · ${t("billing.until", { date: new Date(user.subscription.subscriptionStop ?? "").toLocaleDateString() })}`
-                                    : ` · ${t("billing.expiredShort")}`}
-                            </span>
-                        </div>
-                    )}
-                </div>
-            </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.addBranch")}>
                 <div className={styles.branchForm}>
@@ -478,7 +500,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <CollapsibleSection title={t("profile.yourBranches")} titleTag="h3">
                 {locations.length === 0 && <p className={styles.mutedText}>{t("profile.noBranches")}</p>}
                 <div className={styles.branchList}>
-                    {locations.map((location) => (
+                    {pagedLocations.map((location) => (
                         <div key={location.id} className={styles.branchCard}>
                             <strong>{location.name}</strong>
                             <p>{location.city}, {location.streetName} {location.streetNumber}</p>
@@ -486,6 +508,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </div>
                     ))}
                 </div>
+                <Pagination
+                    page={branchesPage}
+                    totalPages={branchesTotalPages}
+                    totalCount={branchesTotalCount}
+                    pageSize={branchesPageSize}
+                    onPrevious={() => setBranchesPage((previous) => Math.max(1, previous - 1))}
+                    onNext={() => setBranchesPage((previous) => Math.min(branchesTotalPages, previous + 1))}
+                />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.myJobPosts")}>
@@ -539,8 +569,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         >
                             <option value="createdAt_desc">{t("profile.sortCreatedNewest")}</option>
                             <option value="createdAt_asc">{t("profile.sortCreatedOldest")}</option>
-                            <option value="startingDate_desc">{t("profile.sortDateNewest")}</option>
                             <option value="startingDate_asc">{t("profile.sortDateOldest")}</option>
+                            <option value="startingDate_desc">{t("profile.sortDateNewest")}</option>
                             <option value="position_asc">{t("profile.sortPositionAsc")}</option>
                             <option value="position_desc">{t("profile.sortPositionDesc")}</option>
                         </select>
@@ -588,30 +618,15 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </article>
                     ))}
                 </div>
-                {jobPostsTotalCount > JOB_POSTS_PAGE_SIZE && (
-                    <div className={styles.paginationRow}>
-                        <p className={styles.paginationInfo}>
-                            {t("profile.pageOf", { page: jobPostsPage, totalPages: totalJobPostPages })}
-                        </p>
-                        <div className={styles.paginationActions}>
-                            <button
-                                type="button"
-                                className={`${styles.button} ${styles.buttonSecondary}`}
-                                disabled={jobPostsPage <= 1}
-                                onClick={() => setJobPostsPage((previous) => Math.max(1, previous - 1))}
-                            >
-                                {t("profile.previousPage")}
-                            </button>
-                            <button
-                                type="button"
-                                className={`${styles.button} ${styles.buttonSecondary}`}
-                                disabled={jobPostsPage >= totalJobPostPages}
-                                onClick={() => setJobPostsPage((previous) => Math.min(totalJobPostPages, previous + 1))}
-                            >
-                                {t("profile.nextPage")}
-                            </button>
-                        </div>
-                    </div>
+                {jobPostsTotalCount > LIST_PAGE_SIZE && (
+                    <Pagination
+                        page={jobPostsPage}
+                        totalPages={totalJobPostPages}
+                        totalCount={jobPostsTotalCount}
+                        pageSize={LIST_PAGE_SIZE}
+                        onPrevious={() => setJobPostsPage((previous) => Math.max(1, previous - 1))}
+                        onNext={() => setJobPostsPage((previous) => Math.min(totalJobPostPages, previous + 1))}
+                    />
                 )}
                 {editingJobPost && (
                     <div className={styles.inlineForm}>
@@ -700,7 +715,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 {allJobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
                 {visibleApplicants.length === 0 && <p className={styles.mutedText}>{t("profile.noApplicantsForFilter")}</p>}
                 <div className={styles.applicantsList}>
-                    {visibleApplicants.map((applicant) => (
+                    {pagedApplicants.map((applicant) => (
                         <div key={applicant.applicationId} className={styles.applicantCard}>
                             <p className={styles.applicantName}>
                                 <Link className={styles.applicantProfileLink} to={`/employees/${applicant.userId}`}>
@@ -741,6 +756,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         </div>
                     ))}
                 </div>
+                <Pagination
+                    page={applicantsPage}
+                    totalPages={applicantsTotalPages}
+                    totalCount={applicantsTotalCount}
+                    pageSize={applicantsPageSize}
+                    onPrevious={() => setApplicantsPage((previous) => Math.max(1, previous - 1))}
+                    onNext={() => setApplicantsPage((previous) => Math.min(applicantsTotalPages, previous + 1))}
+                />
             </CollapsibleSection>
         </div>
     )

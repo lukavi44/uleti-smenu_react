@@ -9,6 +9,9 @@ import {
   UpdateWorkExperience,
 } from "../../services/employee-profile-service";
 import styles from "./WorkExperienceSection.module.scss";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useClientPagination } from "../../hooks/useClientPagination";
+import Pagination from "../Common/Pagination";
 
 const emptyForm: UpsertWorkExperiencePayload = {
   companyName: "",
@@ -38,6 +41,15 @@ const WorkExperienceSection = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<UpsertWorkExperiencePayload>(emptyForm);
+
+  const {
+    page,
+    setPage,
+    totalPages,
+    totalCount,
+    pageSize,
+    pagedItems: pagedExperiences,
+  } = useClientPagination(experiences, LIST_PAGE_SIZE);
 
   const loadExperiences = async () => {
     setIsLoading(true);
@@ -132,8 +144,9 @@ const WorkExperienceSection = () => {
       {isLoading && <p className={styles.mutedText}>{t("common.loading")}</p>}
 
       {!isLoading && experiences.length > 0 && (
-        <div className={styles.list}>
-          {experiences.map((experience) => (
+        <>
+          <div className={styles.list}>
+            {pagedExperiences.map((experience) => (
             <article key={experience.id} className={styles.card}>
               <div className={styles.cardHeader}>
                 <div>
@@ -158,8 +171,17 @@ const WorkExperienceSection = () => {
               </div>
               {experience.description && <p className={styles.description}>{experience.description}</p>}
             </article>
-          ))}
-        </div>
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={pageSize}
+            onPrevious={() => setPage((previous) => Math.max(1, previous - 1))}
+            onNext={() => setPage((previous) => Math.min(totalPages, previous + 1))}
+          />
+        </>
       )}
 
       {!isLoading && experiences.length === 0 && (

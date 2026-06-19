@@ -3,7 +3,7 @@ import JobPostItem from "../../components/JobPosts/JobPostItem";
 
 import styles from './JobPosts.module.scss';
 import JobPostForm from "../../components/JobPosts/JobPostForm";
-import { GetAllJobPosts, GetMyJobPosts } from "../../services/jobPost-service";
+import { GetAllJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { useContext } from "react";
 import { AuthContext } from "../../store/Auth-context";
@@ -15,6 +15,8 @@ import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Employer } from "../../models/User.model";
+import Pagination from "../../components/Common/Pagination";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
 
 const JobPosts = () => {
     const { t } = useTranslation();
@@ -30,6 +32,8 @@ const JobPosts = () => {
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
     const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
+    const [page, setPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
     const leftPanelRef = useRef<HTMLDivElement>(null);
 
     // return (
@@ -65,8 +69,16 @@ const JobPosts = () => {
     }, []);
 
     useEffect(() =>{
-        fetchJobPosts();
-    },[role, sortBy, sortDirection]);
+        void fetchJobPosts();
+    },[role, sortBy, sortDirection, employerLifecycleFilter, page]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [role, employeeFilter, favouriteFilter, employerLifecycleFilter, sortBy, sortDirection]);
+
+    useEffect(() => {
+        leftPanelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, [page]);
 
     useEffect(() => {
         const loadMyApplications = async () => {
@@ -112,10 +124,22 @@ const JobPosts = () => {
 
     const fetchJobPosts = async () => {
         try {
-            const response = role === "Employer"
-                ? await GetMyJobPosts()
-                : await GetAllJobPosts(sortBy, sortDirection);
+            if (role === "Employer") {
+                const response = await GetMyJobPostsPaged({
+                    page,
+                    pageSize: LIST_PAGE_SIZE,
+                    lifecycle: employerLifecycleFilter,
+                    sortBy: "createdAt",
+                    sortDirection: "desc",
+                });
+                setJobPosts(response.data.items);
+                setTotalCount(response.data.totalCount);
+                return;
+            }
+
+            const response = await GetAllJobPosts(sortBy, sortDirection);
             setJobPosts(response.data);
+            setTotalCount(response.data.length);
         }
         catch (error: unknown) {
             if (error instanceof Error) {
@@ -205,22 +229,29 @@ const JobPosts = () => {
             return filteredJobPosts;
         }
 
-        if (employerLifecycleFilter === "archived") {
-            return jobPosts.filter((jobPost) => jobPost.isArchived);
-        }
-
-        if (employerLifecycleFilter === "active") {
-            return jobPosts.filter((jobPost) => !jobPost.isArchived);
-        }
-
         return jobPosts;
-    }, [role, filteredJobPosts, jobPosts, employerLifecycleFilter]);
+    }, [role, filteredJobPosts, jobPosts]);
+
+    const employeePagedJobPosts = useMemo(() => {
+        if (role !== "Employee") {
+            return employeeVisibleJobPosts;
+        }
+
+        const start = (page - 1) * LIST_PAGE_SIZE;
+        return employeeVisibleJobPosts.slice(start, start + LIST_PAGE_SIZE);
+    }, [role, employeeVisibleJobPosts, page]);
+
+    const employeeTotalCount = role === "Employee" ? employeeVisibleJobPosts.length : totalCount;
 
     const visibleJobPosts = role === "Employee"
-        ? employeeVisibleJobPosts
+        ? employeePagedJobPosts
         : role === "Employer"
             ? employerVisibleJobPosts
             : filteredJobPosts;
+
+    const totalPages = Math.max(1, Math.ceil(
+        (role === "Employee" ? employeeTotalCount : totalCount) / LIST_PAGE_SIZE
+    ));
 
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
@@ -359,6 +390,16 @@ const JobPosts = () => {
                   ? t("jobPosts.noArchivedPosts")
                   : t("jobPosts.noPostsFiltered")}
               </p>
+            )}
+            {(role === "Employee" || role === "Employer") && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                totalCount={role === "Employee" ? employeeTotalCount : totalCount}
+                pageSize={LIST_PAGE_SIZE}
+                onPrevious={() => setPage((previous) => Math.max(1, previous - 1))}
+                onNext={() => setPage((previous) => Math.min(totalPages, previous + 1))}
+              />
             )}
             </div>
 
