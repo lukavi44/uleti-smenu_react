@@ -104,18 +104,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
-    const loadAllJobPosts = async () => {
-        try {
-            const response = await GetMyJobPosts();
-            setAllJobPosts(response.data);
-            if (response.data.length > 0) {
-                setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
-            }
-        } catch {
-            toast.error(t("profile.failedLoadJobPosts"));
-        }
-    };
-
     const resolveJobPostListFilters = (statusFilter: string) => {
         if (statusFilter === "archived") {
             return { lifecycle: "archived" as const };
@@ -132,6 +120,18 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         return { lifecycle: "active" as const };
     };
 
+    const loadAllJobPosts = async () => {
+        try {
+            const response = await GetMyJobPosts();
+            setAllJobPosts(response.data);
+            if (response.data.length > 0) {
+                setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
+            }
+        } catch {
+            toast.error(t("profile.failedLoadJobPosts"));
+        }
+    };
+
     const loadPagedJobPosts = async () => {
         const { sortBy, sortDirection } = parseJobPostSort(jobPostSortValue);
         const listFilters = resolveJobPostListFilters(jobPostStatusFilter);
@@ -144,7 +144,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 status: listFilters.status,
                 lifecycle: listFilters.lifecycle,
                 sortBy,
-                sortDirection
+                sortDirection,
             });
 
             setJobPosts(response.data.items);

@@ -1,0 +1,18 @@
+.shell {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  min-height: 100dvh;
+}
+
+.main {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding-bottom: calc(4.6rem + env(safe-area-inset-bottom));
+  }
+}

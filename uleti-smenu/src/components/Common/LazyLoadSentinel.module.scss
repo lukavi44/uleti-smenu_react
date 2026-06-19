@@ -1,0 +1,21 @@
+.sentinel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.75rem 0;
+}
+
+.loading {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  font-weight: 500;
+}

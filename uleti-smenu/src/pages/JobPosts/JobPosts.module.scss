@@ -351,5 +351,43 @@
       bottom: 0.65rem;
     }
   }
+
+  @media only screen and (max-width: 768px) {
+    .posts-container {
+      height: auto;
+      min-height: calc(100dvh - 4.5rem - 4.6rem - env(safe-area-inset-bottom));
+      max-width: 100%;
+      overflow-x: clip;
+      overflow-y: auto;
+    }
+
+    .left-panel {
+      width: 100%;
+      max-width: 100%;
+      padding: 0.75rem;
+      height: auto;
+      min-height: 0;
+      overflow-x: clip;
+    }
+
+    .form-opened .left-panel {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .right-panel {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      z-index: 80;
+    }
+
+    .floating-button {
+      right: 1rem;
+      bottom: calc(5.5rem + env(safe-area-inset-bottom));
+      top: auto;
+      transform: none;
+    }
+  }
   
   

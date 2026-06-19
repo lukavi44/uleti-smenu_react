@@ -5,8 +5,7 @@ import { PointerEvent, useContext, useEffect, useState } from "react";
 import "tailwindcss";
 
 import logo from '../../assets/logo.png';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { AuthContext } from "../../store/Auth-context";
 import RegistrationDialog from "../Dialog/RegistrationDialog";
 import ConfirmationDialog from "../Dialog/ConfirmationDialog";
@@ -32,7 +31,6 @@ const Header = () => {
     const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
     const [isLogoutModalOpened, setIsLogoutModalOpened] = useState(false);
     const { isLoggedIn, logout, role } = useContext(AuthContext);
-    const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState<UserNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -42,6 +40,7 @@ const Header = () => {
     const [draggingNotificationId, setDraggingNotificationId] = useState<string | null>(null);
     const [dragStartX, setDragStartX] = useState<number | null>(null);
     const [removingNotificationIds, setRemovingNotificationIds] = useState<string[]>([]);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const swipeDeleteThreshold = 90;
     const maxSwipeDistance = 140;
@@ -91,6 +90,29 @@ const Header = () => {
     useEffect(() => {
         void loadUnreadChatCount();
     }, [canUseChat, location.pathname]);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+        setIsNotificationsOpen(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (!isMobileMenuOpen) {
+            return;
+        }
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isMobileMenuOpen]);
+
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
+    const openMobileMenu = () => {
+        setIsNotificationsOpen(false);
+        setIsMobileMenuOpen(true);
+    };
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -255,42 +277,12 @@ const Header = () => {
         <>
             <header className={styles["header-container"]}>
                 <div className={styles.left}>
-                    <NavLink to="">
-                        <img src={logo} alt="" />
+                    <NavLink to="/" className={styles.logoLink}>
+                        <img src={logo} alt="UletiSmenu" />
                     </NavLink>
                 </div>
                 <div className={styles.right}>
-                    <div className={styles.mobile}>
-                        <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                                <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">
-                                    {selectedCity || t("header.city")}
-                                    <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
-                                </MenuButton>
-                            </div>
-
-                            <MenuItems
-                                className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white ring-1 shadow-lg ring-black/5 focus:outline-none"
-                            >
-                                <div className="py-1">
-                                    {["Novi Sad", "Beograd", "Kragujevac"].map((city) => (
-                                        <MenuItem key={city}>
-                                            {({ active }) => (
-                                                <button
-                                                    onClick={() => setSelectedCity(city)}
-                                                    className={`block w-full text-left px-4 py-2 text-sm ${active ? "bg-gray-100 text-gray-900" : "text-gray-700"
-                                                        }`}
-                                                >
-                                                    {city}
-                                                </button>
-                                            )}
-                                        </MenuItem>
-                                    ))}
-                                </div>
-                            </MenuItems>
-                        </Menu>
-                    </div>
-                    <div className={`${styles.desktop}`}>
+                    <nav className={styles.desktopNav}>
                         <NavLink to={"/oglasi-za-posao"}>
                             <p>{t("header.posts")}</p>
                         </NavLink>
@@ -305,6 +297,20 @@ const Header = () => {
                             <option value="sr">{t("common.serbian")}</option>
                             <option value="en">{t("common.english")}</option>
                         </select>
+                    </nav>
+
+                    <div className={styles.headerIcons}>
+                        <div className={styles.headerLanguage}>
+                            <select
+                                className={styles.headerLanguageSelect}
+                                value={i18n.language}
+                                onChange={(event) => void i18n.changeLanguage(event.target.value)}
+                                aria-label={t("common.language")}
+                            >
+                                <option value="sr">SR</option>
+                                <option value="en">EN</option>
+                            </select>
+                        </div>
                         {canUseChat && (
                             <NavLink to="/messages" className={styles["messages-link"]} onClick={() => void loadUnreadChatCount()}>
                                 <span className={styles["messages-button"]} aria-label={t("header.messages")}>
@@ -320,7 +326,10 @@ const Header = () => {
                                 <button
                                     type="button"
                                     className={styles["notifications-button"]}
-                                    onClick={() => setIsNotificationsOpen((previous) => !previous)}
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        setIsNotificationsOpen((previous) => !previous);
+                                    }}
                                     aria-label={t("header.notifications")}
                                 >
                                     🔔
@@ -391,6 +400,9 @@ const Header = () => {
                                 )}
                             </div>
                         )}
+                    </div>
+
+                    <div className={styles.desktopAuth}>
                         {isLoggedIn && (
                             <>
                                 <NavLink to={"/profile"}>
@@ -407,15 +419,89 @@ const Header = () => {
                                 </NavLink>
                             </>
                         )}
-                        {isRegisterModalOpened && (
-                            <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
-                        )}
-                        {isLogoutModalOpened && (
-                            <ConfirmationDialog onConfirm={handleOnConfirm} onClose={() => setIsLogoutModalOpened(false)}/>
-                        )}
+                    </div>
+
+                    <div className={styles.mobileMenu}>
+                        <button
+                            type="button"
+                            className={styles.burgerButton}
+                            aria-label={t("header.menu")}
+                            aria-expanded={isMobileMenuOpen}
+                            onClick={() => (isMobileMenuOpen ? closeMobileMenu() : openMobileMenu())}
+                        >
+                            {isMobileMenuOpen ? (
+                                <XMarkIcon aria-hidden="true" className={styles.burgerIcon} />
+                            ) : (
+                                <Bars3Icon aria-hidden="true" className={styles.burgerIcon} />
+                            )}
+                        </button>
                     </div>
                 </div>
             </header>
+            {isMobileMenuOpen && (
+                <div className={styles.mobileOverlay} role="dialog" aria-modal="true" aria-label={t("header.menu")}>
+                    <div className={styles.mobileOverlayHeader}>
+                        <NavLink to="/" className={styles.mobileOverlayLogo} onClick={closeMobileMenu}>
+                            <img src={logo} alt="" />
+                        </NavLink>
+                        <button
+                            type="button"
+                            className={styles.mobileOverlayClose}
+                            aria-label={t("common.close")}
+                            onClick={closeMobileMenu}
+                        >
+                            <XMarkIcon className={styles.burgerIcon} />
+                        </button>
+                    </div>
+                    <nav className={styles.mobileOverlayNav}>
+                        <NavLink to="/oglasi-za-posao" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
+                            {t("header.posts")}
+                        </NavLink>
+                        <NavLink to="/restaurants" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
+                            {t("header.restaurants")}
+                        </NavLink>
+                        {isLoggedIn ? (
+                            <>
+                                <NavLink to="/profile" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
+                                    {t("header.profile")}
+                                </NavLink>
+                                <button
+                                    type="button"
+                                    className={styles.mobileOverlayButton}
+                                    onClick={() => {
+                                        closeMobileMenu();
+                                        setIsLogoutModalOpened(true);
+                                    }}
+                                >
+                                    {t("header.logout")}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    type="button"
+                                    className={styles.mobileOverlayButton}
+                                    onClick={() => {
+                                        closeMobileMenu();
+                                        setIsRegisterModalOpened(true);
+                                    }}
+                                >
+                                    {t("header.register")}
+                                </button>
+                                <NavLink to="/login" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
+                                    {t("header.login")}
+                                </NavLink>
+                            </>
+                        )}
+                    </nav>
+                </div>
+            )}
+            {isRegisterModalOpened && (
+                <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
+            )}
+            {isLogoutModalOpened && (
+                <ConfirmationDialog onConfirm={handleOnConfirm} onClose={() => setIsLogoutModalOpened(false)}/>
+            )}
         </>
     );
 };

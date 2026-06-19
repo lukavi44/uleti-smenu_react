@@ -11,7 +11,16 @@ const en = {
     english: "English",
     notAvailable: "-",
     sessionExpired: "Session expired, please login again.",
-    unexpectedServerError: "Unexpected server error."
+    unexpectedServerError: "Unexpected server error.",
+    close: "Close",
+    loadingMore: "Loading more...",
+    loadedOf: "Showing {{visible}} of {{total}}"
+  },
+  nav: {
+    home: "Home",
+    jobPosts: "Job posts",
+    profile: "Profile",
+    quickNavigation: "Quick navigation"
   },
   header: {
     city: "City",
@@ -26,7 +35,8 @@ const en = {
     markAsRead: "Mark as read",
     marking: "Marking...",
     deleteNotification: "Delete notification",
-    messages: "Messages"
+    messages: "Messages",
+    menu: "Menu"
   },
   home: {
     heroTitle: "Jump in a shift!",

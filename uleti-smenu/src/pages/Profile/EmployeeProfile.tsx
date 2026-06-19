@@ -16,9 +16,11 @@ import { GetMyPlatformShifts } from "../../services/employee-profile-service";
 import { EmployeePlatformShift } from "../../models/WorkExperience.model";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import Pagination from "../../components/Common/Pagination";
 import { FAVOURITE_RESTAURANTS_PAGE_SIZE, LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
+import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 
 const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -85,13 +87,12 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const applicationsResetKey = `${statusFilter}|${applicationSortValue}`;
 
     const {
-        page: applicationsPage,
-        setPage: setApplicationsPage,
-        totalPages: totalApplicationPages,
+        visibleItems: pagedApplications,
+        hasMore: hasMoreApplications,
+        loadMore: loadMoreApplications,
         totalCount: applicationsTotalCount,
-        pageSize: applicationsPageSize,
-        pagedItems: pagedApplications,
-    } = useClientPagination(visibleApplications, LIST_PAGE_SIZE, applicationsResetKey);
+        visibleCount: applicationsVisibleCount,
+    } = useLazyLoadList(visibleApplications, LIST_PAGE_SIZE, applicationsResetKey);
 
     const {
         page: favouritesPage,
@@ -385,17 +386,11 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         </article>
                     ))}
                 </div>
-                <Pagination
-                    page={applicationsPage}
-                    totalPages={totalApplicationPages}
+                <LazyLoadSentinel
+                    hasMore={hasMoreApplications}
+                    onLoadMore={loadMoreApplications}
+                    visibleCount={applicationsVisibleCount}
                     totalCount={applicationsTotalCount}
-                    pageSize={applicationsPageSize}
-                    onPrevious={() => setApplicationsPage((previous) => Math.max(1, previous - 1))}
-                    onNext={() =>
-                        setApplicationsPage((previous) =>
-                            Math.min(totalApplicationPages, previous + 1)
-                        )
-                    }
                 />
             </CollapsibleSection>
         </div>

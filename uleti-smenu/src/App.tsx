@@ -11,7 +11,7 @@ import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
 import JobPosts from "./pages/JobPosts/JobPosts";
-import Header from "./components/Header/Header";
+import AppShell from "./components/Layout/AppShell";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
 import MessagesPage from "./pages/Messages/MessagesPage";
@@ -41,7 +41,7 @@ function App() {
       <LoadingProvider>
         <AuthContextProvider>
           <ScrollToTop />
-          <Header />
+          <AppShell>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="about" element={<AboutPage />} />
@@ -69,6 +69,7 @@ function App() {
               <Route path="billing/upgrade" element={<UpgradePage/>}/>
             </Route>
           </Routes>
+          </AppShell>
         </AuthContextProvider>
       </LoadingProvider>
     </>

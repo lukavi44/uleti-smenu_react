@@ -11,7 +11,16 @@ const sr = {
     english: "Engleski",
     notAvailable: "-",
     sessionExpired: "Sesija je istekla, prijavite se ponovo.",
-    unexpectedServerError: "Neočekivana greška na serveru."
+    unexpectedServerError: "Neočekivana greška na serveru.",
+    close: "Zatvori",
+    loadingMore: "Učitavanje...",
+    loadedOf: "Prikazano {{visible}} od {{total}}"
+  },
+  nav: {
+    home: "Početna",
+    jobPosts: "Oglasi",
+    profile: "Profil",
+    quickNavigation: "Brza navigacija"
   },
   header: {
     city: "Grad",
@@ -26,7 +35,8 @@ const sr = {
     markAsRead: "Označi kao pročitano",
     marking: "Označavanje...",
     deleteNotification: "Obriši obaveštenje",
-    messages: "Poruke"
+    messages: "Poruke",
+    menu: "Meni"
   },
   home: {
     heroTitle: "Uleti smenu!",

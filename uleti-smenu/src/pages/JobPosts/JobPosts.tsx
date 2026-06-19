@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import JobPostItem from "../../components/JobPosts/JobPostItem";
-
-import styles from './JobPosts.module.scss';
+import styles from "./JobPosts.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
 import { GetAllJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
-import { useContext } from "react";
 import { AuthContext } from "../../store/Auth-context";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
@@ -15,8 +13,12 @@ import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Employer } from "../../models/User.model";
-import Pagination from "../../components/Common/Pagination";
+import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useLazyLoadList } from "../../hooks/useLazyLoadList";
+import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
+
+import "tailwindcss";
 
 const JobPosts = () => {
     const { t } = useTranslation();
@@ -32,9 +34,36 @@ const JobPosts = () => {
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
     const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
-    const [page, setPage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
     const leftPanelRef = useRef<HTMLDivElement>(null);
+
+    const employerJobPostsResetKey = `${employerLifecycleFilter}`;
+    const fetchEmployerJobPostsPage = useCallback(
+        async (page: number) => {
+            const response = await GetMyJobPostsPaged({
+                page,
+                pageSize: LIST_PAGE_SIZE,
+                lifecycle: employerLifecycleFilter,
+                sortBy: "createdAt",
+                sortDirection: "desc",
+            });
+
+            return {
+                items: response.data.items,
+                totalCount: response.data.totalCount,
+            };
+        },
+        [employerLifecycleFilter]
+    );
+
+    const {
+        items: employerJobPosts,
+        hasMore: hasMoreEmployerJobPosts,
+        loadMore: loadMoreEmployerJobPosts,
+        isLoading: isEmployerJobPostsLoading,
+        isLoadingMore: isEmployerJobPostsLoadingMore,
+        totalCount: employerTotalCount,
+        reset: resetEmployerJobPosts,
+    } = useServerLazyLoad(fetchEmployerJobPostsPage, employerJobPostsResetKey);
 
     // return (
     //     <div className={styles["posts-container"]}>
@@ -68,17 +97,13 @@ const JobPosts = () => {
         leftPanelRef.current?.scrollTo(0, 0);
     }, []);
 
-    useEffect(() =>{
-        void fetchJobPosts();
-    },[role, sortBy, sortDirection, employerLifecycleFilter, page]);
-
     useEffect(() => {
-        setPage(1);
-    }, [role, employeeFilter, favouriteFilter, employerLifecycleFilter, sortBy, sortDirection]);
+        if (role === "Employer") {
+            return;
+        }
 
-    useEffect(() => {
-        leftPanelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    }, [page]);
+        void fetchEmployeeJobPosts();
+    }, [role, sortBy, sortDirection]);
 
     useEffect(() => {
         const loadMyApplications = async () => {
@@ -122,24 +147,10 @@ const JobPosts = () => {
         loadFavourites();
     }, [role]);
 
-    const fetchJobPosts = async () => {
+    const fetchEmployeeJobPosts = async () => {
         try {
-            if (role === "Employer") {
-                const response = await GetMyJobPostsPaged({
-                    page,
-                    pageSize: LIST_PAGE_SIZE,
-                    lifecycle: employerLifecycleFilter,
-                    sortBy: "createdAt",
-                    sortDirection: "desc",
-                });
-                setJobPosts(response.data.items);
-                setTotalCount(response.data.totalCount);
-                return;
-            }
-
             const response = await GetAllJobPosts(sortBy, sortDirection);
             setJobPosts(response.data);
-            setTotalCount(response.data.length);
         }
         catch (error: unknown) {
             if (error instanceof Error) {
@@ -149,6 +160,15 @@ const JobPosts = () => {
             }
         }
     }
+
+    const reloadJobPosts = async () => {
+        if (role === "Employer") {
+            resetEmployerJobPosts();
+            return;
+        }
+
+        await fetchEmployeeJobPosts();
+    };
 
     const selectedSortValue = `${sortBy}_${sortDirection}`;
 
@@ -229,29 +249,24 @@ const JobPosts = () => {
             return filteredJobPosts;
         }
 
-        return jobPosts;
-    }, [role, filteredJobPosts, jobPosts]);
+        return employerJobPosts;
+    }, [role, filteredJobPosts, employerJobPosts]);
 
-    const employeePagedJobPosts = useMemo(() => {
-        if (role !== "Employee") {
-            return employeeVisibleJobPosts;
-        }
+    const employeeListResetKey = `${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${appliedJobPostIds.join(",")}|${favouriteEmployerIds.join(",")}`;
 
-        const start = (page - 1) * LIST_PAGE_SIZE;
-        return employeeVisibleJobPosts.slice(start, start + LIST_PAGE_SIZE);
-    }, [role, employeeVisibleJobPosts, page]);
-
-    const employeeTotalCount = role === "Employee" ? employeeVisibleJobPosts.length : totalCount;
+    const {
+        visibleItems: employeeLazyJobPosts,
+        hasMore: hasMoreEmployeeJobPosts,
+        loadMore: loadMoreEmployeeJobPosts,
+        totalCount: employeeTotalCount,
+        visibleCount: employeeVisibleCount,
+    } = useLazyLoadList(employeeVisibleJobPosts, LIST_PAGE_SIZE, employeeListResetKey);
 
     const visibleJobPosts = role === "Employee"
-        ? employeePagedJobPosts
+        ? employeeLazyJobPosts
         : role === "Employer"
             ? employerVisibleJobPosts
             : filteredJobPosts;
-
-    const totalPages = Math.max(1, Math.ceil(
-        (role === "Employee" ? employeeTotalCount : totalCount) / LIST_PAGE_SIZE
-    ));
 
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
@@ -392,13 +407,12 @@ const JobPosts = () => {
               </p>
             )}
             {(role === "Employee" || role === "Employer") && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                totalCount={role === "Employee" ? employeeTotalCount : totalCount}
-                pageSize={LIST_PAGE_SIZE}
-                onPrevious={() => setPage((previous) => Math.max(1, previous - 1))}
-                onNext={() => setPage((previous) => Math.min(totalPages, previous + 1))}
+              <LazyLoadSentinel
+                hasMore={role === "Employee" ? hasMoreEmployeeJobPosts : hasMoreEmployerJobPosts}
+                isLoading={role === "Employer" && (isEmployerJobPostsLoading || isEmployerJobPostsLoadingMore)}
+                onLoadMore={role === "Employee" ? loadMoreEmployeeJobPosts : loadMoreEmployerJobPosts}
+                visibleCount={role === "Employee" ? employeeVisibleCount : employerJobPosts.length}
+                totalCount={role === "Employee" ? employeeTotalCount : employerTotalCount}
               />
             )}
             </div>
@@ -411,7 +425,7 @@ const JobPosts = () => {
                             setJobPostCreatFormOpened(false);
                             setEditingJobPostId(null);
                         }}
-                        onSubmit={fetchJobPosts}
+                        onSubmit={reloadJobPosts}
                     />
                 </div>
             )}
