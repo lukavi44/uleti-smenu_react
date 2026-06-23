@@ -11,6 +11,10 @@ import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import WorkExperienceSection from "../../components/Profile/WorkExperienceSection";
 import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
+import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
+import RatingBadge from "../../components/Reviews/RatingBadge";
+import { GetEmployeeReviewPage } from "../../services/review-service";
+import { Review, ReviewSummary } from "../../models/Review.model";
 import PlatformShiftList from "../../components/Profile/PlatformShiftList";
 import { GetMyPlatformShifts } from "../../services/employee-profile-service";
 import { EmployeePlatformShift } from "../../models/WorkExperience.model";
@@ -66,6 +70,8 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
     const [favouriteActionInProgressId, setFavouriteActionInProgressId] = useState<string | null>(null);
     const [platformShifts, setPlatformShifts] = useState<EmployeePlatformShift[]>([]);
+    const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
+    const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
 
     const visibleApplications = useMemo(() => {
         const filtered = applications.filter((application) =>
@@ -150,6 +156,20 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
 
         void loadPlatformShifts();
     }, []);
+
+    useEffect(() => {
+        const loadReceivedReviews = async () => {
+            try {
+                const response = await GetEmployeeReviewPage(user.id);
+                setReceivedReviews(response.data.reviews);
+                setReviewSummary(response.data.summary);
+            } catch {
+                toast.error(t("reviews.loadError"));
+            }
+        };
+
+        void loadReceivedReviews();
+    }, [user.id, t]);
 
     const handleCancel = async (applicationId: string) => {
         setCancelInProgressId(applicationId);
@@ -238,6 +258,12 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                     </div>
                     <div className={styles.profileInfoColumn}>
                         <h2 className={styles.profileInfoTitle}>{t("profile.employeeInfo")}</h2>
+                        <RatingBadge
+                            averageRating={reviewSummary.averageRating}
+                            reviewCount={reviewSummary.reviewCount}
+                            subjectType="employee"
+                            subjectId={user.id}
+                        />
                         <div className={styles.infoGrid}>
                             <div className={styles.infoRow}>
                                 <span className={styles.infoLabel}>{t("profile.fullName")}</span>
@@ -258,6 +284,10 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
 
             <CollapsibleSection title={t("reviews.pendingTitle")}>
                 <PendingReviewsSection />
+            </CollapsibleSection>
+
+            <CollapsibleSection title={t("reviews.receivedTitle")}>
+                <ReceivedReviewsSection reviews={receivedReviews} reviewSummary={reviewSummary} />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("employeeProfile.workExperience")}>

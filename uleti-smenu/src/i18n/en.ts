@@ -472,6 +472,8 @@ const en = {
     employeeReviewsTitle: "Reviews for {{name}}",
     restaurantReviewsTitle: "Reviews for {{name}}",
     reviewCountLabel: "reviews",
+    receivedTitle: "Reviews about me",
+    receivedAboutEmployee: "Reviews about this employee",
     unknownSubject: "User"
   },
   employeeProfile: {
@@ -520,7 +522,8 @@ const en = {
     loadError: "Unable to load conversations.",
     noConversations: "No conversations yet. Chat opens when an application is accepted.",
     noPreview: "No messages yet",
-    selectConversation: "Select a conversation to start chatting."
+    selectConversation: "Select a conversation to start chatting.",
+    unreadCount: "{{count}} unread messages"
   },
   applicants: {
     seeApplicants: "See applicants",

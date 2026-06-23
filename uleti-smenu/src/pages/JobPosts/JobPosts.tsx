@@ -89,7 +89,17 @@ const JobPosts = () => {
     //     </div>
     // )
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
-    const editingJobPost = jobPosts.find((post) => post.id === editingJobPostId);
+    const editingJobPost = useMemo(() => {
+        if (!editingJobPostId) {
+            return undefined;
+        }
+
+        if (role === "Employer") {
+            return employerJobPosts.find((post) => post.id === editingJobPostId);
+        }
+
+        return jobPosts.find((post) => post.id === editingJobPostId);
+    }, [editingJobPostId, role, employerJobPosts, jobPosts]);
     const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
     const favouriteEmployerIdSet = useMemo(() => new Set(favouriteEmployerIds), [favouriteEmployerIds]);
 
@@ -420,6 +430,7 @@ const JobPosts = () => {
             {role === "Employer" && jobPostCreateFormOpened && (
                 <div className={styles["right-panel"]}>
                     <JobPostForm
+                        key={editingJobPostId ?? "create"}
                         initialData={editingJobPost}
                         onClose={() => {
                             setJobPostCreatFormOpened(false);

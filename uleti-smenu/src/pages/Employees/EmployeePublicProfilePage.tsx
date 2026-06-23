@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Footer from "../../components/Footer/Footer";
 import PlatformShiftList from "../../components/Profile/PlatformShiftList";
 import RatingBadge from "../../components/Reviews/RatingBadge";
+import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
@@ -83,6 +84,14 @@ const EmployeePublicProfilePage = () => {
                 <p className={styles.meta}>{profile.phoneNumber}</p>
               </div>
             </header>
+
+            <section className={styles.section}>
+              <h2>{t("reviews.receivedAboutEmployee")}</h2>
+              <ReceivedReviewsSection
+                reviews={profile.reviews}
+                reviewSummary={profile.reviewSummary}
+              />
+            </section>
 
             <section className={styles.section}>
               <h2>{t("employeeProfile.workExperience")}</h2>

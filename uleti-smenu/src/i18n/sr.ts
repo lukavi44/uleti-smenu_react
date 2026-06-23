@@ -473,6 +473,8 @@ const sr = {
     employeeReviewsTitle: "Recenzije za {{name}}",
     restaurantReviewsTitle: "Recenzije za {{name}}",
     reviewCountLabel: "recenzija",
+    receivedTitle: "Recenzije o meni",
+    receivedAboutEmployee: "Recenzije o zaposlenom",
     unknownSubject: "Korisnik"
   },
   employeeProfile: {
@@ -521,7 +523,8 @@ const sr = {
     loadError: "Razgovori nisu mogli da se učitaju.",
     noConversations: "Još nema razgovora. Chat se otvara kada je prijava prihvaćena.",
     noPreview: "Još nema poruka",
-    selectConversation: "Izaberite razgovor da započnete chat."
+    selectConversation: "Izaberite razgovor da započnete chat.",
+    unreadCount: "{{count}} nepročitanih poruka"
   },
   applicants: {
     seeApplicants: "Prikaži kandidate",

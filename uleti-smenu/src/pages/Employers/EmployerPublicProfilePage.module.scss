@@ -14,9 +14,21 @@
 
 .header {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.photoWrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .photo {
@@ -25,10 +37,12 @@
   border-radius: 999px;
   object-fit: cover;
   border: 2px solid #e5e7eb;
+  display: block;
 }
 
 .headerContent {
   flex: 1;
+  min-width: 0;
 }
 
 .header h1 {
@@ -43,7 +57,6 @@
 }
 
 .favouriteBtn {
-  margin-top: 0.5rem;
   border: 1px solid #e5e7eb;
   border-radius: 999px;
   background: #fff;
@@ -52,6 +65,26 @@
   width: 42px;
   height: 42px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.favouriteBtnDesktop {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+}
+
+.favouriteBtnMobile {
+  display: none;
 }
 
 .isFavourite {
@@ -99,10 +132,67 @@
   color: #6b7280;
 }
 
+.jobPostActions {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.appliedBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.applyButton {
+  margin-left: auto;
+  border: 1px solid transparent;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.52rem 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  &:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+  }
+}
+
 .jobPostLink {
   display: inline-block;
   margin-top: 1rem;
   color: #2563eb;
   text-decoration: none;
   font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .favouriteBtnDesktop {
+    display: none;
+  }
+
+  .favouriteBtnMobile {
+    display: flex;
+  }
 }

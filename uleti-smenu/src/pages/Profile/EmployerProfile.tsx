@@ -631,6 +631,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 {editingJobPost && (
                     <div className={styles.inlineForm}>
                         <JobPostForm
+                            key={editingJobPost.id}
                             initialData={editingJobPost}
                             onClose={() => setEditingJobPostId(null)}
                             onSubmit={async () => {

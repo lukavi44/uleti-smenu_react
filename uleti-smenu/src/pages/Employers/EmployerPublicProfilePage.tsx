@@ -1,13 +1,18 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import Footer from "../../components/Footer/Footer";
+import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import RatingBadge from "../../components/Reviews/RatingBadge";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { EmployerPublicProfile } from "../../models/EmployerPublicProfile.model";
 import { GetEmployerPublicProfile } from "../../services/employer-profile-service";
+import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { PatchClientFavorite } from "../../services/user-service";
 import { AuthContext } from "../../store/Auth-context";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 import styles from "./EmployerPublicProfilePage.module.scss";
 
 const formatAddress = (location: EmployerPublicProfile["locations"][number]) => {
@@ -24,6 +29,19 @@ const EmployerPublicProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [favouriteInProgress, setFavouriteInProgress] = useState(false);
+  const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
+  const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
+
+  const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
+
+  const activeJobPosts = profile?.activeJobPosts ?? [];
+  const {
+    visibleItems: visibleJobPosts,
+    hasMore: hasMoreJobPosts,
+    loadMore: loadMoreJobPosts,
+    totalCount: jobPostsTotalCount,
+    visibleCount: jobPostsVisibleCount,
+  } = useLazyLoadList(activeJobPosts, LIST_PAGE_SIZE, employerId ?? "");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -50,6 +68,24 @@ const EmployerPublicProfilePage = () => {
     }
   }, [authStatus, role, employerId]);
 
+  useEffect(() => {
+    const loadApplications = async () => {
+      if (authStatus !== "authenticated" || role !== "Employee") {
+        setAppliedJobPostIds([]);
+        return;
+      }
+
+      try {
+        const response = await GetMyApplications();
+        setAppliedJobPostIds(response.data.map((application) => application.jobPostId));
+      } catch {
+        setAppliedJobPostIds([]);
+      }
+    };
+
+    void loadApplications();
+  }, [authStatus, role]);
+
   const handleToggleFavourite = async () => {
     if (!employerId || !profile || favouriteInProgress) return;
 
@@ -64,6 +100,29 @@ const EmployerPublicProfilePage = () => {
     } finally {
       setFavouriteInProgress(false);
     }
+  };
+
+  const handleApply = async (jobPostId: string) => {
+    setApplyInProgressForPostId(jobPostId);
+    try {
+      await ApplyToJobPost(jobPostId);
+      toast.success(t("jobPosts.applySuccess"));
+      setAppliedJobPostIds((previousIds) =>
+        previousIds.includes(jobPostId) ? previousIds : [...previousIds, jobPostId]
+      );
+    } catch {
+      toast.error(t("jobPosts.applyError"));
+    } finally {
+      setApplyInProgressForPostId(null);
+    }
+  };
+
+  const formatDate = (value: string) => {
+    const parsedDate = new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "-";
+    }
+    return parsedDate.toLocaleString();
   };
 
   if (authStatus === "loading") {
@@ -87,23 +146,30 @@ const EmployerPublicProfilePage = () => {
         {!isLoading && !loadError && profile && (
           <>
             <header className={styles.header}>
-              <img
-                src={getImageUrl(profile.profilePhoto)}
-                alt={profile.name}
-                className={styles.photo}
-              />
-              <div className={styles.headerContent}>
-                <h1>{profile.name}</h1>
-                <RatingBadge
-                  averageRating={profile.reviewSummary.averageRating}
-                  reviewCount={profile.reviewSummary.reviewCount}
-                  subjectType="employer"
-                  subjectId={employerId}
-                />
-                {profile.phoneNumber && <p className={styles.meta}>{profile.phoneNumber}</p>}
+              <div className={styles.headerTop}>
+                <div className={styles.photoWrapper}>
+                  <img
+                    src={getImageUrl(profile.profilePhoto)}
+                    alt={profile.name}
+                    className={styles.photo}
+                  />
+                  <button
+                    type="button"
+                    className={`${styles.favouriteBtn} ${styles.favouriteBtnDesktop} ${profile.isFavourite ? styles.isFavourite : ""}`}
+                    aria-label={
+                      profile.isFavourite
+                        ? t("employers.removeFromFavorites")
+                        : t("employers.addToFavorites")
+                    }
+                    disabled={favouriteInProgress}
+                    onClick={() => void handleToggleFavourite()}
+                  >
+                    {profile.isFavourite ? "★" : "☆"}
+                  </button>
+                </div>
                 <button
                   type="button"
-                  className={`${styles.favouriteBtn} ${profile.isFavourite ? styles.isFavourite : ""}`}
+                  className={`${styles.favouriteBtn} ${styles.favouriteBtnMobile} ${profile.isFavourite ? styles.isFavourite : ""}`}
                   aria-label={
                     profile.isFavourite
                       ? t("employers.removeFromFavorites")
@@ -114,6 +180,16 @@ const EmployerPublicProfilePage = () => {
                 >
                   {profile.isFavourite ? "★" : "☆"}
                 </button>
+              </div>
+              <div className={styles.headerContent}>
+                <h1>{profile.name}</h1>
+                <RatingBadge
+                  averageRating={profile.reviewSummary.averageRating}
+                  reviewCount={profile.reviewSummary.reviewCount}
+                  subjectType="employer"
+                  subjectId={employerId}
+                />
+                {profile.phoneNumber && <p className={styles.meta}>{profile.phoneNumber}</p>}
               </div>
             </header>
 
@@ -140,29 +216,54 @@ const EmployerPublicProfilePage = () => {
                 <p className={styles.mutedText}>{t("employerProfile.noActiveJobPosts")}</p>
               ) : (
                 <div className={styles.jobPostList}>
-                  {profile.activeJobPosts.map((jobPost) => (
-                    <article key={jobPost.id} className={styles.jobPostCard}>
-                      <h3>{jobPost.title}</h3>
-                      <p className={styles.meta}>{jobPost.position}</p>
-                      <p className={styles.jobMeta}>
-                        {t("employerProfile.shiftDate")}:{" "}
-                        {new Date(jobPost.startingDate).toLocaleDateString()}
-                      </p>
-                      <p className={styles.jobMeta}>
-                        {t("employerProfile.salary")}: {jobPost.salary} RSD
-                      </p>
-                      {(jobPost.restaurantLocationName || jobPost.restaurantLocationCity) && (
+                  {visibleJobPosts.map((jobPost) => {
+                    const hasApplied = appliedJobPostIdSet.has(jobPost.id);
+                    return (
+                      <article key={jobPost.id} className={styles.jobPostCard}>
+                        <h3>{jobPost.title}</h3>
+                        <p className={styles.meta}>{jobPost.position}</p>
                         <p className={styles.jobMeta}>
-                          {t("employerProfile.location")}:{" "}
-                          {[jobPost.restaurantLocationName, jobPost.restaurantLocationCity]
-                            .filter(Boolean)
-                            .join(", ")}
+                          {t("employerProfile.shiftDate")}: {formatDate(jobPost.startingDate)}
                         </p>
-                      )}
-                    </article>
-                  ))}
+                        <p className={styles.jobMeta}>
+                          {t("employerProfile.salary")}: {jobPost.salary} RSD
+                        </p>
+                        {(jobPost.restaurantLocationName || jobPost.restaurantLocationCity) && (
+                          <p className={styles.jobMeta}>
+                            {t("employerProfile.location")}:{" "}
+                            {[jobPost.restaurantLocationName, jobPost.restaurantLocationCity]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </p>
+                        )}
+                        <div className={styles.jobPostActions}>
+                          {hasApplied && (
+                            <span className={styles.appliedBadge}>{t("jobPosts.alreadyApplied")}</span>
+                          )}
+                          <button
+                            type="button"
+                            className={styles.applyButton}
+                            disabled={hasApplied || applyInProgressForPostId !== null}
+                            onClick={() => void handleApply(jobPost.id)}
+                          >
+                            {applyInProgressForPostId === jobPost.id
+                              ? t("jobPosts.applying")
+                              : hasApplied
+                                ? t("jobPosts.appliedShort")
+                                : t("jobPosts.apply")}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
+              <LazyLoadSentinel
+                hasMore={hasMoreJobPosts}
+                onLoadMore={loadMoreJobPosts}
+                visibleCount={jobPostsVisibleCount}
+                totalCount={jobPostsTotalCount}
+              />
               <Link className={styles.jobPostLink} to="/oglasi-za-posao">
                 {t("employerProfile.browseAllJobPosts")}
               </Link>

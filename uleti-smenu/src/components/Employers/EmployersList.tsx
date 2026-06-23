@@ -14,8 +14,15 @@ import { AuthContext } from "../../store/Auth-context";
 import { useTranslation } from "react-i18next";
 import RatingBadge from "../Reviews/RatingBadge";
 import { ReviewSummary } from "../../models/Review.model";
+import LazyLoadSentinel from "../Common/LazyLoadSentinel";
+import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 
-const EmployersList = () => {
+type EmployersListProps = {
+  variant?: "carousel" | "page";
+};
+
+const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
   const { t } = useTranslation();
   const { isLoading } = useContext(LoadingContext);
   const { authStatus, role } = useContext(AuthContext);
@@ -26,6 +33,22 @@ const EmployersList = () => {
   const [reviewSummaries, setReviewSummaries] = useState<Record<string, ReviewSummary>>({});
   const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
   const canViewProfile = authStatus === "authenticated" && role === "Employee";
+  const isPageLayout = variant === "page";
+
+  const {
+    visibleItems: visibleEmployers,
+    hasMore,
+    loadMore,
+    totalCount,
+    visibleCount,
+  } = useLazyLoadList(
+    employers,
+    isPageLayout ? LIST_PAGE_SIZE : employers.length || LIST_PAGE_SIZE,
+    `${selectedCity}-${isPageLayout}`
+  );
+
+  const displayedEmployers = isPageLayout ? visibleEmployers : employers;
+
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
     mode: "free",
@@ -41,6 +64,7 @@ const EmployersList = () => {
         slides: { perView: 2, spacing: 10 },
       },
     },
+    disabled: isPageLayout,
   });
 
   useEffect(() => {
@@ -88,6 +112,7 @@ const EmployersList = () => {
     employer: Employer,
     event: React.MouseEvent,
   ) => {
+    event.preventDefault();
     event.stopPropagation();
     if (!canToggleFavourite) return;
 
@@ -104,12 +129,66 @@ const EmployersList = () => {
     }
   };
 
+  const renderEmployerCard = (employer: Employer, cardClassName: string) => (
+    <div className={cardClassName} key={employer.id}>
+      <div className={styles.photoWrapper}>
+        {canViewProfile ? (
+          <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
+            <img
+              src={getImageUrl(employer.profilePhoto)}
+              alt={employer.name}
+              className={styles["employer-img"]}
+            />
+          </Link>
+        ) : (
+          <img
+            src={getImageUrl(employer.profilePhoto)}
+            alt={employer.name}
+            className={styles["employer-img"]}
+          />
+        )}
+        {canToggleFavourite && (
+          <button
+            type="button"
+            className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
+            aria-label={
+              employer.isFavourite
+                ? t("employers.removeFromFavorites")
+                : t("employers.addToFavorites")
+            }
+            onClick={(e) => void handleChangeFavourite(employer, e)}
+          >
+            {employer.isFavourite ? "★" : "☆"}
+          </button>
+        )}
+      </div>
+      <div className={styles.cardFooter}>
+        {canViewProfile ? (
+          <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
+            <p className={styles.employerName}>{employer.name}</p>
+          </Link>
+        ) : (
+          <p className={styles.employerName}>{employer.name}</p>
+        )}
+        {authStatus === "authenticated" && reviewSummaries[employer.id] && (
+          <RatingBadge
+            averageRating={reviewSummaries[employer.id].averageRating}
+            reviewCount={reviewSummaries[employer.id].reviewCount}
+            compact
+            subjectType="employer"
+            subjectId={employer.id}
+          />
+        )}
+      </div>
+    </div>
+  );
+
   if (isLoading) return <div className="text-center py-6">{t("common.loading")}</div>;
   if (error)
     return <div className="text-center py-6 text-red-600">{error}</div>;
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${isPageLayout ? styles.pageWrapper : ""}`}>
       <div className={styles.text}>
         <h2 className="text-[30px] font-bold">{t("employers.title")}</h2>
         <p className="font-medium text-gray">
@@ -138,64 +217,25 @@ const EmployersList = () => {
         <div className="text-center py-6">
           {selectedCity ? t("employers.noEmployersInCity") : t("employers.noEmployers")}
         </div>
+      ) : isPageLayout ? (
+        <>
+          <div className={styles.pageGrid}>
+            {displayedEmployers.map((employer: Employer) =>
+              renderEmployerCard(employer, styles.pageCard)
+            )}
+          </div>
+          <LazyLoadSentinel
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            visibleCount={visibleCount}
+            totalCount={totalCount}
+          />
+        </>
       ) : (
         <div ref={sliderRef} className="keen-slider px-2 py-4">
-          {employers.map((employer: Employer) => {
-            return (
-              <div
-                className={`keen-slider__slide ${styles["employer-card"]}`}
-                key={employer.id}
-              >
-                {canViewProfile ? (
-                  <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
-                    <img
-                      src={getImageUrl(employer.profilePhoto)}
-                      alt={employer.name}
-                      className={styles["employer-img"]}
-                    />
-                  </Link>
-                ) : (
-                  <img
-                    src={getImageUrl(employer.profilePhoto)}
-                    alt={employer.name}
-                    className={styles["employer-img"]}
-                  />
-                )}
-                {canToggleFavourite && (
-                  <button
-                    type="button"
-                    className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
-                    aria-label={
-                      employer.isFavourite
-                                ? t("employers.removeFromFavorites")
-                                : t("employers.addToFavorites")
-                    }
-                    onClick={(e) => handleChangeFavourite(employer, e)}
-                  >
-                    {employer.isFavourite ? "★" : "☆"}
-                  </button>
-                )}
-                <div className={styles.cardFooter}>
-                  {canViewProfile ? (
-                    <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
-                      <p className={styles.employerName}>{employer.name}</p>
-                    </Link>
-                  ) : (
-                    <p className={styles.employerName}>{employer.name}</p>
-                  )}
-                  {authStatus === "authenticated" && reviewSummaries[employer.id] && (
-                    <RatingBadge
-                      averageRating={reviewSummaries[employer.id].averageRating}
-                      reviewCount={reviewSummaries[employer.id].reviewCount}
-                      compact
-                      subjectType="employer"
-                      subjectId={employer.id}
-                    />
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {displayedEmployers.map((employer: Employer) =>
+            renderEmployerCard(employer, `keen-slider__slide ${styles["employer-card"]}`)
+          )}
         </div>
       )}
     </div>

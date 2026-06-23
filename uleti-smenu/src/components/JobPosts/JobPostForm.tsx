@@ -11,6 +11,8 @@ import { useEffect, useMemo, useState } from "react";
   import { useForm, Controller } from "react-hook-form";
   import { yupResolver } from "@hookform/resolvers/yup";
   import * as yup from "yup";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CreateJobPost, UpdateMyJobPost } from "../../services/jobPost-service";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
@@ -18,6 +20,7 @@ import { JobPost } from "../../models/JobPost.model";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import axios from "axios";
+import FormDateTimeField from "../Common/FormDateTimeField";
 import styles from "./JobPostForm.module.scss";
   
   interface JobPostFormProps {
@@ -48,7 +51,7 @@ import styles from "./JobPostForm.module.scss";
   const JobPostForm = ({ onClose, onSubmit, initialData }: JobPostFormProps) => {
     const { t } = useTranslation();
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
-    const isEditMode = useMemo(() => !!initialData, [initialData]);
+    const isEditMode = Boolean(initialData?.id);
     const schema = yup.object({
       title: yup.string().required(t("jobPostForm.titleRequired")),
       description: yup.string().required(t("jobPostForm.descriptionRequired")),
@@ -135,6 +138,7 @@ import styles from "./JobPostForm.module.scss";
     };
   
     return (
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box className={styles.formRoot}>
         <Box className={styles.formHeader} display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
@@ -226,38 +230,19 @@ import styles from "./JobPostForm.module.scss";
             )}
           />
   
-          <Controller
+          <FormDateTimeField
             name="startingDate"
             control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t("jobPostForm.startingDate")}
-                type="datetime-local"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                margin="normal"
-                error={!!errors.startingDate}
-                helperText={errors.startingDate?.message}
-              />
-            )}
+            label={t("jobPostForm.startingDate")}
+            errorMessage={errors.startingDate?.message}
           />
 
-          <Controller
+          <FormDateTimeField
             name="visibleUntil"
             control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t("jobPostForm.visibleUntil")}
-                type="datetime-local"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                margin="normal"
-                error={!!errors.visibleUntil}
-                helperText={errors.visibleUntil?.message}
-              />
-            )}
+            label={t("jobPostForm.visibleUntil")}
+            errorMessage={errors.visibleUntil?.message}
+            clearable
           />
 
           <Controller
@@ -290,6 +275,7 @@ import styles from "./JobPostForm.module.scss";
           </Box>
         </Box>
       </Box>
+      </LocalizationProvider>
     );
   };
   
