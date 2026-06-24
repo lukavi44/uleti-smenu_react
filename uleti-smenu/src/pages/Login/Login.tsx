@@ -10,6 +10,7 @@ import {
   Box,
   CircularProgress
 } from "@mui/material";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { LoginUserRequest } from "../../services/auth-service";
@@ -64,11 +65,11 @@ const LoginPage = () => {
 
       navigate("/");
     } catch (error: unknown) {
-      if (error instanceof Error) {
-          console.error(error.message);
-          toast.error(t("login.invalidCredentials"));
+      console.error("Login failed:", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(t("login.invalidCredentials"));
       } else {
-          console.error('Unknown error', error);
+        toast.error(t("common.unexpectedServerError"));
       }
     } finally {
       setLoading(false);

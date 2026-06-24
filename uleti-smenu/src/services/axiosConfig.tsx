@@ -7,13 +7,23 @@ import { LoginResponseData } from "./auth-service";
 const apiBaseURL = getApiBaseUrl();
 
 const axiosInstance = axios.create({
-  baseURL: apiBaseURL,
-  headers: {
-    // "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
+    baseURL: apiBaseURL,
+    headers: {
+        // "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+    },
 });
+
+const isAuthEndpoint = (url?: string) => {
+    if (!url) return false;
+    return /\/(login|refresh|register)(\/|$|\?)/.test(url);
+};
+
+const isPublicAuthPage = () => {
+    const path = window.location.pathname;
+    return path === "/login" || path.startsWith("/registration");
+};
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("AccessToken");
@@ -35,8 +45,14 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem("AccessToken");
       localStorage.removeItem("RefreshToken");
       toast.error(i18n.t("common.sessionExpired"));
-      window.location.href = "/login";
+      if (!isPublicAuthPage()) {
+        window.location.href = "/login";
+      }
     };
+
+    if (error.response?.status === 401 && isAuthEndpoint(originalRequest?.url)) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
