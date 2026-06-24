@@ -63,6 +63,9 @@ const en = {
     heroCtaEmployee: "I need a shift",
     heroCtaEmployer: "I need staff",
     heroCtaHowItWorks: "How it works",
+    statsMatches: "Successful matches",
+    statsEmployers: "Registered restaurants",
+    statsEmployees: "Registered candidates",
     marketingTitle: "Flexible shifts for restaurants and workers",
     marketingSubtitle:
       "UletiSmenu helps restaurants fill urgent shifts and helps candidates pick up flexible daily work when a colleague cannot make it.",

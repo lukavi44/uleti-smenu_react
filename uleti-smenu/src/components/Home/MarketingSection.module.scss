@@ -1,6 +1,6 @@
 .section {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  padding: 2.5rem 1.25rem 3rem;
+  padding: 2rem 1.25rem 1.5rem;
 }
 
 .inner {
@@ -11,7 +11,7 @@
 .header {
   text-align: center;
   max-width: 720px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.5rem;
 }
 
 .header h2 {
@@ -31,7 +31,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .valueCard {
@@ -59,7 +59,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .audienceCard {

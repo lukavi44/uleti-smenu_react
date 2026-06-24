@@ -63,6 +63,9 @@ const sr = {
     heroCtaEmployee: "Tražim smenu",
     heroCtaEmployer: "Tražim osoblje",
     heroCtaHowItWorks: "Kako funkcioniše",
+    statsMatches: "Uspešna povezivanja",
+    statsEmployers: "Registrovani restorani",
+    statsEmployees: "Registrovani kandidati",
     marketingTitle: "Fleksibilne smene za restorane i radnike",
     marketingSubtitle:
       "UletiSmenu pomaže restoranima da brzo popune smenu i kandidatima da pronađu fleksibilan dnevni angažman kad kolega ne može.",

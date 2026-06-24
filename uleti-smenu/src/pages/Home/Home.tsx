@@ -7,6 +7,7 @@ import EmployersList from "../../components/Employers/EmployersList";
 import { AuthContext } from "../../store/Auth-context";
 import { Link, NavLink } from "react-router-dom";
 import MarketingSection from "../../components/Home/MarketingSection";
+import HeroPlatformStats from "../../components/Home/HeroPlatformStats";
 import {
   GetEmployerDashboardSummary,
   GetMyJobPosts,
@@ -228,6 +229,7 @@ const HomePage = () => {
             )}
             <h1 className={styles.heroTitle}>{t("home.heroTitle")}</h1>
             <p className={styles.heroSubtitle}>{t("home.heroSubtitle")}</p>
+            {!isEmployerDashboardVisible && isMobile && <HeroPlatformStats />}
             {isLoggedOut && (
               <div className={styles.heroCtas}>
                 <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
@@ -244,11 +246,9 @@ const HomePage = () => {
           </div>
 
           {!isMobile && !isEmployerDashboardVisible && (
-            <div className={styles.heroVisual} aria-hidden="true">
+            <div className={styles.heroVisual}>
               <div className={styles.heroVisualCard}>
-                <span className={styles.heroVisualLabel}>{t("home.activeJobPosts")}</span>
-                <strong>24/7</strong>
-                <p>{t("home.marketingSubtitle")}</p>
+                <HeroPlatformStats compact />
               </div>
             </div>
           )}
