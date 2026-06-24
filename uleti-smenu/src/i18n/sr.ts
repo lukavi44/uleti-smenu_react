@@ -377,7 +377,18 @@ const sr = {
     createPost: "Napravi oglas",
     applySuccess: "Uspešno ste se prijavili za ovu smenu.",
     applyError: "Prijava na smenu nije uspela.",
-    saveError: "Oglas nije mogao da se sačuva."
+    saveError: "Oglas nije mogao da se sačuva.",
+    filterCity: "Grad",
+    filterRestaurant: "Restoran",
+    filterLocation: "Lokacija",
+    filterPosition: "Pozicija",
+    filterSalaryMin: "Dnevnica od",
+    filterSalaryMax: "Dnevnica do",
+    filterSalaryPlaceholder: "RSD",
+    filterAll: "Svi",
+    filterConfirm: "Primeni filtere",
+    sortShiftSoonest: "Datum smene (najskoriji)",
+    sortShiftLatest: "Datum smene (najdalji)"
   },
   billing: {
     planLabel: "Pretplata",

@@ -14,6 +14,10 @@ export interface GetMyJobPostsPagedParams {
   sortBy?: "createdAt" | "startingDate" | "position" | "applicantCount";
   sortDirection?: "asc" | "desc";
   hasApplicants?: boolean;
+  city?: string;
+  restaurantLocationId?: string;
+  minSalary?: number;
+  maxSalary?: number;
 }
 
 
@@ -46,7 +50,11 @@ export const GetMyJobPostsPaged = async(
             lifecycle: params.lifecycle && params.lifecycle !== "all" ? params.lifecycle : undefined,
             sortBy: params.sortBy,
             sortDirection: params.sortDirection,
-            hasApplicants: params.hasApplicants || undefined
+            hasApplicants: params.hasApplicants || undefined,
+            city: params.city || undefined,
+            restaurantLocationId: params.restaurantLocationId || undefined,
+            minSalary: params.minSalary,
+            maxSalary: params.maxSalary,
         }
     });
 }

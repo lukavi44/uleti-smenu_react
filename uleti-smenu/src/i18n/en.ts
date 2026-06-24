@@ -376,7 +376,18 @@ const en = {
     createPost: "Create Job Post",
     applySuccess: "Successfully applied for this shift.",
     applyError: "Unable to apply for this shift.",
-    saveError: "Unable to save the job post."
+    saveError: "Unable to save the job post.",
+    filterCity: "City",
+    filterRestaurant: "Restaurant",
+    filterLocation: "Location",
+    filterPosition: "Position",
+    filterSalaryMin: "Salary from",
+    filterSalaryMax: "Salary to",
+    filterSalaryPlaceholder: "RSD",
+    filterAll: "All",
+    filterConfirm: "Apply filters",
+    sortShiftSoonest: "Shift date (soonest)",
+    sortShiftLatest: "Shift date (latest)"
   },
   billing: {
     planLabel: "Subscription",

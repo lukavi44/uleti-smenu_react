@@ -17,8 +17,49 @@ import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
+import JobPostsFiltersBar from "../../components/JobPosts/JobPostsFiltersBar";
+import { GetMyJobPostPositions } from "../../services/jobPost-service";
+import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
+import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 
 import "tailwindcss";
+
+const parseOptionalSalary = (value: string) => {
+    if (!value.trim()) {
+        return undefined;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+};
+
+const parseEmployerSortValue = (
+    value: string
+): { sortBy: "createdAt" | "startingDate"; sortDirection: "asc" | "desc" } => {
+    switch (value) {
+        case "startingDate_asc":
+            return { sortBy: "startingDate", sortDirection: "asc" };
+        case "startingDate_desc":
+            return { sortBy: "startingDate", sortDirection: "desc" };
+        case "createdAt_asc":
+            return { sortBy: "createdAt", sortDirection: "asc" };
+        default:
+            return { sortBy: "createdAt", sortDirection: "desc" };
+    }
+};
+
+const parseSortValue = (value: string): { sortBy: "createdAt" | "salary"; sortDirection: "asc" | "desc" } => {
+    switch (value) {
+        case "createdAt_asc":
+            return { sortBy: "createdAt", sortDirection: "asc" };
+        case "salary_desc":
+            return { sortBy: "salary", sortDirection: "desc" };
+        case "salary_asc":
+            return { sortBy: "salary", sortDirection: "asc" };
+        default:
+            return { sortBy: "createdAt", sortDirection: "desc" };
+    }
+};
 
 const JobPosts = () => {
     const { t } = useTranslation();
@@ -34,17 +75,29 @@ const JobPosts = () => {
     const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
     const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
+    const [cityFilter, setCityFilter] = useState("");
+    const [restaurantFilter, setRestaurantFilter] = useState("");
+    const [positionFilter, setPositionFilter] = useState("");
+    const [minSalaryFilter, setMinSalaryFilter] = useState("");
+    const [maxSalaryFilter, setMaxSalaryFilter] = useState("");
+    const [employerSortBy, setEmployerSortBy] = useState<"createdAt" | "startingDate">("startingDate");
+    const [employerSortDirection, setEmployerSortDirection] = useState<"asc" | "desc">("asc");
+    const [employerPositionOptions, setEmployerPositionOptions] = useState<string[]>([]);
+    const [employerLocations, setEmployerLocations] = useState<RestaurantLocation[]>([]);
     const leftPanelRef = useRef<HTMLDivElement>(null);
 
-    const employerJobPostsResetKey = `${employerLifecycleFilter}`;
+    const employerJobPostsResetKey = `${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
     const fetchEmployerJobPostsPage = useCallback(
         async (page: number) => {
             const response = await GetMyJobPostsPaged({
                 page,
                 pageSize: LIST_PAGE_SIZE,
                 lifecycle: employerLifecycleFilter,
-                sortBy: "createdAt",
-                sortDirection: "desc",
+                sortBy: employerSortBy,
+                sortDirection: employerSortDirection,
+                city: cityFilter || undefined,
+                restaurantLocationId: restaurantFilter || undefined,
+                position: positionFilter || undefined,
             });
 
             return {
@@ -52,7 +105,7 @@ const JobPosts = () => {
                 totalCount: response.data.totalCount,
             };
         },
-        [employerLifecycleFilter]
+        [employerLifecycleFilter, cityFilter, restaurantFilter, positionFilter, employerSortBy, employerSortDirection]
     );
 
     const {
@@ -104,8 +157,41 @@ const JobPosts = () => {
     const favouriteEmployerIdSet = useMemo(() => new Set(favouriteEmployerIds), [favouriteEmployerIds]);
 
     useEffect(() => {
+        if (role !== "Employer") {
+            return;
+        }
+
+        const loadEmployerFilterOptions = async () => {
+            try {
+                const [positionsResponse, locationsResponse] = await Promise.all([
+                    GetMyJobPostPositions(),
+                    GetMyRestaurantLocations(),
+                ]);
+                setEmployerPositionOptions(positionsResponse.data);
+                setEmployerLocations(locationsResponse.data);
+            } catch {
+                setEmployerPositionOptions([]);
+                setEmployerLocations([]);
+            }
+        };
+
+        void loadEmployerFilterOptions();
+    }, [role]);
+
+    useEffect(() => {
         leftPanelRef.current?.scrollTo(0, 0);
-    }, []);
+    }, [
+        employeeFilter,
+        favouriteFilter,
+        sortBy,
+        sortDirection,
+        employerLifecycleFilter,
+        cityFilter,
+        restaurantFilter,
+        positionFilter,
+        employerSortBy,
+        employerSortDirection,
+    ]);
 
     useEffect(() => {
         if (role === "Employer") {
@@ -181,26 +267,23 @@ const JobPosts = () => {
     };
 
     const selectedSortValue = `${sortBy}_${sortDirection}`;
+    const selectedEmployerSortValue = `${employerSortBy}_${employerSortDirection}`;
+
+    const handleCityFilterChange = (value: string) => {
+        setCityFilter(value);
+        setRestaurantFilter("");
+    };
 
     const handleSortChange = (value: string) => {
-        switch (value) {
-            case "createdAt_asc":
-                setSortBy("createdAt");
-                setSortDirection("asc");
-                break;
-            case "salary_desc":
-                setSortBy("salary");
-                setSortDirection("desc");
-                break;
-            case "salary_asc":
-                setSortBy("salary");
-                setSortDirection("asc");
-                break;
-            default:
-                setSortBy("createdAt");
-                setSortDirection("desc");
-                break;
-        }
+        const parsedSort = parseSortValue(value);
+        setSortBy(parsedSort.sortBy);
+        setSortDirection(parsedSort.sortDirection);
+    };
+
+    const handleEmployerSortChange = (value: string) => {
+        const parsedSort = parseEmployerSortValue(value);
+        setEmployerSortBy(parsedSort.sortBy);
+        setEmployerSortDirection(parsedSort.sortDirection);
     };
 
     const handleApply = async (jobPostId: string) => {
@@ -226,21 +309,54 @@ const JobPosts = () => {
         return parsedDate.toLocaleString();
     };
 
+    const attributeFilteredJobPosts = useMemo(() => {
+        if (role !== "Employee") {
+            return jobPosts;
+        }
+
+        let result = jobPosts;
+
+        if (cityFilter) {
+            result = result.filter((jobPost) => jobPost.restaurantLocationCity === cityFilter);
+        }
+
+        if (restaurantFilter) {
+            result = result.filter((jobPost) => jobPost.employerId === restaurantFilter);
+        }
+
+        if (positionFilter) {
+            result = result.filter((jobPost) => jobPost.position === positionFilter);
+        }
+
+        const minSalary = parseOptionalSalary(minSalaryFilter);
+        const maxSalary = parseOptionalSalary(maxSalaryFilter);
+
+        if (minSalary !== undefined) {
+            result = result.filter((jobPost) => jobPost.salary >= minSalary);
+        }
+
+        if (maxSalary !== undefined) {
+            result = result.filter((jobPost) => jobPost.salary <= maxSalary);
+        }
+
+        return result;
+    }, [role, jobPosts, cityFilter, restaurantFilter, positionFilter, minSalaryFilter, maxSalaryFilter]);
+
     const filteredJobPosts = useMemo(() => {
         if (role !== "Employee") {
             return jobPosts;
         }
 
         if (employeeFilter === "notApplied") {
-            return jobPosts.filter((jobPost) => !appliedJobPostIdSet.has(jobPost.id));
+            return attributeFilteredJobPosts.filter((jobPost) => !appliedJobPostIdSet.has(jobPost.id));
         }
 
         if (employeeFilter === "applied") {
-            return jobPosts.filter((jobPost) => appliedJobPostIdSet.has(jobPost.id));
+            return attributeFilteredJobPosts.filter((jobPost) => appliedJobPostIdSet.has(jobPost.id));
         }
 
-        return jobPosts;
-    }, [role, jobPosts, employeeFilter, appliedJobPostIdSet]);
+        return attributeFilteredJobPosts;
+    }, [role, jobPosts, attributeFilteredJobPosts, employeeFilter, appliedJobPostIdSet]);
 
     const employeeVisibleJobPosts = useMemo(() => {
         if (role !== "Employee") {
@@ -262,7 +378,7 @@ const JobPosts = () => {
         return employerJobPosts;
     }, [role, filteredJobPosts, employerJobPosts]);
 
-    const employeeListResetKey = `${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${appliedJobPostIds.join(",")}|${favouriteEmployerIds.join(",")}`;
+    const employeeListResetKey = `${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${minSalaryFilter}|${maxSalaryFilter}|${appliedJobPostIds.join(",")}|${favouriteEmployerIds.join(",")}`;
 
     const {
         visibleItems: employeeLazyJobPosts,
@@ -278,61 +394,113 @@ const JobPosts = () => {
             ? employerVisibleJobPosts
             : filteredJobPosts;
 
+    const employerCityOptions = useMemo(
+        () =>
+            [...new Set(employerLocations.map((location) => location.city).filter(Boolean))]
+                .sort((left, right) => left.localeCompare(right))
+                .map((city) => ({ value: city, label: city })),
+        [employerLocations]
+    );
+
+    const employerRestaurantOptions = useMemo(
+        () =>
+            employerLocations
+                .filter((location) => !cityFilter || location.city === cityFilter)
+                .map((location) => ({
+                    value: location.id,
+                    label: `${location.name} (${location.city})`,
+                })),
+        [employerLocations, cityFilter]
+    );
+
+    const employerPositionFilterOptions = useMemo(
+        () => employerPositionOptions.map((position) => ({ value: position, label: position })),
+        [employerPositionOptions]
+    );
+
+    const employeeFilterOptions = useMemo(() => {
+        const cities = [...new Set(jobPosts.map((post) => post.restaurantLocationCity).filter(Boolean))]
+            .sort((left, right) => left!.localeCompare(right!))
+            .map((city) => ({ value: city as string, label: city as string }));
+
+        const restaurants = [...new Map(
+            jobPosts.map((post) => [post.employerId, post.employer?.name ?? ""] as const)
+        ).entries()]
+            .filter(([, name]) => Boolean(name))
+            .filter(([employerId]) => {
+                if (!cityFilter) {
+                    return true;
+                }
+
+                return jobPosts.some(
+                    (post) => post.employerId === employerId && post.restaurantLocationCity === cityFilter
+                );
+            })
+            .sort((left, right) => left[1].localeCompare(right[1]))
+            .map(([employerId, name]) => ({ value: employerId, label: name }));
+
+        const positions = [...new Set(jobPosts.map((post) => post.position).filter(Boolean))]
+            .sort((left, right) => left.localeCompare(right))
+            .map((position) => ({ value: position, label: position }));
+
+        return { cities, restaurants, positions };
+    }, [jobPosts, cityFilter]);
+
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
-            <div ref={leftPanelRef} className={styles["left-panel"]}>
+            <div className={styles["left-panel"]}>
             {role === "Employer" && (
-              <div className={styles["list-filters"]}>
-                <label htmlFor="employerLifecycleFilter">{t("jobPosts.lifecycleFilter")}</label>
-                <select
-                  id="employerLifecycleFilter"
-                  className={styles["list-filter-select"]}
-                  value={employerLifecycleFilter}
-                  onChange={(event) => setEmployerLifecycleFilter(event.target.value as "active" | "archived" | "all")}
-                >
-                  <option value="active">{t("jobPosts.activePosts")}</option>
-                  <option value="archived">{t("jobPosts.archivedPosts")}</option>
-                  <option value="all">{t("jobPosts.allPosts")}</option>
-                </select>
-              </div>
+              <JobPostsFiltersBar
+                showLifecycle
+                showSort
+                sortMode="employer"
+                showSalaryFilters={false}
+                restaurantLabelKey="filterLocation"
+                city={cityFilter}
+                restaurant={restaurantFilter}
+                position={positionFilter}
+                minSalary=""
+                maxSalary=""
+                lifecycle={employerLifecycleFilter}
+                sortValue={selectedEmployerSortValue}
+                cityOptions={employerCityOptions}
+                restaurantOptions={employerRestaurantOptions}
+                positionOptions={employerPositionFilterOptions}
+                onCityChange={handleCityFilterChange}
+                onRestaurantChange={setRestaurantFilter}
+                onPositionChange={setPositionFilter}
+                onMinSalaryChange={() => undefined}
+                onMaxSalaryChange={() => undefined}
+                onLifecycleChange={setEmployerLifecycleFilter}
+                onSortChange={handleEmployerSortChange}
+              />
             )}
             {role === "Employee" && (
-              <div className={styles["employee-filters"]}>
-                <label htmlFor="employeeFilter">{t("jobPosts.show")}</label>
-                <select
-                  id="employeeFilter"
-                  className={styles["employee-filter-select"]}
-                  value={employeeFilter}
-                  onChange={(event) => setEmployeeFilter(event.target.value as "all" | "notApplied" | "applied")}
-                >
-                  <option value="all">{t("jobPosts.all")}</option>
-                  <option value="notApplied">{t("jobPosts.notApplied")}</option>
-                  <option value="applied">{t("jobPosts.applied")}</option>
-                </select>
-                <label htmlFor="favouriteFilter">{t("jobPosts.restaurants")}</label>
-                <select
-                  id="favouriteFilter"
-                  className={styles["employee-filter-select"]}
-                  value={favouriteFilter}
-                  onChange={(event) => setFavouriteFilter(event.target.value as "all" | "favourites")}
-                >
-                  <option value="all">{t("jobPosts.all")}</option>
-                  <option value="favourites">{t("jobPosts.favoritesOnly")}</option>
-                </select>
-                <label htmlFor="sortFilter">{t("jobPosts.sort")}</label>
-                <select
-                  id="sortFilter"
-                  className={styles["employee-filter-select"]}
-                  value={selectedSortValue}
-                  onChange={(event) => handleSortChange(event.target.value)}
-                >
-                  <option value="createdAt_desc">{t("jobPosts.newest")}</option>
-                  <option value="createdAt_asc">{t("jobPosts.oldest")}</option>
-                  <option value="salary_desc">{t("jobPosts.salaryHighLow")}</option>
-                  <option value="salary_asc">{t("jobPosts.salaryLowHigh")}</option>
-                </select>
-              </div>
+              <JobPostsFiltersBar
+                showApplicationFilters
+                showSort
+                city={cityFilter}
+                restaurant={restaurantFilter}
+                position={positionFilter}
+                minSalary={minSalaryFilter}
+                maxSalary={maxSalaryFilter}
+                applicationFilter={employeeFilter}
+                favouriteFilter={favouriteFilter}
+                sortValue={selectedSortValue}
+                cityOptions={employeeFilterOptions.cities}
+                restaurantOptions={employeeFilterOptions.restaurants}
+                positionOptions={employeeFilterOptions.positions}
+                onCityChange={handleCityFilterChange}
+                onRestaurantChange={setRestaurantFilter}
+                onPositionChange={setPositionFilter}
+                onMinSalaryChange={setMinSalaryFilter}
+                onMaxSalaryChange={setMaxSalaryFilter}
+                onApplicationFilterChange={setEmployeeFilter}
+                onFavouriteFilterChange={setFavouriteFilter}
+                onSortChange={handleSortChange}
+              />
             )}
+            <div ref={leftPanelRef} className={styles["posts-list"]}>
             {visibleJobPosts.map((jobPost: JobPost) => {
           const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           const isEmployee = role === "Employee";
@@ -425,6 +593,7 @@ const JobPosts = () => {
                 totalCount={role === "Employee" ? employeeTotalCount : employerTotalCount}
               />
             )}
+            </div>
             </div>
 
             {role === "Employer" && jobPostCreateFormOpened && (

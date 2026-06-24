@@ -1,0 +1,52 @@
+.filtersBar {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.filtersGrid {
+  width: min(100%, 48rem);
+  margin: 0 auto;
+  padding: 1rem 1rem 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 0.7rem 0.85rem;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.filterField label {
+  color: #6b7280;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.filterControl {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0.48rem 0.65rem;
+  font-size: 0.88rem;
+  color: #111827;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.filterControl:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+@media only screen and (max-width: 768px) {
+  .filtersGrid {
+    grid-template-columns: 1fr 1fr;
+    padding: 0.85rem 0.75rem 0.8rem;
+  }
+}

@@ -61,11 +61,23 @@
   .left-panel {
     width: 100%;
     max-width: 1000px;
-    padding: 1rem;
     height: 100%;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+  }
+
+  .posts-list {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    padding: 1.25rem 1rem 1.5rem;
     overflow-y: auto;
     overflow-x: hidden;
-    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -166,34 +178,7 @@
 
   .list-filters,
   .employee-filters {
-    width: min(100%, 48rem);
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-bottom: -1.2rem;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: #ffffff;
-    padding: 0.5rem 0 0.75rem;
-  }
-
-  .list-filters label,
-  .employee-filters label {
-    color: #4b5563;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .list-filter-select,
-  .employee-filter-select {
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    padding: 0.45rem 0.7rem;
-    font-size: 0.9rem;
-    color: #111827;
-    background: #ffffff;
+    display: none;
   }
 
   .employee-jobpost-card {
@@ -364,10 +349,16 @@
     .left-panel {
       width: 100%;
       max-width: 100%;
-      padding: 0.75rem;
       height: auto;
       min-height: 0;
       overflow-x: clip;
+    }
+
+    .posts-list {
+      height: auto;
+      min-height: 0;
+      overflow-x: clip;
+      padding: 0.85rem 0.75rem 1.25rem;
     }
 
     .form-opened .left-panel {
