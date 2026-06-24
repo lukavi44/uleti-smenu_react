@@ -34,6 +34,8 @@ type JobPostsFiltersBarProps = {
   onApplicationFilterChange?: (value: "all" | "notApplied" | "applied") => void;
   onFavouriteFilterChange?: (value: "all" | "favourites") => void;
   onSortChange?: (value: string) => void;
+  showClearFilters?: boolean;
+  onClearFilters?: () => void;
 };
 
 const JobPostsFiltersBar = ({
@@ -64,6 +66,8 @@ const JobPostsFiltersBar = ({
   onApplicationFilterChange,
   onFavouriteFilterChange,
   onSortChange,
+  showClearFilters = false,
+  onClearFilters,
 }: JobPostsFiltersBarProps) => {
   const { t } = useTranslation();
 
@@ -233,6 +237,13 @@ const JobPostsFiltersBar = ({
           </div>
         )}
       </div>
+      {showClearFilters && onClearFilters && (
+        <div className={styles.filtersActions}>
+          <button type="button" className={styles.clearFiltersButton} onClick={onClearFilters}>
+            {t("jobPosts.clearFilters")}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

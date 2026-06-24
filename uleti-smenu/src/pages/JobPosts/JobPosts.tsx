@@ -22,6 +22,7 @@ import { Employer } from "../../models/User.model";
 import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import JobPostsFiltersBar from "../../components/JobPosts/JobPostsFiltersBar";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
@@ -65,6 +66,8 @@ const parseSortValue = (value: string): { sortBy: "createdAt" | "salary"; sortDi
     }
 };
 
+const SALARY_FILTER_DEBOUNCE_MS = 400;
+
 const JobPosts = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -81,8 +84,10 @@ const JobPosts = () => {
     const [cityFilter, setCityFilter] = useState("");
     const [restaurantFilter, setRestaurantFilter] = useState("");
     const [positionFilter, setPositionFilter] = useState("");
-    const [minSalaryFilter, setMinSalaryFilter] = useState("");
-    const [maxSalaryFilter, setMaxSalaryFilter] = useState("");
+    const [minSalaryInput, setMinSalaryInput] = useState("");
+    const [maxSalaryInput, setMaxSalaryInput] = useState("");
+    const debouncedMinSalary = useDebouncedValue(minSalaryInput, SALARY_FILTER_DEBOUNCE_MS);
+    const debouncedMaxSalary = useDebouncedValue(maxSalaryInput, SALARY_FILTER_DEBOUNCE_MS);
     const [employerSortBy, setEmployerSortBy] = useState<"createdAt" | "startingDate">("startingDate");
     const [employerSortDirection, setEmployerSortDirection] = useState<"asc" | "desc">("asc");
     const [employerPositionOptions, setEmployerPositionOptions] = useState<string[]>([]);
@@ -157,7 +162,7 @@ const JobPosts = () => {
         reset: resetEmployerJobPosts,
     } = useServerLazyLoad(fetchEmployerJobPostsPage, employerJobPostsResetKey);
 
-    const employeeJobPostsResetKey = `${role}|${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${minSalaryFilter}|${maxSalaryFilter}`;
+    const employeeJobPostsResetKey = `${role}|${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${debouncedMinSalary}|${debouncedMaxSalary}`;
     const fetchEmployeeJobPostsPage = useCallback(
         async (page: number) => {
             if (role !== "Employee") {
@@ -172,8 +177,8 @@ const JobPosts = () => {
                 city: cityFilter || undefined,
                 restaurantLocationId: restaurantFilter || undefined,
                 position: positionFilter || undefined,
-                minSalary: parseOptionalSalary(minSalaryFilter),
-                maxSalary: parseOptionalSalary(maxSalaryFilter),
+                minSalary: parseOptionalSalary(debouncedMinSalary),
+                maxSalary: parseOptionalSalary(debouncedMaxSalary),
                 applicationFilter: employeeFilter,
                 favouritesOnly: favouriteFilter === "favourites",
             });
@@ -192,8 +197,8 @@ const JobPosts = () => {
             cityFilter,
             restaurantFilter,
             positionFilter,
-            minSalaryFilter,
-            maxSalaryFilter,
+            debouncedMinSalary,
+            debouncedMaxSalary,
         ]
     );
 
@@ -270,8 +275,8 @@ const JobPosts = () => {
         cityFilter,
         restaurantFilter,
         positionFilter,
-        minSalaryFilter,
-        maxSalaryFilter,
+        debouncedMinSalary,
+        debouncedMaxSalary,
         employerSortBy,
         employerSortDirection,
     ]);
@@ -326,6 +331,89 @@ const JobPosts = () => {
         setEmployerSortBy(parsedSort.sortBy);
         setEmployerSortDirection(parsedSort.sortDirection);
     };
+
+    const hasEmployerFiltersActive = useMemo(
+        () =>
+            employerLifecycleFilter !== "active" ||
+            Boolean(cityFilter) ||
+            Boolean(restaurantFilter) ||
+            Boolean(positionFilter) ||
+            employerSortBy !== "startingDate" ||
+            employerSortDirection !== "asc",
+        [employerLifecycleFilter, cityFilter, restaurantFilter, positionFilter, employerSortBy, employerSortDirection]
+    );
+
+    const hasEmployeeFiltersActive = useMemo(
+        () =>
+            employeeFilter !== "all" ||
+            favouriteFilter !== "all" ||
+            Boolean(cityFilter) ||
+            Boolean(restaurantFilter) ||
+            Boolean(positionFilter) ||
+            Boolean(minSalaryInput) ||
+            Boolean(maxSalaryInput) ||
+            sortBy !== "createdAt" ||
+            sortDirection !== "desc",
+        [
+            employeeFilter,
+            favouriteFilter,
+            cityFilter,
+            restaurantFilter,
+            positionFilter,
+            minSalaryInput,
+            maxSalaryInput,
+            sortBy,
+            sortDirection,
+        ]
+    );
+
+    const clearEmployerFilters = () => {
+        setEmployerLifecycleFilter("active");
+        setCityFilter("");
+        setRestaurantFilter("");
+        setPositionFilter("");
+        setEmployerSortBy("startingDate");
+        setEmployerSortDirection("asc");
+    };
+
+    const clearEmployeeFilters = () => {
+        setEmployeeFilter("all");
+        setFavouriteFilter("all");
+        setSortBy("createdAt");
+        setSortDirection("desc");
+        setCityFilter("");
+        setRestaurantFilter("");
+        setPositionFilter("");
+        setMinSalaryInput("");
+        setMaxSalaryInput("");
+    };
+
+    const getEmployerEmptyMessage = () => {
+        if (employerLifecycleFilter === "archived") {
+            return t("jobPosts.noArchivedPosts");
+        }
+
+        if (hasEmployerFiltersActive) {
+            return t("jobPosts.noPostsFiltered");
+        }
+
+        return t("jobPosts.noPostsAtAll");
+    };
+
+    const getEmployeeEmptyMessage = () => {
+        if (hasEmployeeFiltersActive) {
+            return t("jobPosts.noPostsFiltered");
+        }
+
+        return t("jobPosts.noPostsAtAll");
+    };
+
+    const isListRefetching =
+        role === "Employer"
+            ? isEmployerJobPostsLoading && (employerJobPosts?.length ?? 0) > 0
+            : role === "Employee"
+                ? isEmployeeJobPostsLoading && (employeeJobPosts?.length ?? 0) > 0
+                : false;
 
     const handleApply = async (jobPostId: string) => {
         setApplyInProgressForPostId(jobPostId);
@@ -426,6 +514,8 @@ const JobPosts = () => {
                 onMaxSalaryChange={() => undefined}
                 onLifecycleChange={setEmployerLifecycleFilter}
                 onSortChange={handleEmployerSortChange}
+                showClearFilters={hasEmployerFiltersActive}
+                onClearFilters={clearEmployerFilters}
               />
             )}
             {role === "Employee" && (
@@ -436,8 +526,8 @@ const JobPosts = () => {
                 city={cityFilter}
                 restaurant={restaurantFilter}
                 position={positionFilter}
-                minSalary={minSalaryFilter}
-                maxSalary={maxSalaryFilter}
+                minSalary={minSalaryInput}
+                maxSalary={maxSalaryInput}
                 applicationFilter={employeeFilter}
                 favouriteFilter={favouriteFilter}
                 sortValue={selectedSortValue}
@@ -447,14 +537,24 @@ const JobPosts = () => {
                 onCityChange={handleCityFilterChange}
                 onRestaurantChange={setRestaurantFilter}
                 onPositionChange={setPositionFilter}
-                onMinSalaryChange={setMinSalaryFilter}
-                onMaxSalaryChange={setMaxSalaryFilter}
+                onMinSalaryChange={setMinSalaryInput}
+                onMaxSalaryChange={setMaxSalaryInput}
                 onApplicationFilterChange={setEmployeeFilter}
                 onFavouriteFilterChange={setFavouriteFilter}
                 onSortChange={handleSortChange}
+                showClearFilters={hasEmployeeFiltersActive}
+                onClearFilters={clearEmployeeFilters}
               />
             )}
-            <div ref={leftPanelRef} className={styles["posts-list"]}>
+            <div
+              ref={leftPanelRef}
+              className={`${styles["posts-list"]} ${isListRefetching ? styles["posts-list-refetching"] : ""}`}
+            >
+            {isListRefetching && (
+              <div className={styles["posts-list-loading"]} aria-live="polite">
+                {t("common.loading")}
+              </div>
+            )}
             {visibleJobPosts.map((jobPost: JobPost) => {
           const isMyPost = role === "Employer" && me && "id" in me && jobPost.employerId === me.id;
           const isEmployee = role === "Employee";
@@ -535,14 +635,10 @@ const JobPosts = () => {
           );
         })}
             {role === "Employee" && (employeeJobPosts?.length ?? 0) === 0 && !isEmployeeJobPostsLoading && (
-              <p className={styles["empty-message"]}>{t("jobPosts.noPostsFiltered")}</p>
+              <p className={styles["empty-message"]}>{getEmployeeEmptyMessage()}</p>
             )}
             {role === "Employer" && (employerJobPosts?.length ?? 0) === 0 && !isEmployerJobPostsLoading && (
-              <p className={styles["empty-message"]}>
-                {employerLifecycleFilter === "archived"
-                  ? t("jobPosts.noArchivedPosts")
-                  : t("jobPosts.noPostsFiltered")}
-              </p>
+              <p className={styles["empty-message"]}>{getEmployerEmptyMessage()}</p>
             )}
             {(role === "Employee" || role === "Employer") && (
               <LazyLoadSentinel

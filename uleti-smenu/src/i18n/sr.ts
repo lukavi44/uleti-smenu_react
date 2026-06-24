@@ -367,6 +367,7 @@ const sr = {
     apply: "Prijavi se",
     appliedShort: "Prijavljeno",
     noPostsFiltered: "Nema oglasa za izabrani filter.",
+    noPostsAtAll: "Trenutno nema dostupnih oglasa.",
     lifecycleFilter: "Prikaži:",
     activePosts: "Aktivni oglasi",
     archivedPosts: "Arhivirani oglasi",
@@ -386,7 +387,7 @@ const sr = {
     filterSalaryMax: "Dnevnica do",
     filterSalaryPlaceholder: "RSD",
     filterAll: "Svi",
-    filterConfirm: "Primeni filtere",
+    clearFilters: "Obriši filtere",
     sortShiftSoonest: "Datum smene (najskoriji)",
     sortShiftLatest: "Datum smene (najdalji)"
   },

@@ -366,6 +366,7 @@ const en = {
     apply: "Apply",
     appliedShort: "Applied",
     noPostsFiltered: "No job posts for selected filter.",
+    noPostsAtAll: "No job posts are available right now.",
     lifecycleFilter: "Show:",
     activePosts: "Active posts",
     archivedPosts: "Archived posts",
@@ -385,7 +386,7 @@ const en = {
     filterSalaryMax: "Salary to",
     filterSalaryPlaceholder: "RSD",
     filterAll: "All",
-    filterConfirm: "Apply filters",
+    clearFilters: "Clear filters",
     sortShiftSoonest: "Shift date (soonest)",
     sortShiftLatest: "Shift date (latest)"
   },

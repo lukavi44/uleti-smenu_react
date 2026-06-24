@@ -32,8 +32,6 @@ export function useServerLazyLoad<T extends Identifiable>(
 
   useEffect(() => {
     setPage(1);
-    setItems([]);
-    setTotalCount(0);
   }, [resetKey]);
 
   useEffect(() => {
