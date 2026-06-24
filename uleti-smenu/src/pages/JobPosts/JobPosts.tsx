@@ -2,23 +2,27 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "r
 import JobPostItem from "../../components/JobPosts/JobPostItem";
 import styles from "./JobPosts.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
-import { GetAllJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
+import {
+    GetMyJobPostPositions,
+    GetMyJobPostsPaged,
+    GetVisibleJobPostFilterOptions,
+    GetVisibleJobPostsPaged,
+    VisibleJobPostFilterOptions,
+} from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { AuthContext } from "../../store/Auth-context";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
-import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
+import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Employer } from "../../models/User.model";
 import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
-import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
 import JobPostsFiltersBar from "../../components/JobPosts/JobPostsFiltersBar";
-import { GetMyJobPostPositions } from "../../services/jobPost-service";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 
@@ -72,7 +76,6 @@ const JobPosts = () => {
     const [sortBy, setSortBy] = useState<"createdAt" | "salary">("createdAt");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
     const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
-    const [favouriteEmployerIds, setFavouriteEmployerIds] = useState<string[]>([]);
     const [applyInProgressForPostId, setApplyInProgressForPostId] = useState<string | null>(null);
     const [employerLifecycleFilter, setEmployerLifecycleFilter] = useState<"active" | "archived" | "all">("active");
     const [cityFilter, setCityFilter] = useState("");
@@ -84,11 +87,47 @@ const JobPosts = () => {
     const [employerSortDirection, setEmployerSortDirection] = useState<"asc" | "desc">("asc");
     const [employerPositionOptions, setEmployerPositionOptions] = useState<string[]>([]);
     const [employerLocations, setEmployerLocations] = useState<RestaurantLocation[]>([]);
+    const [employeeFilterOptions, setEmployeeFilterOptions] = useState<VisibleJobPostFilterOptions>({
+        cities: [],
+        locations: [],
+        positions: [],
+    });
     const leftPanelRef = useRef<HTMLDivElement>(null);
+    const savedListScrollTopRef = useRef(0);
 
-    const employerJobPostsResetKey = `${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
+    const saveListScrollPosition = () => {
+        if (leftPanelRef.current) {
+            savedListScrollTopRef.current = leftPanelRef.current.scrollTop;
+        }
+    };
+
+    const restoreListScrollPosition = () => {
+        requestAnimationFrame(() => {
+            if (leftPanelRef.current) {
+                leftPanelRef.current.scrollTop = savedListScrollTopRef.current;
+            }
+        });
+    };
+
+    const openJobPostForm = (jobPostId: string | null = null) => {
+        saveListScrollPosition();
+        setEditingJobPostId(jobPostId);
+        setJobPostCreatFormOpened(true);
+    };
+
+    const closeJobPostForm = () => {
+        setJobPostCreatFormOpened(false);
+        setEditingJobPostId(null);
+        restoreListScrollPosition();
+    };
+
+    const employerJobPostsResetKey = `${role}|${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
     const fetchEmployerJobPostsPage = useCallback(
         async (page: number) => {
+            if (role !== "Employer") {
+                return { items: [], totalCount: 0 };
+            }
+
             const response = await GetMyJobPostsPaged({
                 page,
                 pageSize: LIST_PAGE_SIZE,
@@ -105,7 +144,7 @@ const JobPosts = () => {
                 totalCount: response.data.totalCount,
             };
         },
-        [employerLifecycleFilter, cityFilter, restaurantFilter, positionFilter, employerSortBy, employerSortDirection]
+        [role, employerLifecycleFilter, cityFilter, restaurantFilter, positionFilter, employerSortBy, employerSortDirection]
     );
 
     const {
@@ -118,43 +157,64 @@ const JobPosts = () => {
         reset: resetEmployerJobPosts,
     } = useServerLazyLoad(fetchEmployerJobPostsPage, employerJobPostsResetKey);
 
-    // return (
-    //     <div className={styles["posts-container"]}>
-    //         <div className={styles["left-panel"]}>
-    //             <JobPostItem />
-    //             <JobPostItem />
-    //             <JobPostItem />
-    //             <JobPostItem />
-    //         </div>
-    //         <div className={styles["right-panel-wrapper"]}>
-    //             {!jobPostCreateFormOpened && (
-    //                 <button onClick={() => setJobPostCreatFormOpened(true)}>
-    //                     Napravi Oglas
-    //                 </button>
-    //             )}
+    const employeeJobPostsResetKey = `${role}|${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${minSalaryFilter}|${maxSalaryFilter}`;
+    const fetchEmployeeJobPostsPage = useCallback(
+        async (page: number) => {
+            if (role !== "Employee") {
+                return { items: [], totalCount: 0 };
+            }
 
-    //             {jobPostCreateFormOpened && (
-    //                 <div className={styles["right-panel"]}>
-    //                     <JobPostForm onClose={() => setJobPostCreatFormOpened(false)} />
-    //                 </div>
-    //             )}
-    //         </div>
-    //     </div>
-    // )
-    const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
+            const response = await GetVisibleJobPostsPaged({
+                page,
+                pageSize: LIST_PAGE_SIZE,
+                sortBy,
+                sortDirection,
+                city: cityFilter || undefined,
+                restaurantLocationId: restaurantFilter || undefined,
+                position: positionFilter || undefined,
+                minSalary: parseOptionalSalary(minSalaryFilter),
+                maxSalary: parseOptionalSalary(maxSalaryFilter),
+                applicationFilter: employeeFilter,
+                favouritesOnly: favouriteFilter === "favourites",
+            });
+
+            return {
+                items: response.data.items,
+                totalCount: response.data.totalCount,
+            };
+        },
+        [
+            role,
+            employeeFilter,
+            favouriteFilter,
+            sortBy,
+            sortDirection,
+            cityFilter,
+            restaurantFilter,
+            positionFilter,
+            minSalaryFilter,
+            maxSalaryFilter,
+        ]
+    );
+
+    const {
+        items: employeeJobPosts,
+        hasMore: hasMoreEmployeeJobPosts,
+        loadMore: loadMoreEmployeeJobPosts,
+        isLoading: isEmployeeJobPostsLoading,
+        isLoadingMore: isEmployeeJobPostsLoadingMore,
+        totalCount: employeeTotalCount,
+        reset: resetEmployeeJobPosts,
+    } = useServerLazyLoad(fetchEmployeeJobPostsPage, employeeJobPostsResetKey);
+
     const editingJobPost = useMemo(() => {
-        if (!editingJobPostId) {
+        if (!editingJobPostId || role !== "Employer") {
             return undefined;
         }
 
-        if (role === "Employer") {
-            return employerJobPosts.find((post) => post.id === editingJobPostId);
-        }
-
-        return jobPosts.find((post) => post.id === editingJobPostId);
-    }, [editingJobPostId, role, employerJobPosts, jobPosts]);
+        return employerJobPosts.find((post) => post.id === editingJobPostId);
+    }, [editingJobPostId, role, employerJobPosts]);
     const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
-    const favouriteEmployerIdSet = useMemo(() => new Set(favouriteEmployerIds), [favouriteEmployerIds]);
 
     useEffect(() => {
         if (role !== "Employer") {
@@ -179,6 +239,27 @@ const JobPosts = () => {
     }, [role]);
 
     useEffect(() => {
+        if (role !== "Employee") {
+            return;
+        }
+
+        const loadEmployeeFilterOptions = async () => {
+            try {
+                const response = await GetVisibleJobPostFilterOptions(cityFilter || undefined);
+                setEmployeeFilterOptions(response.data);
+            } catch {
+                setEmployeeFilterOptions({
+                    cities: [],
+                    locations: [],
+                    positions: [],
+                });
+            }
+        };
+
+        void loadEmployeeFilterOptions();
+    }, [role, cityFilter]);
+
+    useEffect(() => {
         leftPanelRef.current?.scrollTo(0, 0);
     }, [
         employeeFilter,
@@ -189,17 +270,11 @@ const JobPosts = () => {
         cityFilter,
         restaurantFilter,
         positionFilter,
+        minSalaryFilter,
+        maxSalaryFilter,
         employerSortBy,
         employerSortDirection,
     ]);
-
-    useEffect(() => {
-        if (role === "Employer") {
-            return;
-        }
-
-        void fetchEmployeeJobPosts();
-    }, [role, sortBy, sortDirection]);
 
     useEffect(() => {
         const loadMyApplications = async () => {
@@ -221,49 +296,15 @@ const JobPosts = () => {
         loadMyApplications();
     }, [role]);
 
-    useEffect(() => {
-        const loadFavourites = async () => {
-            if (role !== "Employee") {
-                setFavouriteEmployerIds([]);
-                return;
-            }
-
-            try {
-                const response = await GetEmployersWithFavouriteStatus();
-                setFavouriteEmployerIds(
-                    response.data
-                        .filter((employer) => employer.isFavourite)
-                        .map((employer) => employer.id)
-                );
-            } catch {
-                setFavouriteEmployerIds([]);
-            }
-        };
-
-        loadFavourites();
-    }, [role]);
-
-    const fetchEmployeeJobPosts = async () => {
-        try {
-            const response = await GetAllJobPosts(sortBy, sortDirection);
-            setJobPosts(response.data);
-        }
-        catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error(error.message);
-            } else {
-                console.error('Unknown error', error);
-            }
-        }
-    }
-
     const reloadJobPosts = async () => {
         if (role === "Employer") {
             resetEmployerJobPosts();
             return;
         }
 
-        await fetchEmployeeJobPosts();
+        if (role === "Employee") {
+            resetEmployeeJobPosts();
+        }
     };
 
     const selectedSortValue = `${sortBy}_${sortDirection}`;
@@ -309,90 +350,11 @@ const JobPosts = () => {
         return parsedDate.toLocaleString();
     };
 
-    const attributeFilteredJobPosts = useMemo(() => {
-        if (role !== "Employee") {
-            return jobPosts;
-        }
-
-        let result = jobPosts;
-
-        if (cityFilter) {
-            result = result.filter((jobPost) => jobPost.restaurantLocationCity === cityFilter);
-        }
-
-        if (restaurantFilter) {
-            result = result.filter((jobPost) => jobPost.employerId === restaurantFilter);
-        }
-
-        if (positionFilter) {
-            result = result.filter((jobPost) => jobPost.position === positionFilter);
-        }
-
-        const minSalary = parseOptionalSalary(minSalaryFilter);
-        const maxSalary = parseOptionalSalary(maxSalaryFilter);
-
-        if (minSalary !== undefined) {
-            result = result.filter((jobPost) => jobPost.salary >= minSalary);
-        }
-
-        if (maxSalary !== undefined) {
-            result = result.filter((jobPost) => jobPost.salary <= maxSalary);
-        }
-
-        return result;
-    }, [role, jobPosts, cityFilter, restaurantFilter, positionFilter, minSalaryFilter, maxSalaryFilter]);
-
-    const filteredJobPosts = useMemo(() => {
-        if (role !== "Employee") {
-            return jobPosts;
-        }
-
-        if (employeeFilter === "notApplied") {
-            return attributeFilteredJobPosts.filter((jobPost) => !appliedJobPostIdSet.has(jobPost.id));
-        }
-
-        if (employeeFilter === "applied") {
-            return attributeFilteredJobPosts.filter((jobPost) => appliedJobPostIdSet.has(jobPost.id));
-        }
-
-        return attributeFilteredJobPosts;
-    }, [role, jobPosts, attributeFilteredJobPosts, employeeFilter, appliedJobPostIdSet]);
-
-    const employeeVisibleJobPosts = useMemo(() => {
-        if (role !== "Employee") {
-            return filteredJobPosts;
-        }
-
-        if (favouriteFilter === "favourites") {
-            return filteredJobPosts.filter((jobPost) => favouriteEmployerIdSet.has(jobPost.employerId));
-        }
-
-        return filteredJobPosts;
-    }, [role, filteredJobPosts, favouriteFilter, favouriteEmployerIdSet]);
-
-    const employerVisibleJobPosts = useMemo(() => {
-        if (role !== "Employer") {
-            return filteredJobPosts;
-        }
-
-        return employerJobPosts;
-    }, [role, filteredJobPosts, employerJobPosts]);
-
-    const employeeListResetKey = `${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${minSalaryFilter}|${maxSalaryFilter}|${appliedJobPostIds.join(",")}|${favouriteEmployerIds.join(",")}`;
-
-    const {
-        visibleItems: employeeLazyJobPosts,
-        hasMore: hasMoreEmployeeJobPosts,
-        loadMore: loadMoreEmployeeJobPosts,
-        totalCount: employeeTotalCount,
-        visibleCount: employeeVisibleCount,
-    } = useLazyLoadList(employeeVisibleJobPosts, LIST_PAGE_SIZE, employeeListResetKey);
-
     const visibleJobPosts = role === "Employee"
-        ? employeeLazyJobPosts
+        ? (employeeJobPosts ?? [])
         : role === "Employer"
-            ? employerVisibleJobPosts
-            : filteredJobPosts;
+            ? (employerJobPosts ?? [])
+            : [];
 
     const employerCityOptions = useMemo(
         () =>
@@ -418,33 +380,24 @@ const JobPosts = () => {
         [employerPositionOptions]
     );
 
-    const employeeFilterOptions = useMemo(() => {
-        const cities = [...new Set(jobPosts.map((post) => post.restaurantLocationCity).filter(Boolean))]
-            .sort((left, right) => left!.localeCompare(right!))
-            .map((city) => ({ value: city as string, label: city as string }));
+    const employeeCityOptions = useMemo(
+        () => employeeFilterOptions.cities.map((city) => ({ value: city, label: city })),
+        [employeeFilterOptions.cities]
+    );
 
-        const restaurants = [...new Map(
-            jobPosts.map((post) => [post.employerId, post.employer?.name ?? ""] as const)
-        ).entries()]
-            .filter(([, name]) => Boolean(name))
-            .filter(([employerId]) => {
-                if (!cityFilter) {
-                    return true;
-                }
+    const employeeRestaurantOptions = useMemo(
+        () =>
+            employeeFilterOptions.locations.map((location) => ({
+                value: location.id,
+                label: `${location.name} (${location.city})`,
+            })),
+        [employeeFilterOptions.locations]
+    );
 
-                return jobPosts.some(
-                    (post) => post.employerId === employerId && post.restaurantLocationCity === cityFilter
-                );
-            })
-            .sort((left, right) => left[1].localeCompare(right[1]))
-            .map(([employerId, name]) => ({ value: employerId, label: name }));
-
-        const positions = [...new Set(jobPosts.map((post) => post.position).filter(Boolean))]
-            .sort((left, right) => left.localeCompare(right))
-            .map((position) => ({ value: position, label: position }));
-
-        return { cities, restaurants, positions };
-    }, [jobPosts, cityFilter]);
+    const employeePositionFilterOptions = useMemo(
+        () => employeeFilterOptions.positions.map((position) => ({ value: position, label: position })),
+        [employeeFilterOptions.positions]
+    );
 
     return (
         <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
@@ -479,6 +432,7 @@ const JobPosts = () => {
               <JobPostsFiltersBar
                 showApplicationFilters
                 showSort
+                restaurantLabelKey="filterLocation"
                 city={cityFilter}
                 restaurant={restaurantFilter}
                 position={positionFilter}
@@ -487,9 +441,9 @@ const JobPosts = () => {
                 applicationFilter={employeeFilter}
                 favouriteFilter={favouriteFilter}
                 sortValue={selectedSortValue}
-                cityOptions={employeeFilterOptions.cities}
-                restaurantOptions={employeeFilterOptions.restaurants}
-                positionOptions={employeeFilterOptions.positions}
+                cityOptions={employeeCityOptions}
+                restaurantOptions={employeeRestaurantOptions}
+                positionOptions={employeePositionFilterOptions}
                 onCityChange={handleCityFilterChange}
                 onRestaurantChange={setRestaurantFilter}
                 onPositionChange={setPositionFilter}
@@ -515,7 +469,31 @@ const JobPosts = () => {
                   {isArchivedPost ? t("jobPosts.lifecycleArchived") : t("jobPosts.lifecycleActive")}
                 </span>
               )}
-              {!isEmployee && <JobPostItem jobPost={jobPost} disableCardHover={isMyPost} />}
+              {!isEmployee && (
+                <JobPostItem
+                  jobPost={jobPost}
+                  disableCardHover={isMyPost}
+                  imageOverlay={
+                    isMyPost ? (
+                      <div className={styles["employer-card-overlay"]}>
+                        <button
+                          className={styles["edit-icon-button"]}
+                          aria-label="Edit job post"
+                          title="Edit job post"
+                          onClick={() => openJobPostForm(jobPost.id)}
+                        >
+                          ✎
+                        </button>
+                      </div>
+                    ) : undefined
+                  }
+                />
+              )}
+              {isMyPost && (
+                <div className={styles["applicants-button-anchor"]}>
+                  <EmployerApplicantsPanel jobPostId={jobPost.id} variant="inlineCard" />
+                </div>
+              )}
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
                   <div className={styles["employee-card-header"]}>
@@ -538,7 +516,7 @@ const JobPosts = () => {
                     </div>
                     <div><span>{t("jobPosts.startingDate")}:</span><strong>{formatDate(jobPost.startingDate)}</strong></div>
                     <div><span>{t("jobPosts.salary")}:</span><strong>{jobPost.salary} RSD</strong></div>
-                    <div><span>{t("jobPosts.status")}:</span><strong>{jobPost.status}</strong></div>
+                    <div><span>{t("jobPosts.status")}:</span><strong>{getJobPostStatusLabel(jobPost.status, t)}</strong></div>
                   </div>
                   <p className={styles["employee-description"]}>{jobPost.description}</p>
                   <div className={styles["employee-card-actions"]}>
@@ -553,31 +531,13 @@ const JobPosts = () => {
                   </div>
                 </article>
               )}
-              {isMyPost && (
-                <div className={styles["employer-actions"]}>
-                  <button
-                    className={styles["edit-icon-button"]}
-                    aria-label="Edit job post"
-                    title="Edit job post"
-                    onClick={() => {
-                      setEditingJobPostId(jobPost.id);
-                      setJobPostCreatFormOpened(true);
-                    }}
-                  >
-                    ✎
-                  </button>
-                  <div className={styles["applicants-button-anchor"]}>
-                    <EmployerApplicantsPanel jobPostId={jobPost.id} variant="inlineCard" />
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
-            {role === "Employee" && employeeVisibleJobPosts.length === 0 && (
+            {role === "Employee" && (employeeJobPosts?.length ?? 0) === 0 && !isEmployeeJobPostsLoading && (
               <p className={styles["empty-message"]}>{t("jobPosts.noPostsFiltered")}</p>
             )}
-            {role === "Employer" && employerVisibleJobPosts.length === 0 && (
+            {role === "Employer" && (employerJobPosts?.length ?? 0) === 0 && !isEmployerJobPostsLoading && (
               <p className={styles["empty-message"]}>
                 {employerLifecycleFilter === "archived"
                   ? t("jobPosts.noArchivedPosts")
@@ -587,9 +547,13 @@ const JobPosts = () => {
             {(role === "Employee" || role === "Employer") && (
               <LazyLoadSentinel
                 hasMore={role === "Employee" ? hasMoreEmployeeJobPosts : hasMoreEmployerJobPosts}
-                isLoading={role === "Employer" && (isEmployerJobPostsLoading || isEmployerJobPostsLoadingMore)}
+                isLoading={
+                  role === "Employee"
+                    ? isEmployeeJobPostsLoading || isEmployeeJobPostsLoadingMore
+                    : isEmployerJobPostsLoading || isEmployerJobPostsLoadingMore
+                }
                 onLoadMore={role === "Employee" ? loadMoreEmployeeJobPosts : loadMoreEmployerJobPosts}
-                visibleCount={role === "Employee" ? employeeVisibleCount : employerJobPosts.length}
+                visibleCount={role === "Employee" ? (employeeJobPosts?.length ?? 0) : (employerJobPosts?.length ?? 0)}
                 totalCount={role === "Employee" ? employeeTotalCount : employerTotalCount}
               />
             )}
@@ -601,10 +565,7 @@ const JobPosts = () => {
                     <JobPostForm
                         key={editingJobPostId ?? "create"}
                         initialData={editingJobPost}
-                        onClose={() => {
-                            setJobPostCreatFormOpened(false);
-                            setEditingJobPostId(null);
-                        }}
+                        onClose={closeJobPostForm}
                         onSubmit={reloadJobPosts}
                     />
                 </div>
@@ -622,8 +583,7 @@ const JobPosts = () => {
                             return;
                         }
 
-                        setEditingJobPostId(null);
-                        setJobPostCreatFormOpened(true);
+                        openJobPostForm();
                     }}
                 >
                     {t("jobPosts.createPost")}

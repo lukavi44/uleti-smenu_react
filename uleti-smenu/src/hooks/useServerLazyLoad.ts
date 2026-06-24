@@ -53,13 +53,14 @@ export function useServerLazyLoad<T extends Identifiable>(
           return;
         }
 
-        setTotalCount(result.totalCount);
+        setTotalCount(result.totalCount ?? 0);
+        const nextItems = result.items ?? [];
         setItems((previousItems) =>
           isFirstPage
-            ? result.items
+            ? nextItems
             : [
                 ...previousItems,
-                ...result.items.filter(
+                ...nextItems.filter(
                   (item) => !previousItems.some((existing) => existing.id === item.id)
                 ),
               ]
@@ -79,7 +80,7 @@ export function useServerLazyLoad<T extends Identifiable>(
     };
   }, [page, resetKey, reloadToken]);
 
-  const hasMore = items.length < totalCount;
+  const hasMore = (items?.length ?? 0) < totalCount;
 
   const loadMore = useCallback(() => {
     if (!hasMore || isLoading || isLoadingMore) {

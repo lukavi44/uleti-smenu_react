@@ -12,6 +12,30 @@
   margin-bottom: 0.5rem;
 }
 
+.closeButton {
+  flex-shrink: 0;
+}
+
+@media only screen and (max-width: 768px) {
+  .formRoot {
+    padding: calc(0.85rem + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .formHeader {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: -0.25rem 0 0.5rem;
+    padding: 0.35rem 0 0.65rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .closeButton {
+    margin-right: -0.35rem;
+  }
+}
+
 .formContent {
   flex: 1;
   min-height: 0;

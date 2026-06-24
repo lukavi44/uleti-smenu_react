@@ -1,4 +1,5 @@
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
 import { Employer } from "../../models/User.model";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { JobPost } from "../../models/JobPost.model";
@@ -603,7 +604,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <div>
                                     <span>{t("profile.status")}:</span>
                                     <strong>
-                                        {post.isArchived ? t("jobPosts.lifecycleArchived") : post.status}
+                                        {getJobPostDisplayStatusLabel(post, t)}
                                     </strong>
                                 </div>
                             </div>

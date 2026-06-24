@@ -23,6 +23,7 @@ import {
   buildEmployerDashboardSummaryFromPosts,
   normalizeEmployerDashboardSummary,
 } from "../../helpers/employerDashboard";
+import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 
@@ -359,7 +360,7 @@ const HomePage = () => {
                     <div>
                       <span>{t("home.status")}:</span>
                       <strong>
-                        {post.isArchived ? t("jobPosts.lifecycleArchived") : post.status}
+                        {getJobPostDisplayStatusLabel(post, t)}
                       </strong>
                     </div>
                     <div>

@@ -21,17 +21,111 @@ export interface GetMyJobPostsPagedParams {
 }
 
 
+export interface GetVisibleJobPostsPagedParams {
+  page: number;
+  pageSize: number;
+  sortBy?: "createdAt" | "salary";
+  sortDirection?: "asc" | "desc";
+  city?: string;
+  restaurantLocationId?: string;
+  position?: string;
+  minSalary?: number;
+  maxSalary?: number;
+  applicationFilter?: "all" | "notApplied" | "applied";
+  favouritesOnly?: boolean;
+}
+
+export interface VisibleJobPostFilterOptions {
+  cities: string[];
+  locations: Array<{ id: string; name: string; city: string }>;
+  positions: string[];
+}
+
+const normalizePagedResult = <T,>(data: unknown): PagedResult<T> => {
+    if (Array.isArray(data)) {
+        return {
+            items: data,
+            totalCount: data.length,
+            page: 1,
+            pageSize: data.length,
+        };
+    }
+
+    const paged = data as PagedResult<T> & {
+        Items?: T[];
+        TotalCount?: number;
+        Page?: number;
+        PageSize?: number;
+    };
+
+    return {
+        items: paged.items ?? paged.Items ?? [],
+        totalCount: paged.totalCount ?? paged.TotalCount ?? 0,
+        page: paged.page ?? paged.Page ?? 1,
+        pageSize: paged.pageSize ?? paged.PageSize ?? 0,
+    };
+};
+
+const normalizeFilterOptions = (data: unknown): VisibleJobPostFilterOptions => {
+    const options = data as VisibleJobPostFilterOptions & {
+        Cities?: string[];
+        Locations?: Array<{ id: string; name: string; city: string }>;
+        Positions?: string[];
+    };
+
+    return {
+        cities: options.cities ?? options.Cities ?? [],
+        locations: options.locations ?? options.Locations ?? [],
+        positions: options.positions ?? options.Positions ?? [],
+    };
+};
+
+
 export const CreateJobPost = async(body: JobPostDTO): Promise<AxiosResponse<JobPostDTO>> => {
     return axiosInstance.post<JobPostDTO>("/api/v1/JobPost/createJobPost", body);
 }
 
-export const GetAllJobPosts = async(sortBy: "createdAt" | "salary" = "createdAt", sortDirection: "asc" | "desc" = "desc"): Promise<AxiosResponse<JobPost[]>> => {
-    return axiosInstance.get<JobPost[]>("/api/v1/JobPost", {
+export const GetVisibleJobPostsPaged = async(
+    params: GetVisibleJobPostsPagedParams
+): Promise<AxiosResponse<PagedResult<JobPost>>> => {
+    const response = await axiosInstance.get("/api/v1/JobPost", {
         params: {
-            sortBy,
-            sortDirection
+            page: params.page,
+            pageSize: params.pageSize,
+            sortBy: params.sortBy,
+            sortDirection: params.sortDirection,
+            city: params.city || undefined,
+            restaurantLocationId: params.restaurantLocationId || undefined,
+            position: params.position || undefined,
+            minSalary: params.minSalary,
+            maxSalary: params.maxSalary,
+            applicationFilter:
+                params.applicationFilter && params.applicationFilter !== "all"
+                    ? params.applicationFilter
+                    : undefined,
+            favouritesOnly: params.favouritesOnly || undefined,
         }
     });
+
+    return {
+        ...response,
+        data: normalizePagedResult<JobPost>(response.data),
+    };
+}
+
+export const GetVisibleJobPostFilterOptions = async(
+    city?: string
+): Promise<AxiosResponse<VisibleJobPostFilterOptions>> => {
+    const response = await axiosInstance.get("/api/v1/JobPost/filter-options", {
+        params: {
+            city: city || undefined,
+        }
+    });
+
+    return {
+        ...response,
+        data: normalizeFilterOptions(response.data),
+    };
 }
 
 export const GetMyJobPosts = async(): Promise<AxiosResponse<JobPost[]>> => {

@@ -2,7 +2,7 @@ import Card from "../UI/Card/Card";
 import cardStyles from "../UI/Card/Card.module.scss";
 import { JobPost } from "../../models/JobPost.model";
 import { getImageUrl } from "../../helpers/getHelperUrl";
-import { useContext, useState } from "react";
+import { useContext, useState, type ReactNode } from "react";
 import { AuthContext } from "../../store/Auth-context";
 import { ApplyToJobPost } from "../../services/application-service";
 import { toast } from "react-toastify";
@@ -11,9 +11,10 @@ import { useTranslation } from "react-i18next";
 interface JobPostItemProps {
     jobPost: JobPost;
     disableCardHover?: boolean;
+    imageOverlay?: ReactNode;
   }
 
-  const JobPostItem = ({ jobPost, disableCardHover = false }: JobPostItemProps) => {
+  const JobPostItem = ({ jobPost, disableCardHover = false, imageOverlay }: JobPostItemProps) => {
     const { t } = useTranslation();
     const { role, isLoggedIn } = useContext(AuthContext);
     const [isApplying, setIsApplying] = useState(false);
@@ -38,6 +39,7 @@ interface JobPostItemProps {
           description={`${jobPost.description}${jobPost.restaurantLocationName ? ` | ${t("jobPosts.location")}: ${jobPost.restaurantLocationName}${jobPost.restaurantLocationCity ? ` (${jobPost.restaurantLocationCity})` : ""}` : ""}`}
           orientation="horizontal"
           className={disableCardHover ? cardStyles.noHover : ""}
+          imageOverlay={imageOverlay}
         />
         {isLoggedIn && role === "Employee" && (
           <button onClick={handleApply} disabled={isApplying}>

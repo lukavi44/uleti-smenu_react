@@ -142,7 +142,7 @@ import styles from "./JobPostForm.module.scss";
       <Box className={styles.formRoot}>
         <Box className={styles.formHeader} display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
-          <IconButton onClick={onClose}>
+          <IconButton onClick={onClose} aria-label={t("common.close")} className={styles.closeButton} size="large">
             <CloseIcon />
           </IconButton>
         </Box>

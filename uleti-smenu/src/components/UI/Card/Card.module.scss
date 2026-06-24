@@ -27,17 +27,48 @@
     width: 48rem;
     max-width: 48rem;
   }
+
+  .horizontal .content {
+    padding-bottom: 3.25rem;
+  }
+
+  .media {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .horizontal .media {
+    width: 33.33%;
+    align-self: stretch;
+  }
+
+  .vertical .media {
+    width: 100%;
+  }
+
+  .mediaOverlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .mediaOverlay > * {
+    pointer-events: auto;
+  }
   
   .imageVertical {
     width: 100%;
     height: 13rem;
     object-fit: cover;
+    display: block;
   }
   
   .imageHorizontal {
-    width: 33.33%;
+    width: 100%;
     height: 100%;
+    min-height: 100%;
     object-fit: cover;
+    display: block;
   }
   
   .content {
@@ -45,6 +76,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    flex: 1;
+    min-width: 0;
   
     h2 {
       font-size: 1.25rem;
@@ -55,6 +88,44 @@
     p {
       font-size: 0.875rem;
       color: #4b5563;
+      line-height: 1.45;
+      white-space: normal;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    .horizontal {
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .horizontal .media {
+      width: 100%;
+    }
+
+    .imageHorizontal {
+      width: 100%;
+      height: 11rem;
+      min-height: 11rem;
+      object-fit: cover;
+    }
+
+    .content {
+      padding-bottom: 1rem;
+
+      h2 {
+        font-size: 1.05rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+
+    .card:hover {
+      transform: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
   }
   
