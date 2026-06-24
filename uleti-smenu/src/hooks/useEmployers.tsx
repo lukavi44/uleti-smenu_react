@@ -22,10 +22,14 @@ export const useEmployers = (city?: string) => {
                     ? await GetEmployersWithFavouriteStatus(normalizedCity)
                     : await GetAllEmployers(normalizedCity);
 
-                const normalizedEmployers = response.data.map((employer) => ({
+                const normalizedEmployers = response.data.map((employer: Employer & { Id?: string; Name?: string; ProfilePhoto?: string; PublicSlug?: string }) => ({
                     ...employer,
-                    isFavourite: Boolean(employer.isFavourite)
-                }));
+                    id: String(employer.id ?? employer.Id ?? ""),
+                    name: employer.name ?? employer.Name ?? "",
+                    profilePhoto: employer.profilePhoto ?? employer.ProfilePhoto,
+                    publicSlug: employer.publicSlug ?? employer.PublicSlug ?? "",
+                    isFavourite: Boolean(employer.isFavourite),
+                })).filter((employer) => employer.id.length > 0);
 
                 setEmployers(normalizedEmployers);
                 setError(null);

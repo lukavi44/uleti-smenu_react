@@ -124,11 +124,24 @@ import styles from "./JobPostForm.module.scss";
           try {
             if (isEditMode && initialData) {
               await UpdateMyJobPost(initialData.id, fixedData);
+              toast.success(t("jobPostForm.updateSuccess"));
+              onSubmit?.();
+              onClose();
             } else {
               await CreateJobPost(fixedData);
+              toast.success(t("jobPostForm.createSuccess"));
+              onSubmit?.();
+              reset({
+                title: "",
+                description: "",
+                position: "",
+                status: "Active",
+                salary: 0,
+                startingDate: "",
+                visibleUntil: "",
+                restaurantLocationId: "",
+              });
             }
-            onSubmit?.();
-            onClose();
           }
           catch (error: unknown) {
             const message = getSubmitErrorMessage(error);

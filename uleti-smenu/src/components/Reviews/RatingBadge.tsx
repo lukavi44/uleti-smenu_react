@@ -7,6 +7,7 @@ interface RatingBadgeProps {
   compact?: boolean;
   subjectType?: "employee" | "employer";
   subjectId?: string;
+  subjectSlug?: string;
 }
 
 const RatingBadge = ({
@@ -15,6 +16,7 @@ const RatingBadge = ({
   compact = false,
   subjectType,
   subjectId,
+  subjectSlug,
 }: RatingBadgeProps) => {
   if (reviewCount <= 0) {
     return null;
@@ -27,6 +29,18 @@ const RatingBadge = ({
     </>
   );
 
+  if (subjectType === "employer" && subjectSlug) {
+    return (
+      <Link
+        to={`/restaurants/${subjectSlug}/reviews`}
+        className={`${className} ${styles.link}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {content}
+      </Link>
+    );
+  }
+
   if (subjectType && subjectId) {
     const to =
       subjectType === "employer"
@@ -34,7 +48,11 @@ const RatingBadge = ({
         : `/employees/${subjectId}/reviews`;
 
     return (
-      <Link to={to} className={`${className} ${styles.link}`}>
+      <Link
+        to={to}
+        className={`${className} ${styles.link}`}
+        onClick={(event) => event.stopPropagation()}
+      >
         {content}
       </Link>
     );

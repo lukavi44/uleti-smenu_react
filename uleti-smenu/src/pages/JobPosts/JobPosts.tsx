@@ -304,6 +304,7 @@ const JobPosts = () => {
     const reloadJobPosts = async () => {
         if (role === "Employer") {
             resetEmployerJobPosts();
+            leftPanelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
             return;
         }
 

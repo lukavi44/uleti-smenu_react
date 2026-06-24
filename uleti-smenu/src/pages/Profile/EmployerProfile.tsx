@@ -1,12 +1,12 @@
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
 import { Employer } from "../../models/User.model";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
 import { JobPost } from "../../models/JobPost.model";
 import { Applicant } from "../../models/Application.model";
 import { GetMyJobPostPositions, GetMyJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
-import { UpdateMyProfilePhoto } from "../../services/user-service";
+import { UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
 import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { toast } from "react-toastify";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
@@ -16,10 +16,14 @@ import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import CollapsibleSection from "./CollapsibleSection";
 import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
 import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
+import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
 import RatingBadge from "../../components/Reviews/RatingBadge";
+import { GetEmployerReviewPage } from "../../services/review-service";
+import { Review, ReviewSummary } from "../../models/Review.model";
 import SubscriptionBanner from "../../components/Billing/SubscriptionBanner";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../store/Auth-context";
 import Pagination from "../../components/Common/Pagination";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
@@ -43,6 +47,7 @@ const getStatusBadgeStyle = (status: string) => {
 
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const { t } = useTranslation();
+    const { refreshMe } = useContext(AuthContext);
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const [allJobPosts, setAllJobPosts] = useState<JobPost[]>([]);
     const [positionOptions, setPositionOptions] = useState<string[]>([]);
@@ -60,6 +65,44 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
+    const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
+    const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
+
+    useEffect(() => {
+        const loadReceivedReviews = async () => {
+            try {
+                const response = await GetEmployerReviewPage(user.id);
+                setReceivedReviews(response.data.reviews);
+                setReviewSummary(response.data.summary);
+            } catch {
+                toast.error(t("reviews.loadError"));
+            }
+        };
+
+        void loadReceivedReviews();
+    }, [user.id, t]);
+
+    useEffect(() => {
+        setProfilePhotoUrl(getImageUrl(user.profilePhoto));
+    }, [user.profilePhoto]);
+
+    useEffect(() => {
+        const syncProfilePhoto = async () => {
+            try {
+                const response = await getCurrentUser();
+                const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
+                setProfilePhotoUrl(getImageUrl(photo));
+            } catch {
+                setProfilePhotoUrl(getImageUrl(user.profilePhoto));
+            }
+        };
+
+        void syncProfilePhoto();
+    }, [user.id, user.profilePhoto]);
+
+    const handleProfilePhotoError = () => {
+        setProfilePhotoUrl(getImageUrl(null));
+    };
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [isCreatingLocation, setIsCreatingLocation] = useState(false);
@@ -311,6 +354,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             setProfilePhotoUrl(getImageUrl(response.data.imagePath));
             toast.success(t("profile.photoUpdated"));
             setSelectedPhotoFile(null);
+            void refreshMe();
         } catch {
             toast.error(t("profile.photoUpdateError"));
         } finally {
@@ -374,7 +418,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <section className={styles.panel}>
                 <div className={styles.profileHero}>
                     <div className={styles.profilePhotoColumn}>
-                        <img src={profilePhotoUrl} alt="Profile" className={styles.profileImageLarge} />
+                        <img
+                            src={profilePhotoUrl}
+                            alt="Profile"
+                            className={styles.profileImageLarge}
+                            onError={handleProfilePhotoError}
+                        />
                         <ProfilePhotoUpload
                             inputId="employerProfilePhotoInput"
                             selectedFile={selectedPhotoFile}
@@ -385,6 +434,13 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                     </div>
                     <div className={styles.profileInfoColumn}>
                         <h2 className={styles.profileInfoTitle}>{t("profile.employerInfo")}</h2>
+                        <RatingBadge
+                            averageRating={reviewSummary.averageRating}
+                            reviewCount={reviewSummary.reviewCount}
+                            subjectType="employer"
+                            subjectSlug={user.publicSlug}
+                            subjectId={user.id}
+                        />
                         <div className={styles.infoGrid}>
                             <div className={styles.infoRow}>
                                 <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
@@ -650,6 +706,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
             <CollapsibleSection title={t("reviews.pendingTitle")}>
                 <PendingReviewsSection />
+            </CollapsibleSection>
+
+            <CollapsibleSection title={t("reviews.receivedTitle")}>
+                <ReceivedReviewsSection reviews={receivedReviews} reviewSummary={reviewSummary} />
             </CollapsibleSection>
 
             <CollapsibleSection title={t("profile.applicants")}>

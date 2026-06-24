@@ -5,6 +5,13 @@ export const getImageUrl = (relativePath?: string | null): string => {
     if (!relativePath || relativePath.trim() === "") {
       return defaultImg;
     }
-    return `${getApiBaseUrl()}${relativePath}`;
+
+    const trimmedPath = relativePath.trim();
+    if (trimmedPath.startsWith("http://") || trimmedPath.startsWith("https://")) {
+      return trimmedPath;
+    }
+
+    const normalizedPath = trimmedPath.startsWith("/") ? trimmedPath : `/${trimmedPath}`;
+    return `${getApiBaseUrl()}${normalizedPath}`;
   };
   

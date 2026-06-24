@@ -15,6 +15,7 @@ export interface Employer extends User {
     pib: string;
     mb: string;
     isFavourite: boolean;
+    publicSlug?: string;
     subscription?: EmployerSubscription;
 }
 

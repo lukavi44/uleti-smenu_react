@@ -444,6 +444,8 @@ const sr = {
     restaurantLocation: "Lokacija restorana",
     noLocations: "Nema lokacija za ovaj brend.",
     create: "Kreiraj",
+    createSuccess: "Oglas je uspešno kreiran.",
+    updateSuccess: "Oglas je uspešno sačuvan.",
     saveChanges: "Sačuvaj izmene",
     titleRequired: "Naslov je obavezan",
     descriptionRequired: "Opis je obavezan",
@@ -527,7 +529,9 @@ const sr = {
     browseAllJobPosts: "Pogledaj sve oglase",
     location: "Lokacija",
     shiftDate: "Datum smene",
-    salary: "Dnevnica"
+    salary: "Dnevnica",
+    viewReviews: "Pogledaj recenzije",
+    city: "Grad"
   },
   messages: {
     title: "Poruke",

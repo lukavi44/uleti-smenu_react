@@ -8,6 +8,7 @@ import { Employer } from "../../models/User.model";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { GetEmployerCities, PatchClientFavorite } from "../../services/user-service";
 import { GetEmployerReviewSummary } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
@@ -25,15 +26,22 @@ type EmployersListProps = {
 const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
   const { t } = useTranslation();
   const { isLoading } = useContext(LoadingContext);
-  const { authStatus, role } = useContext(AuthContext);
+  const { authStatus, role, me } = useContext(AuthContext);
   const [selectedCity, setSelectedCity] = useState("");
   const [cities, setCities] = useState<string[]>([]);
   const { employers: initialEmployers, error } = useEmployers(selectedCity || undefined);
   const [employers, setEmployers] = useState(initialEmployers);
   const [reviewSummaries, setReviewSummaries] = useState<Record<string, ReviewSummary>>({});
   const canToggleFavourite = authStatus === "authenticated" && role === "Employee";
-  const canViewProfile = authStatus === "authenticated" && role === "Employee";
+  const canViewProfile =
+    authStatus === "authenticated" && (role === "Employee" || role === "Employer");
   const isPageLayout = variant === "page";
+
+  const getEmployerProfilePath = (employer: Employer) =>
+    getRestaurantProfilePath(employer, {
+      myId: me && "id" in me ? String(me.id) : undefined,
+      role: role ?? undefined,
+    });
 
   const {
     visibleItems: visibleEmployers,
@@ -129,59 +137,104 @@ const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
     }
   };
 
-  const renderEmployerCard = (employer: Employer, cardClassName: string) => (
-    <div className={cardClassName} key={employer.id}>
-      <div className={styles.photoWrapper}>
-        {canViewProfile ? (
-          <Link to={`/employers/${employer.id}`} className={styles.cardLink}>
+  const renderRatingBadge = (employer: Employer) => {
+    if (authStatus !== "authenticated" || !reviewSummaries[employer.id]) {
+      return null;
+    }
+
+    return (
+      <RatingBadge
+        averageRating={reviewSummaries[employer.id].averageRating}
+        reviewCount={reviewSummaries[employer.id].reviewCount}
+        compact
+        subjectType="employer"
+        subjectSlug={employer.publicSlug?.trim() || undefined}
+        subjectId={employer.id}
+      />
+    );
+  };
+
+  const renderEmployerCard = (employer: Employer, cardClassName: string) => {
+    const profilePath = getEmployerProfilePath(employer);
+
+    if (canViewProfile && isPageLayout) {
+      return (
+        <article className={cardClassName} key={employer.id}>
+          <Link to={profilePath} className={styles.pageCardProfileLink}>
+            <div className={styles.photoWrapper}>
+              <img
+                src={getImageUrl(employer.profilePhoto)}
+                alt={employer.name}
+                className={styles["employer-img"]}
+              />
+            </div>
+            <p className={styles.employerName}>{employer.name}</p>
+          </Link>
+          <div className={styles.cardFooter}>{renderRatingBadge(employer)}</div>
+        </article>
+      );
+    }
+
+    const cardBody = (
+      <>
+        <div className={styles.photoWrapper}>
+          {canViewProfile ? (
+            isPageLayout ? (
+              <img
+                src={getImageUrl(employer.profilePhoto)}
+                alt={employer.name}
+                className={styles["employer-img"]}
+              />
+            ) : (
+              <Link to={profilePath} className={styles.cardLink}>
+                <img
+                  src={getImageUrl(employer.profilePhoto)}
+                  alt={employer.name}
+                  className={styles["employer-img"]}
+                />
+              </Link>
+            )
+          ) : (
             <img
               src={getImageUrl(employer.profilePhoto)}
               alt={employer.name}
               className={styles["employer-img"]}
             />
-          </Link>
-        ) : (
-          <img
-            src={getImageUrl(employer.profilePhoto)}
-            alt={employer.name}
-            className={styles["employer-img"]}
-          />
-        )}
-        {canToggleFavourite && (
-          <button
-            type="button"
-            className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
-            aria-label={
-              employer.isFavourite
-                ? t("employers.removeFromFavorites")
-                : t("employers.addToFavorites")
-            }
-            onClick={(e) => void handleChangeFavourite(employer, e)}
-          >
-            {employer.isFavourite ? "★" : "☆"}
-          </button>
-        )}
-      </div>
-      <div className={styles.cardFooter}>
-        {canViewProfile ? (
-          <Link to={`/employers/${employer.id}`} className={styles.employerNameLink}>
+          )}
+          {canToggleFavourite && (
+            <button
+              type="button"
+              className={`${styles["favourite-btn"]} ${employer.isFavourite ? styles["is-favourite"] : ""}`}
+              aria-label={
+                employer.isFavourite
+                  ? t("employers.removeFromFavorites")
+                  : t("employers.addToFavorites")
+              }
+              onClick={(e) => void handleChangeFavourite(employer, e)}
+            >
+              {employer.isFavourite ? "★" : "☆"}
+            </button>
+          )}
+        </div>
+        <div className={styles.cardFooter}>
+          {canViewProfile && !isPageLayout ? (
+            <Link to={profilePath} className={styles.employerNameLink}>
+              <p className={styles.employerName}>{employer.name}</p>
+            </Link>
+          ) : (
             <p className={styles.employerName}>{employer.name}</p>
-          </Link>
-        ) : (
-          <p className={styles.employerName}>{employer.name}</p>
-        )}
-        {authStatus === "authenticated" && reviewSummaries[employer.id] && (
-          <RatingBadge
-            averageRating={reviewSummaries[employer.id].averageRating}
-            reviewCount={reviewSummaries[employer.id].reviewCount}
-            compact
-            subjectType="employer"
-            subjectId={employer.id}
-          />
-        )}
+          )}
+          {renderRatingBadge(employer)}
+        </div>
+      </>
+    );
+
+    return (
+      <div className={cardClassName} key={employer.id}>
+        {cardBody}
       </div>
-    </div>
-  );
+    );
+  };
 
   if (isLoading) return <div className="text-center py-6">{t("common.loading")}</div>;
   if (error)

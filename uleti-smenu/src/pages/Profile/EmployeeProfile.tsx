@@ -1,9 +1,10 @@
+import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { Employee } from "../../models/User.model";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
 import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
-import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePhoto } from "../../services/user-service";
+import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
@@ -25,6 +26,7 @@ import Pagination from "../../components/Common/Pagination";
 import { FAVOURITE_RESTAURANTS_PAGE_SIZE, LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
 import { useLazyLoadList } from "../../hooks/useLazyLoadList";
+import { AuthContext } from "../../store/Auth-context";
 
 const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -60,6 +62,7 @@ interface EmployeeProfileProps {
 
 const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const { t } = useTranslation();
+    const { refreshMe } = useContext(AuthContext);
     const [applications, setApplications] = useState<EmployeeApplication[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [applicationSortValue, setApplicationSortValue] = useState("startingDate_asc");
@@ -67,7 +70,29 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
-    const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; isFavourite: boolean }[]>([]);
+
+    useEffect(() => {
+        setProfilePhotoUrl(getImageUrl(user.profilePhoto));
+    }, [user.profilePhoto]);
+
+    useEffect(() => {
+        const syncProfilePhoto = async () => {
+            try {
+                const response = await getCurrentUser();
+                const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
+                setProfilePhotoUrl(getImageUrl(photo));
+            } catch {
+                setProfilePhotoUrl(getImageUrl(user.profilePhoto));
+            }
+        };
+
+        void syncProfilePhoto();
+    }, [user.id, user.profilePhoto]);
+
+    const handleProfilePhotoError = () => {
+        setProfilePhotoUrl(getImageUrl(null));
+    };
+    const [restaurants, setRestaurants] = useState<{ id: string; name: string; profilePhoto?: string; publicSlug?: string; isFavourite: boolean }[]>([]);
     const [favouriteActionInProgressId, setFavouriteActionInProgressId] = useState<string | null>(null);
     const [platformShifts, setPlatformShifts] = useState<EmployeePlatformShift[]>([]);
     const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
@@ -133,6 +158,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                             id: restaurant.id,
                             name: restaurant.name,
                             profilePhoto: restaurant.profilePhoto,
+                            publicSlug: restaurant.publicSlug,
                             isFavourite: restaurant.isFavourite
                         }))
                 );
@@ -207,6 +233,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             setProfilePhotoUrl(getImageUrl(response.data.imagePath));
             toast.success(t("profile.photoUpdated"));
             setSelectedPhotoFile(null);
+            void refreshMe();
         } catch {
             toast.error(t("profile.photoUpdateError"));
         } finally {
@@ -247,7 +274,12 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
             <section className={styles.panel}>
                 <div className={styles.profileHero}>
                     <div className={styles.profilePhotoColumn}>
-                        <img src={profilePhotoUrl} alt="Profile" className={styles.profileImageLarge} />
+                        <img
+                            src={profilePhotoUrl}
+                            alt="Profile"
+                            className={styles.profileImageLarge}
+                            onError={handleProfilePhotoError}
+                        />
                         <ProfilePhotoUpload
                             inputId="employeeProfilePhotoInput"
                             selectedFile={selectedPhotoFile}
@@ -304,7 +336,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                     {pagedRestaurants.map((restaurant) => (
                         <article key={restaurant.id} className={styles.branchCard}>
                             <div className={styles.restaurantRow}>
-                                <Link to={`/employers/${restaurant.id}`}>
+                                <Link to={getRestaurantProfilePath(restaurant)}>
                                     <img
                                         src={getImageUrl(restaurant.profilePhoto)}
                                         alt={restaurant.name}
@@ -312,7 +344,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                                     />
                                 </Link>
                                 <div>
-                                    <Link to={`/employers/${restaurant.id}`} className={styles.restaurantNameLink}>
+                                    <Link to={getRestaurantProfilePath(restaurant)} className={styles.restaurantNameLink}>
                                         <strong>{restaurant.name}</strong>
                                     </Link>
                                     <p className={styles.mutedText}>{t("profile.favourite")}</p>

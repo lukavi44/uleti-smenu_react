@@ -443,6 +443,8 @@ const en = {
     restaurantLocation: "Restaurant Location",
     noLocations: "No locations found for this brand.",
     create: "Create",
+    createSuccess: "Job post created successfully.",
+    updateSuccess: "Job post saved successfully.",
     saveChanges: "Save changes",
     titleRequired: "Title is required",
     descriptionRequired: "Description is required",
@@ -526,7 +528,9 @@ const en = {
     browseAllJobPosts: "Browse all job posts",
     location: "Location",
     shiftDate: "Shift date",
-    salary: "Salary"
+    salary: "Salary",
+    viewReviews: "View reviews",
+    city: "City"
   },
   messages: {
     title: "Messages",

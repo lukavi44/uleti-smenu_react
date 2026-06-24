@@ -11,6 +11,7 @@ interface AuthContextType {
     authStatus: AuthStatus;
     logout: () => Promise<void>;
     refreshAuthState: () => Promise<void>;
+    refreshMe: () => Promise<void>;
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setAuthStatus: Dispatch<SetStateAction<AuthStatus>>;
     role: string | null;
@@ -22,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
     authStatus: "loading",
     logout: async () => { },
     refreshAuthState: async () => { },
+    refreshMe: async () => { },
     setIsLoggedIn: () => { },
     setAuthStatus: () => { },
     role: null,
@@ -84,6 +86,20 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         }
     };
 
+    const refreshMe = async () => {
+        const token = localStorage.getItem("AccessToken");
+        if (!token) {
+            return;
+        }
+
+        try {
+            const meResponse = await getCurrentUser();
+            setMe(meResponse.data);
+        } catch (error) {
+            console.error("refreshMe failed:", error);
+        }
+    };
+
     useEffect(() => {
         const initializeAuth = async () => {
             await refreshAuthState();
@@ -93,7 +109,7 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, authStatus, refreshAuthState, setIsLoggedIn, setAuthStatus, logout, role, me }}>
+        <AuthContext.Provider value={{ isLoggedIn, authStatus, refreshAuthState, refreshMe, setIsLoggedIn, setAuthStatus, logout, role, me }}>
             {children}
         </AuthContext.Provider>
     );

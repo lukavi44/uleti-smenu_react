@@ -5,7 +5,7 @@ import Footer from "../../components/Footer/Footer";
 import ReviewList from "../../components/Reviews/ReviewList";
 import { ReviewPage } from "../../models/Review.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
-import { GetEmployerPublicProfile } from "../../services/employer-profile-service";
+import { ResolveEmployerFromSlug } from "../../services/employer-profile-service";
 import { GetEmployeeReviewPage, GetEmployerReviewPage } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
 import styles from "./ReviewSubjectPage.module.scss";
@@ -16,33 +16,85 @@ interface ReviewSubjectPageProps {
 
 const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
   const { t } = useTranslation();
-  const { employeeId, employerId } = useParams();
-  const subjectId = subjectType === "employee" ? employeeId : employerId;
-  const { authStatus } = useContext(AuthContext);
+  const { employeeId, slug } = useParams();
+  const { authStatus, role, me } = useContext(AuthContext);
+  const [employerId, setEmployerId] = useState<string | null>(null);
+  const [employerName, setEmployerName] = useState<string | null>(null);
   const [page, setPage] = useState<ReviewPage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
+    const resolveEmployer = async () => {
+      if (subjectType !== "employer" || !slug) {
+        setEmployerId(null);
+        setEmployerName(null);
+        return;
+      }
+
+      setIsLoading(true);
+      setLoadError(false);
+
+      try {
+        const ownEmployer =
+          me && "id" in me && "name" in me
+            ? {
+                id: String(me.id),
+                name: String(me.name),
+                publicSlug: "publicSlug" in me ? String(me.publicSlug ?? "") : undefined,
+              }
+            : undefined;
+        const resolved = await ResolveEmployerFromSlug(slug, role ?? undefined, ownEmployer);
+        setEmployerId(resolved.employerId);
+        setEmployerName(resolved.name);
+      } catch {
+        setEmployerId(null);
+        setEmployerName(null);
+        setLoadError(true);
+        setIsLoading(false);
+      }
+    };
+
+    if (authStatus === "authenticated") {
+      void resolveEmployer();
+    }
+  }, [authStatus, me, role, slug, subjectType]);
+
+  useEffect(() => {
     const loadPage = async () => {
-      if (!subjectId) {
+      if (subjectType === "employer") {
+        if (!slug) {
+          setLoadError(true);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!employerId) {
+          return;
+        }
+      } else if (!employeeId) {
         setLoadError(true);
         setIsLoading(false);
         return;
       }
 
+      setIsLoading(true);
+
+      const resolvedSubjectId =
+        subjectType === "employee" ? employeeId! : employerId!;
+
       try {
         const response =
           subjectType === "employee"
-            ? await GetEmployeeReviewPage(subjectId)
-            : await GetEmployerReviewPage(subjectId);
+            ? await GetEmployeeReviewPage(resolvedSubjectId)
+            : await GetEmployerReviewPage(resolvedSubjectId);
 
         let pageData = response.data;
 
         if (!pageData.subjectName) {
           if (subjectType === "employee") {
             try {
-              const profileResponse = await GetEmployeePublicProfile(subjectId);
+              const profileResponse = await GetEmployeePublicProfile(resolvedSubjectId);
               pageData = {
                 ...pageData,
                 subjectName: `${profileResponse.data.firstName} ${profileResponse.data.lastName}`,
@@ -51,15 +103,10 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
               pageData = { ...pageData, subjectName: t("reviews.unknownSubject") };
             }
           } else {
-            try {
-              const profileResponse = await GetEmployerPublicProfile(subjectId);
-              pageData = {
-                ...pageData,
-                subjectName: profileResponse.data.name,
-              };
-            } catch {
-              pageData = { ...pageData, subjectName: t("reviews.unknownSubject") };
-            }
+            pageData = {
+              ...pageData,
+              subjectName: employerName ?? t("reviews.unknownSubject"),
+            };
           }
         }
 
@@ -76,7 +123,7 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
     if (authStatus === "authenticated") {
       void loadPage();
     }
-  }, [authStatus, subjectId, subjectType]);
+  }, [authStatus, employeeId, employerId, employerName, slug, subjectType, t]);
 
   if (authStatus === "loading") {
     return <div className={styles.page}>{t("common.loading")}</div>;
@@ -89,9 +136,14 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
   const backTo =
     subjectType === "employee" && employeeId
       ? `/employees/${employeeId}`
-      : employerId
-        ? `/employers/${employerId}`
-        : "/restaurants";
+      : slug &&
+          me &&
+          "publicSlug" in me &&
+          slug.trim().toLowerCase() === String(me.publicSlug ?? "").trim().toLowerCase()
+        ? "/profile"
+        : slug
+          ? `/restaurants/${slug}`
+          : "/restaurants";
 
   return (
     <>

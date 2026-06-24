@@ -13,6 +13,7 @@ export interface EmployerJobPostSummary {
 
 export interface EmployerPublicProfile {
   employerId: string;
+  publicSlug: string;
   name: string;
   profilePhoto?: string;
   phoneNumber: string;
