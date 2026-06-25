@@ -7,6 +7,12 @@ export type SubscriptionStatus =
   | "Incomplete"
   | "None";
 
+export type PostingChargeSource =
+  | "FreeCredit"
+  | "UnlimitedSubscription"
+  | "BasicSubscription"
+  | "Wallet";
+
 export interface EmployerSubscription {
   status: SubscriptionStatus;
   planTitle: string;
@@ -15,8 +21,14 @@ export interface EmployerSubscription {
   subscriptionStop?: string;
   gracePeriodEndsAtUtc?: string;
   daysRemaining: number;
+  freePostingCredits?: number;
   postCredits?: number;
+  walletBalance?: number;
+  currency?: string;
+  jobPostPrice?: number;
+  activeJobPostsCount?: number;
   maxActivePosts?: number;
+  nextPostingChargeSource?: PostingChargeSource;
   isActive: boolean;
   canPost?: boolean;
   needsAttention?: boolean;

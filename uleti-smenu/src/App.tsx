@@ -16,6 +16,7 @@ import JobPosts from "./pages/JobPosts/JobPosts";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
 import MessagesPage from "./pages/Messages/MessagesPage";
+import MessageConversationPage from "./pages/Messages/MessageConversationPage";
 import AboutPage from "./pages/Info/AboutPage";
 import HowItWorksPage from "./pages/Info/HowItWorksPage";
 import FaqPage from "./pages/Info/FaqPage";
@@ -67,6 +68,7 @@ function App() {
             <Route element={<RequireAuth />}>
               <Route path="oglasi-za-posao" element={<JobPosts />} />
               <Route path="messages" element={<MessagesPage/>}/>
+              <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
               <Route path="employees/:employeeId/reviews" element={<ReviewSubjectPage subjectType="employee"/>}/>
               <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>

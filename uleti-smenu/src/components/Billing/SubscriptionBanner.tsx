@@ -11,6 +11,19 @@ interface SubscriptionBannerProps {
 const SubscriptionBanner = ({ subscription, onManageBilling }: SubscriptionBannerProps) => {
   const { t } = useTranslation();
 
+  if (!subscription)
+    return null;
+
+  if (subscription.status === "None" && subscription.canPost) {
+    const credits = subscription.freePostingCredits ?? subscription.postCredits ?? 0;
+    return (
+      <div className={`${styles.banner} ${styles.trial}`}>
+        <strong>{t("billing.freeCreditsBannerTitle", { count: credits })}</strong>
+        <p>{t("billing.freeCreditsBannerText")}</p>
+      </div>
+    );
+  }
+
   if (!subscription || subscription.status === "None")
     return null;
 
@@ -34,6 +47,8 @@ const SubscriptionBanner = ({ subscription, onManageBilling }: SubscriptionBanne
   }
 
   if (subscription.status === "Expired" || subscription.status === "Incomplete") {
+    if (subscription.canPost) return null;
+
     return (
       <div className={`${styles.banner} ${styles.expired}`}>
         <strong>{t("billing.expiredTitle")}</strong>

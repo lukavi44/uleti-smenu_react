@@ -1,11 +1,13 @@
 import { NavLink } from "react-router-dom";
 import {
+  BuildingStorefrontIcon,
   ChatBubbleLeftRightIcon,
   HomeIcon,
   NewspaperIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
 import {
+  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
@@ -24,6 +26,12 @@ const EmployerMobileNav = ({ unreadChatCount }: EmployerMobileNavProps) => {
   const navItems = [
     { to: "/", label: t("nav.home"), Icon: HomeIcon, ActiveIcon: HomeIconSolid, end: true },
     { to: "/oglasi-za-posao", label: t("nav.jobPosts"), Icon: NewspaperIcon, ActiveIcon: NewspaperIconSolid },
+    {
+      to: "/restaurants",
+      label: t("header.restaurants"),
+      Icon: BuildingStorefrontIcon,
+      ActiveIcon: BuildingStorefrontIconSolid,
+    },
     {
       to: "/messages",
       label: t("header.messages"),

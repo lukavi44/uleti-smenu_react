@@ -24,3 +24,12 @@
 .action {
   flex-shrink: 0;
 }
+
+.headerDense {
+  margin-bottom: 0;
+}
+
+.headerDense .subtitle {
+  margin-top: 0.2rem;
+  font-size: 0.875rem;
+}

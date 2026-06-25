@@ -1,0 +1,208 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.65rem;
+  max-height: 620px;
+  overflow: hidden;
+}
+
+.panelMobile {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.75rem 1rem 0;
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+  gap: 0.5rem;
+}
+
+.panelMobile .searchField {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.panelMobile .searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.125rem;
+  height: 1.125rem;
+  max-width: none;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.panelMobile .searchInput {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  padding: 0.5rem 0.75rem 0.5rem 2.35rem;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.panelMobile .searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.searchField {
+  position: relative;
+  display: block;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  min-height: 2.25rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  max-width: none;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: #0f172a;
+  outline: none;
+  padding: 0.35rem 0.65rem 0.35rem 2rem;
+  min-height: 2.25rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.panel:not(.panelMobile) .list {
+  max-height: 620px;
+}
+
+.empty {
+  margin: 1rem 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.8rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.panelMobile .row {
+  padding: 0.7rem 0;
+  border-radius: 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.row:hover {
+  background: #f8fbff;
+}
+
+.rowActive {
+  background: #eff6ff;
+}
+
+.rowBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rowTop strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jobTitle {
+  margin: 0.15rem 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview {
+  margin: 0.2rem 0 0;
+  color: #94a3b8;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timestamp {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.unreadBadge {
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.15rem;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  flex-shrink: 0;
+}

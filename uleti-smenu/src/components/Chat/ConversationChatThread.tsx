@@ -1,5 +1,7 @@
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { AuthContext } from "../../store/Auth-context";
 import { ChatMessage } from "../../models/Chat.model";
 import {
@@ -12,13 +14,18 @@ import {
   leaveConversation,
   subscribeChatMessages,
 } from "../../services/realtime-service";
+import {
+  formatChatDateSeparator,
+  formatChatMessageTime,
+  isDifferentDay,
+} from "../../helpers/formatConversationTimestamp";
 import ChatContactAvatar from "./ChatContactAvatar";
 import styles from "./ConversationChatThread.module.scss";
 
 interface ConversationChatThreadProps {
   conversationId: string;
   active?: boolean;
-  variant?: "embedded" | "full";
+  variant?: "embedded" | "full" | "mobileFull";
   otherPartyName?: string;
   otherPartyProfilePhoto?: string;
   onMessagesChange?: () => void;
@@ -32,7 +39,7 @@ const ConversationChatThread = ({
   otherPartyProfilePhoto,
   onMessagesChange,
 }: ConversationChatThreadProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { me } = useContext(AuthContext);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draftMessage, setDraftMessage] = useState("");
@@ -49,8 +56,14 @@ const ConversationChatThread = ({
         ? String(me.name)
         : t("chat.you");
   const currentUserPhoto = me?.profilePhoto?.trim() || undefined;
-  const rootClassName =
-    variant === "full" ? `${styles.thread} ${styles.threadFull}` : styles.thread;
+  const isMobileFull = variant === "mobileFull";
+  const rootClassName = [
+    styles.thread,
+    variant === "full" ? styles.threadFull : "",
+    isMobileFull ? styles.threadMobileFull : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const scrollToLatestMessage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -144,6 +157,65 @@ const ConversationChatThread = ({
     }
   };
 
+  const renderMessage = (message: ChatMessage, index: number) => {
+    const isMine = message.senderId === currentUserId;
+    const showDateSeparator =
+      index === 0 || isDifferentDay(messages[index - 1].sentAtUtc, message.sentAtUtc);
+    const messageTime = formatChatMessageTime(message.sentAtUtc, i18n.language);
+
+    if (isMobileFull) {
+      return (
+        <Fragment key={message.id}>
+          {showDateSeparator && (
+            <div className={styles.dateSeparator}>
+              <span>{formatChatDateSeparator(message.sentAtUtc, i18n.language)}</span>
+            </div>
+          )}
+          <div
+            className={`${styles.messageBlock} ${isMine ? styles.messageBlockMine : styles.messageBlockOther}`}
+          >
+            <div
+              className={`${styles.messageBubble} ${isMine ? styles.messageBubbleMine : styles.messageBubbleOther}`}
+            >
+              {message.content}
+            </div>
+            <div className={`${styles.messageFooter} ${isMine ? styles.messageFooterMine : ""}`}>
+              <span>{messageTime}</span>
+              {isMine && (
+                <span className={styles.readReceipt} aria-label={t("chat.read")}>
+                  <CheckIcon className={styles.checkIcon} aria-hidden />
+                  <CheckIcon className={`${styles.checkIcon} ${styles.checkIconSecond}`} aria-hidden />
+                </span>
+              )}
+            </div>
+          </div>
+        </Fragment>
+      );
+    }
+
+    return (
+      <div
+        key={message.id}
+        className={`${styles.messageRow} ${isMine ? styles.messageRowMine : styles.messageRowOther}`}
+      >
+        {!isMine ? (
+          <ChatContactAvatar
+            name={otherPartyName}
+            profilePhoto={otherPartyProfilePhoto}
+            size="sm"
+          />
+        ) : null}
+        <div className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}>
+          <span>{message.content}</span>
+          <span className={styles.messageMeta}>{new Date(message.sentAtUtc).toLocaleString()}</span>
+        </div>
+        {isMine ? (
+          <ChatContactAvatar name={currentUserName} profilePhoto={currentUserPhoto} size="sm" />
+        ) : null}
+      </div>
+    );
+  };
+
   return (
     <div className={rootClassName}>
       {isLoading && <p className={styles.mutedText}>{t("chat.loading")}</p>}
@@ -155,57 +227,45 @@ const ConversationChatThread = ({
             {messages.length === 0 && (
               <p className={styles.emptyMessages}>{t("chat.noMessages")}</p>
             )}
-            {messages.map((message) => {
-              const isMine = message.senderId === currentUserId;
-              return (
-                <div
-                  key={message.id}
-                  className={`${styles.messageRow} ${isMine ? styles.messageRowMine : styles.messageRowOther}`}
-                >
-                  {!isMine ? (
-                    <ChatContactAvatar
-                      name={otherPartyName}
-                      profilePhoto={otherPartyProfilePhoto}
-                      size="sm"
-                    />
-                  ) : null}
-                  <div
-                    className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}
-                  >
-                    <span>{message.content}</span>
-                    <span className={styles.messageMeta}>
-                      {new Date(message.sentAtUtc).toLocaleString()}
-                    </span>
-                  </div>
-                  {isMine ? (
-                    <ChatContactAvatar
-                      name={currentUserName}
-                      profilePhoto={currentUserPhoto}
-                      size="sm"
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
+            {messages.map((message, index) => renderMessage(message, index))}
             <div ref={messagesEndRef} />
           </div>
 
-          <form className={styles.composer} onSubmit={handleSend}>
+          <form
+            className={`${styles.composer} ${isMobileFull ? styles.composerMobile : ""}`}
+            onSubmit={handleSend}
+          >
+            {isMobileFull && (
+              <button type="button" className={styles.attachButton} aria-label={t("chat.attach")}>
+                <PlusIcon className={styles.attachIcon} aria-hidden />
+              </button>
+            )}
             <input
-              className={styles.input}
+              className={`${styles.input} ${isMobileFull ? styles.inputMobile : ""}`}
               type="text"
               value={draftMessage}
               maxLength={2000}
               placeholder={t("chat.messagePlaceholder")}
               onChange={(event) => setDraftMessage(event.target.value)}
             />
-            <button
-              type="submit"
-              className={styles.sendButton}
-              disabled={isSending || draftMessage.trim() === ""}
-            >
-              {isSending ? t("chat.sending") : t("chat.send")}
-            </button>
+            {isMobileFull ? (
+              <button
+                type="submit"
+                className={styles.sendButtonMobile}
+                disabled={isSending || draftMessage.trim() === ""}
+                aria-label={t("chat.send")}
+              >
+                <PaperAirplaneIcon className={styles.sendIcon} aria-hidden />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className={styles.sendButton}
+                disabled={isSending || draftMessage.trim() === ""}
+              >
+                {isSending ? t("chat.sending") : t("chat.send")}
+              </button>
+            )}
           </form>
         </>
       )}

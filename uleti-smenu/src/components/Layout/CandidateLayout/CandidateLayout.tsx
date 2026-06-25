@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../../store/Auth-context";
 import { GetMyUnreadChatCount } from "../../../services/chat-service";
 import { subscribeChatUnreadCount, startRealtimeConnection } from "../../../services/realtime-service";
+import { isChatDetailPath } from "../../../helpers/chatRoutes";
 import CandidateSidebar from "./CandidateSidebar";
 import CandidateTopBar from "./CandidateTopBar";
 import CandidateMobileNav from "./CandidateMobileNav";
@@ -17,6 +18,8 @@ const CandidateLayout = ({ children }: CandidateLayoutProps) => {
   const { logout } = useContext(AuthContext);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const isDashboard = location.pathname === "/";
+  const isChatDetail = isChatDetailPath(location.pathname);
+  const isMessagesList = location.pathname === "/messages";
 
   useEffect(() => {
     void startRealtimeConnection();
@@ -41,12 +44,14 @@ const CandidateLayout = ({ children }: CandidateLayoutProps) => {
     <div className={styles.shell}>
       <CandidateSidebar unreadChatCount={unreadChatCount} onLogout={() => void logout()} />
       <div className={styles.contentColumn}>
-        <main className={styles.main}>
+        <main
+          className={`${styles.main} ${isChatDetail ? styles.mainChatDetail : ""} ${isMessagesList ? styles.mainMessagesList : ""}`}
+        >
           {isDashboard ? <CandidateTopBar /> : null}
           {children}
         </main>
       </div>
-      <CandidateMobileNav unreadChatCount={unreadChatCount} />
+      {!isChatDetail ? <CandidateMobileNav unreadChatCount={unreadChatCount} /> : null}
     </div>
   );
 };

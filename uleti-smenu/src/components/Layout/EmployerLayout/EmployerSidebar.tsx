@@ -2,12 +2,14 @@ import { NavLink } from "react-router-dom";
 import {
   ArrowRightOnRectangleIcon,
   ChatBubbleLeftRightIcon,
+  CreditCardIcon,
   HomeIcon,
   NewspaperIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
 import {
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
+  CreditCardIcon as CreditCardIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
   UserIcon as UserIconSolid,
@@ -35,6 +37,12 @@ const EmployerSidebar = ({ unreadChatCount, onLogout }: EmployerSidebarProps) =>
       badge: unreadChatCount,
     },
     { to: "/profile", label: t("nav.profile"), Icon: UserIcon, ActiveIcon: UserIconSolid },
+    {
+      to: "/billing/upgrade",
+      label: t("nav.billing"),
+      Icon: CreditCardIcon,
+      ActiveIcon: CreditCardIconSolid,
+    },
   ];
 
   return (

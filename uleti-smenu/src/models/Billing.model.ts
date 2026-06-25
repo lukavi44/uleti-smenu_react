@@ -13,10 +13,21 @@ export interface BillingPlan {
   currency: string;
 }
 
+export interface WalletTransaction {
+  id: string;
+  amount: number;
+  balanceAfter: number;
+  type: string;
+  description?: string;
+  createdAtUtc: string;
+}
+
 export interface BillingOverview {
   subscription: EmployerSubscription;
   plans: BillingPlan[];
   paymentsEnabled: boolean;
+  suggestedTopUpAmounts: number[];
+  registrationFreeCredits: number;
   message: string;
 }
 
