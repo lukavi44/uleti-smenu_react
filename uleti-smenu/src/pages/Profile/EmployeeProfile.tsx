@@ -27,6 +27,7 @@ import { FAVOURITE_RESTAURANTS_PAGE_SIZE, LIST_PAGE_SIZE } from "../../constants
 import { useClientPagination } from "../../hooks/useClientPagination";
 import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 import { AuthContext } from "../../store/Auth-context";
+import { getApplicationStatusLabel } from "../../helpers/applicationStatus";
 
 const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -38,21 +39,6 @@ const getStatusBadgeStyle = (status: string) => {
             return { backgroundColor: "#f3f4f6", color: "#374151", padding: "2px 8px", borderRadius: "12px" };
         default:
             return { backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "12px" };
-    }
-};
-
-const getApplicationStatusLabel = (status: string, t: (key: string) => string) => {
-    switch (status) {
-        case "Applied":
-            return t("profile.applicationStatus.applied");
-        case "Accepted":
-            return t("profile.applicationStatus.accepted");
-        case "Denied":
-            return t("profile.applicationStatus.denied");
-        case "Cancelled":
-            return t("profile.applicationStatus.cancelled");
-        default:
-            return status;
     }
 };
 

@@ -1,7 +1,8 @@
 import { useContext } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import AppShell from "../components/Layout/AppShell";
 import CandidateLayout from "../components/Layout/CandidateLayout/CandidateLayout";
+import EmployerLayout from "../components/Layout/EmployerLayout/EmployerLayout";
+import GuestLayout from "../components/Layout/GuestLayout/GuestLayout";
 import { AuthContext } from "../store/Auth-context";
 
 const AUTH_PATH_PREFIXES = ["/login", "/registration"];
@@ -12,6 +13,8 @@ const RootLayout = () => {
 
   const isAuthPage = AUTH_PATH_PREFIXES.some((prefix) => location.pathname.startsWith(prefix));
   const isEmployeeShell = authStatus === "authenticated" && role === "Employee";
+  const isEmployerShell = authStatus === "authenticated" && role === "Employer";
+  const useGuestLayout = authStatus !== "authenticated" && !isAuthPage;
 
   if (isAuthPage) {
     return <Outlet />;
@@ -25,11 +28,23 @@ const RootLayout = () => {
     );
   }
 
-  return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
-  );
+  if (isEmployerShell) {
+    return (
+      <EmployerLayout>
+        <Outlet />
+      </EmployerLayout>
+    );
+  }
+
+  if (useGuestLayout) {
+    return (
+      <GuestLayout>
+        <Outlet />
+      </GuestLayout>
+    );
+  }
+
+  return <Outlet />;
 };
 
 export default RootLayout;

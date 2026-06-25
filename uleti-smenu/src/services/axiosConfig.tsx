@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import getApiBaseUrl from "../configuration/config";
 import i18n from "../i18n";
 import { LoginResponseData } from "./auth-service";
+import { isPublicAuthPath, isPublicBrowsePath } from "../helpers/publicBrowse";
 
 const apiBaseURL = getApiBaseUrl();
 
@@ -18,11 +19,6 @@ const axiosInstance = axios.create({
 const isAuthEndpoint = (url?: string) => {
     if (!url) return false;
     return /\/(login|refresh|register)(\/|$|\?)/.test(url);
-};
-
-const isPublicAuthPage = () => {
-    const path = window.location.pathname;
-    return path === "/login" || path.startsWith("/registration");
 };
 
 axiosInstance.interceptors.request.use((config) => {
@@ -41,11 +37,17 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const handleSessionExpired = () => {
+    const handleSessionExpired = (hadSession: boolean) => {
       localStorage.removeItem("AccessToken");
       localStorage.removeItem("RefreshToken");
+
+      if (!hadSession) {
+        return;
+      }
+
       toast.error(i18n.t("common.sessionExpired"));
-      if (!isPublicAuthPage()) {
+      const path = window.location.pathname;
+      if (!isPublicAuthPath(path) && !isPublicBrowsePath(path)) {
         window.location.href = "/login";
       }
     };
@@ -55,6 +57,10 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const hadAccessToken = Boolean(localStorage.getItem("AccessToken"));
+      const hadRefreshToken = Boolean(localStorage.getItem("RefreshToken"));
+      const hadSession = hadAccessToken || hadRefreshToken;
+
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("RefreshToken");
@@ -73,13 +79,17 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         }
       } catch {
-        handleSessionExpired();
+        handleSessionExpired(hadSession);
         return Promise.reject(error);
       }
 
-      handleSessionExpired();
+      handleSessionExpired(hadSession);
     } else if (error.response?.status === 401) {
-      handleSessionExpired();
+      const hadSession =
+        Boolean(localStorage.getItem("AccessToken")) || Boolean(localStorage.getItem("RefreshToken"));
+      if (hadSession) {
+        handleSessionExpired(true);
+      }
     } else if (error.response?.status === 500) {
       toast.error(i18n.t("common.unexpectedServerError"));
     }

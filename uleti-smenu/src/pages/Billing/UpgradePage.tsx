@@ -12,6 +12,8 @@ import {
   GetMyBilling,
 } from "../../services/billing-service";
 import { AuthContext } from "../../store/Auth-context";
+import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import styles from "./UpgradePage.module.scss";
 
 const billingReturnBase = () => `${window.location.origin}/billing/upgrade`;
@@ -20,6 +22,7 @@ const UpgradePage = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { role, me, authStatus } = useContext(AuthContext);
+  const isEmployerShell = useIsEmployerShell();
   const [billing, setBilling] = useState<BillingOverview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [busyPlanId, setBusyPlanId] = useState<string | null>(null);
@@ -99,13 +102,21 @@ const UpgradePage = () => {
 
   return (
     <>
-      <main className={styles.page}>
-        <Link className={styles.backLink} to="/profile">
-          {t("billing.backToProfile")}
-        </Link>
-
-        <h1>{t("billing.upgradeTitle")}</h1>
-        <p className={styles.intro}>{t("billing.upgradeIntro")}</p>
+      <main className={`${styles.page} ${isEmployerShell ? styles.pageShell : ""}`}>
+        {isEmployerShell ? (
+          <CandidatePageHeader
+            title={t("billing.upgradeTitle")}
+            subtitle={t("billing.upgradeIntro")}
+          />
+        ) : (
+          <>
+            <Link className={styles.backLink} to="/profile">
+              {t("billing.backToProfile")}
+            </Link>
+            <h1>{t("billing.upgradeTitle")}</h1>
+            <p className={styles.intro}>{t("billing.upgradeIntro")}</p>
+          </>
+        )}
 
         <SubscriptionBanner subscription={subscription} onManageBilling={handleManageBilling} />
 
@@ -167,7 +178,7 @@ const UpgradePage = () => {
           <p className={styles.mutedText}>{t("billing.noPlans")}</p>
         )}
       </main>
-      <Footer />
+      {!isEmployerShell ? <Footer /> : null}
     </>
   );
 };

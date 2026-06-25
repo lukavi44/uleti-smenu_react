@@ -60,6 +60,18 @@ const normalizePublicProfile = (data: Record<string, unknown>): EmployerPublicPr
   activeJobPosts: (data.activeJobPosts ?? data.ActiveJobPosts ?? []) as EmployerPublicProfile["activeJobPosts"],
 });
 
+export const GetEmployerPublicPreviewBySlug = async (
+  slug: string
+): Promise<AxiosResponse<EmployerDirectoryPreview>> => {
+  const response = await axiosInstance.get(
+    `/api/v1/EmployerProfile/public/slug/${encodeURIComponent(slug)}`
+  );
+  return {
+    ...response,
+    data: normalizeDirectoryPreview(response.data as Record<string, unknown>),
+  };
+};
+
 export const GetEmployerPublicProfileBySlug = async (
   slug: string
 ): Promise<AxiosResponse<EmployerPublicProfile>> => {
@@ -318,6 +330,14 @@ export const ResolveEmployerFromSlug = async (
 
   if (role === "Employer") {
     const response = await GetEmployerDirectoryPreviewBySlug(slug);
+    return {
+      employerId: response.data.employerId,
+      name: response.data.name,
+    };
+  }
+
+  if (!role) {
+    const response = await GetEmployerPublicPreviewBySlug(slug);
     return {
       employerId: response.data.employerId,
       name: response.data.name,

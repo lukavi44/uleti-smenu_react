@@ -27,6 +27,7 @@ import styles from "./JobPostForm.module.scss";
     onClose: () => void;
     onSubmit?: () => void;
     initialData?: JobPost;
+    embeddedInDrawer?: boolean;
   }
 
   interface JobPostFormData {
@@ -48,7 +49,7 @@ import styles from "./JobPostForm.module.scss";
     return localDate.toISOString().slice(0, 16);
   };
 
-  const JobPostForm = ({ onClose, onSubmit, initialData }: JobPostFormProps) => {
+  const JobPostForm = ({ onClose, onSubmit, initialData, embeddedInDrawer = false }: JobPostFormProps) => {
     const { t } = useTranslation();
     const [locations, setLocations] = useState<RestaurantLocation[]>([]);
     const isEditMode = Boolean(initialData?.id);
@@ -153,12 +154,14 @@ import styles from "./JobPostForm.module.scss";
     return (
       <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box className={styles.formRoot}>
-        <Box className={styles.formHeader} display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
-          <IconButton onClick={onClose} aria-label={t("common.close")} className={styles.closeButton} size="large">
-            <CloseIcon />
-          </IconButton>
-        </Box>
+        {!embeddedInDrawer ? (
+          <Box className={styles.formHeader} display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h5">{isEditMode ? t("jobPostForm.editTitle") : t("jobPostForm.createTitle")}</Typography>
+            <IconButton onClick={onClose} aria-label={t("common.close")} className={styles.closeButton} size="large">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        ) : null}
   
         <Box component="form" className={styles.formContent} onSubmit={handleSubmit(submitForm)}>
           <Box className={styles.formBody}>

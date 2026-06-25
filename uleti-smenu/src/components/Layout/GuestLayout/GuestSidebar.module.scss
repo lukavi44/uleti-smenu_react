@@ -1,0 +1,70 @@
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.languageField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.languageLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.languageSelect {
+  width: 100%;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.authSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.signInLink,
+.registerLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.signInLink {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.signInLink:hover {
+  background: #1d4ed8;
+}
+
+.registerLink {
+  background: #ffffff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.registerLink:hover {
+  background: #eff6ff;
+}

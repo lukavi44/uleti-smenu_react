@@ -1,12 +1,24 @@
 import { AxiosResponse } from "axios";
 import axiosInstance from "./axiosConfig"
 import { Employee, Employer } from "../models/User.model";
+import { EmployerSubscription } from "../models/Subscription.model";
 
 export interface UpdateEmployeeProfilePayload {
   firstName: string;
   lastName: string;
   phoneNumber: string;
   city?: string;
+}
+
+export interface UpdateEmployerProfilePayload {
+  name: string;
+  phoneNumber: string;
+  streetName: string;
+  streetNumber: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  region: string;
 }
 
 const normalizeEmployee = (data: Record<string, unknown>): Employee => ({
@@ -28,6 +40,38 @@ const normalizeEmployee = (data: Record<string, unknown>): Employee => ({
     },
   },
 });
+
+const normalizeEmployer = (data: Record<string, unknown>): Employer => {
+  const addressRaw = (data.address ?? data.Address) as Record<string, unknown> | undefined;
+  const streetNumberRaw = addressRaw?.streetNumber ?? addressRaw?.StreetNumber ?? "";
+  const postalCodeRaw = addressRaw?.postalCode ?? addressRaw?.PostalCode ?? "";
+
+  return {
+    id: String(data.id ?? data.Id ?? ""),
+    email: String(data.email ?? data.Email ?? ""),
+    password: "",
+    phoneNumber: String(data.phoneNumber ?? data.PhoneNumber ?? ""),
+    name: String(data.name ?? data.Name ?? ""),
+    pib: String(data.pib ?? data.PIB ?? ""),
+    mb: String(data.mb ?? data.MB ?? ""),
+    profilePhoto: (data.profilePhoto ?? data.ProfilePhoto) as string | undefined,
+    isFavourite: Boolean(data.isFavourite ?? data.IsFavourite ?? false),
+    publicSlug: (data.publicSlug ?? data.PublicSlug) as string | undefined,
+    subscription: (data.subscription ?? data.Subscription) as EmployerSubscription | undefined,
+    address: {
+      street: {
+        name: String(addressRaw?.street ?? addressRaw?.Street ?? ""),
+        number: Number.parseInt(String(streetNumberRaw), 10) || 0,
+      },
+      city: {
+        name: String(addressRaw?.city ?? addressRaw?.City ?? ""),
+        postalCode: Number.parseInt(String(postalCodeRaw), 10) || 0,
+        country: String(addressRaw?.country ?? addressRaw?.Country ?? ""),
+        region: String(addressRaw?.region ?? addressRaw?.Region ?? ""),
+      },
+    },
+  };
+};
 
 export const GetAllEmployers = async (city?: string): Promise<AxiosResponse<Employer[]>> => {
     return axiosInstance.get<Employer[]>("/api/v1/User/role/employer", {
@@ -62,6 +106,13 @@ export const getCurrentUser = async () => {
       };
     }
 
+    if (role === "Employer") {
+      return {
+        ...response,
+        data: normalizeEmployer(data),
+      };
+    }
+
     return response;
 };
 
@@ -72,6 +123,16 @@ export const UpdateMyEmployeeProfile = async (
   return {
     ...response,
     data: normalizeEmployee(response.data as Record<string, unknown>),
+  };
+};
+
+export const UpdateMyEmployerProfile = async (
+  payload: UpdateEmployerProfilePayload
+): Promise<AxiosResponse<Employer>> => {
+  const response = await axiosInstance.patch("/api/v1/User/me/employer-profile", payload);
+  return {
+    ...response,
+    data: normalizeEmployer(response.data as Record<string, unknown>),
   };
 };
 

@@ -10,6 +10,7 @@ import { AuthContext } from "../../store/Auth-context";
 import { subscribeChatMessages, subscribeChatUnreadCount } from "../../services/realtime-service";
 import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
+import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import styles from "./MessagesPage.module.scss";
 
 const FALLBACK_REFRESH_INTERVAL_MS = 60000;
@@ -18,6 +19,7 @@ const MessagesPage = () => {
   const { t } = useTranslation();
   const { authStatus, me, role } = useContext(AuthContext);
   const isCandidateShell = useIsCandidateShell();
+  const isEmployerShell = useIsEmployerShell();
   const currentUserId = me && "id" in me ? me.id : "";
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -209,6 +211,11 @@ const MessagesPage = () => {
         <CandidatePageHeader
           title={t("candidate.messagesTitle")}
           subtitle={t("candidate.messagesSubtitle")}
+        />
+      ) : isEmployerShell && role === "Employer" ? (
+        <CandidatePageHeader
+          title={t("employerShell.messagesTitle")}
+          subtitle={t("employerShell.messagesSubtitle")}
         />
       ) : (
         <h1 className={styles.title}>{t("messages.title")}</h1>

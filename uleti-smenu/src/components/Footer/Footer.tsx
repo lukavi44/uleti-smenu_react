@@ -1,13 +1,16 @@
 import { NavLink } from "react-router-dom";
+import { useContext } from "react";
 
 import styles from "./Footer.module.scss";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import logo from "../../assets/logo.png";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../store/Auth-context";
 
 interface FooterLink {
   label: string;
   to?: string;
+  href?: string;
   external?: boolean;
 }
 
@@ -17,8 +20,10 @@ type FooterProps = {
 
 const Footer = ({ variant = "default" }: FooterProps) => {
   const { t } = useTranslation();
+  const { authStatus } = useContext(AuthContext);
   const isMobile = useMediaQuery("(max-width:768px)");
-  const isLanding = variant === "landing";
+  const isGuest = authStatus !== "authenticated";
+  const isLanding = variant === "landing" || isGuest;
 
   const footerSections: { title: string; links: FooterLink[] }[] = [
     {
@@ -56,16 +61,24 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     {
       title: t("footer.contact"),
       links: [
-        { label: "support@uletismenu.com", external: true },
-        { label: "+381 11 123 456", external: true },
+        { label: "support@uletismenu.com", href: "mailto:support@uletismenu.com", external: true },
+        { label: "+381 11 123 456", href: "tel:+38111123456", external: true },
         { label: "Novi Sad, Srbija", external: true },
       ],
     },
   ];
 
   const renderFooterLink = (link: FooterLink) => {
+    if (link.href) {
+      return (
+        <a href={link.href} className={styles.footerLink}>
+          {link.label}
+        </a>
+      );
+    }
+
     if (!link.to) {
-      return <span>{link.label}</span>;
+      return <span className={styles.footerText}>{link.label}</span>;
     }
 
     return (
@@ -75,7 +88,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     );
   };
 
-  if (isMobile) {
+  if (isMobile && !isLanding) {
     return (
       <footer className={`${styles.mobileFooter} fixed bottom-0 left-0 w-full bg-blue-600 text-white text-center py-3 md:hidden flex justify-between p-5 gap-x-3`}>
         <NavLink to="/oglasi-za-posao">{t("header.posts")}</NavLink>

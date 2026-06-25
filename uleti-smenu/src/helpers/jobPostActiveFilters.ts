@@ -382,3 +382,86 @@ export const removeEmployeeActiveFilter = (
 
 };
 
+
+
+type EmployerFilterState = {
+  lifecycle: "active" | "archived" | "all";
+  city: string;
+  restaurant: string;
+  position: string;
+  sortBy: "createdAt" | "startingDate";
+  sortDirection: "asc" | "desc";
+  restaurantOptions: Array<{ value: string; label: string }>;
+};
+
+export const buildEmployerActiveFilterChips = (
+  filters: EmployerFilterState,
+  t: TFunction
+): ActiveJobPostFilterChip[] => {
+  const chips: ActiveJobPostFilterChip[] = [];
+
+  if (filters.lifecycle === "archived") {
+    chips.push({ id: "lifecycle", label: t("jobPosts.archivedPosts") });
+  } else if (filters.lifecycle === "all") {
+    chips.push({ id: "lifecycle", label: t("jobPosts.allPosts") });
+  }
+
+  if (filters.city) {
+    chips.push({ id: "city", label: filters.city });
+  }
+
+  if (filters.restaurant) {
+    const restaurantLabel =
+      filters.restaurantOptions.find((option) => option.value === filters.restaurant)?.label ??
+      filters.restaurant;
+    chips.push({ id: "restaurant", label: restaurantLabel });
+  }
+
+  if (filters.position) {
+    chips.push({ id: "position", label: filters.position });
+  }
+
+  if (filters.sortBy !== "startingDate" || filters.sortDirection !== "asc") {
+    const sortLabel =
+      filters.sortBy === "startingDate" && filters.sortDirection === "desc"
+        ? t("jobPosts.sortShiftLatest")
+        : filters.sortBy === "createdAt" && filters.sortDirection === "desc"
+          ? t("jobPosts.newest")
+          : t("jobPosts.oldest");
+    chips.push({ id: "sort", label: sortLabel });
+  }
+
+  return chips;
+};
+
+export const removeEmployerActiveFilter = (
+  chipId: string,
+  handlers: {
+    onLifecycleReset: () => void;
+    onCityChange: (value: string) => void;
+    onRestaurantChange: (value: string) => void;
+    onPositionChange: (value: string) => void;
+    onSortReset: () => void;
+  }
+) => {
+  switch (chipId) {
+    case "lifecycle":
+      handlers.onLifecycleReset();
+      break;
+    case "city":
+      handlers.onCityChange("");
+      break;
+    case "restaurant":
+      handlers.onRestaurantChange("");
+      break;
+    case "position":
+      handlers.onPositionChange("");
+      break;
+    case "sort":
+      handlers.onSortReset();
+      break;
+    default:
+      break;
+  }
+};
+

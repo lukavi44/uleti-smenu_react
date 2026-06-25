@@ -10,14 +10,14 @@ const FaqPage = () => {
 
   return (
     <InfoPageLayout title={t("info.faq.title")} intro={t("info.faq.intro")}>
-      <section className={styles.section}>
+      <div className={styles.faqList}>
         {FAQ_ITEMS.map((item) => (
           <article key={item} className={styles.faqItem}>
             <h3>{t(`info.faq.q${item}`)}</h3>
             <p>{t(`info.faq.a${item}`)}</p>
           </article>
         ))}
-      </section>
+      </div>
       <div className={styles.ctaRow}>
         <Link className={styles.ctaSecondary} to="/how-it-works">
           {t("info.faq.ctaHowItWorks")}

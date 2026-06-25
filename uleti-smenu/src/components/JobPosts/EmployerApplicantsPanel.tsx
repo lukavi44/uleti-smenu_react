@@ -6,6 +6,10 @@ import RatingBadge from "../Reviews/RatingBadge";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import styles from "./EmployerApplicantsPanel.module.scss";
 import { useTranslation } from "react-i18next";
+import {
+  canEmployerDecideOnApplication,
+  getApplicationStatusLabel,
+} from "../../helpers/applicationStatus";
 
 interface EmployerApplicantsPanelProps {
   jobPostId: string;
@@ -74,11 +78,15 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
       return t("applicants.finalDeclined");
     }
 
+    if (status === "Expired") {
+      return t("applicants.finalExpired");
+    }
+
     if (status === "Cancelled") {
       return t("common.cancel").toUpperCase();
     }
 
-    return status.toUpperCase();
+    return getApplicationStatusLabel(status, t).toUpperCase();
   };
 
   return (
@@ -117,9 +125,12 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                   </p>
                   <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>
                   <p className={styles.meta}>
-                    {t("applicants.status")}: {applicant.status === "Applied" ? t("jobPosts.appliedShort") : getFinalStatusLabel(applicant.status)}
+                    {t("applicants.status")}:{" "}
+                    {canEmployerDecideOnApplication(applicant.status)
+                      ? t("jobPosts.appliedShort")
+                      : getFinalStatusLabel(applicant.status)}
                   </p>
-                  {applicant.status === "Applied" ? (
+                  {canEmployerDecideOnApplication(applicant.status) ? (
                     <div className={styles.actions}>
                       <button
                         className={`${styles.button} ${styles.acceptButton}`}
@@ -138,7 +149,15 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                     </div>
                   ) : (
                     <div className={styles.finalStatusRow}>
-                      <span className={`${styles.finalStatusBadge} ${applicant.status === "Accepted" ? styles.acceptedBadge : styles.declinedBadge}`}>
+                      <span
+                        className={`${styles.finalStatusBadge} ${
+                          applicant.status === "Accepted"
+                            ? styles.acceptedBadge
+                            : applicant.status === "Expired"
+                              ? styles.expiredBadge
+                              : styles.declinedBadge
+                        }`}
+                      >
                         {getFinalStatusLabel(applicant.status)}
                       </span>
                     </div>

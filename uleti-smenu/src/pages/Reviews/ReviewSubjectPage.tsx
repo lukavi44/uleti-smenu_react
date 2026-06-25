@@ -55,7 +55,7 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
       }
     };
 
-    if (authStatus === "authenticated") {
+    if (authStatus !== "loading") {
       void resolveEmployer();
     }
   }, [authStatus, me, role, slug, subjectType]);
@@ -120,7 +120,7 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
       }
     };
 
-    if (authStatus === "authenticated") {
+    if (authStatus !== "loading") {
       void loadPage();
     }
   }, [authStatus, employeeId, employerId, employerName, slug, subjectType, t]);
@@ -129,7 +129,7 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
     return <div className={styles.page}>{t("common.loading")}</div>;
   }
 
-  if (authStatus === "unauthenticated") {
+  if (authStatus === "unauthenticated" && subjectType === "employee") {
     return <div className={styles.page}>{t("common.unauthorized")}</div>;
   }
 

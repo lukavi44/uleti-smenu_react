@@ -1,12 +1,12 @@
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
 import { Employer } from "../../models/User.model";
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from "react";
 import { JobPost } from "../../models/JobPost.model";
 import { Applicant } from "../../models/Application.model";
 import { GetMyJobPostPositions, GetMyJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
-import { UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
+import { UpdateMyEmployerProfile, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
 import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { toast } from "react-toastify";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
@@ -27,10 +27,35 @@ import { AuthContext } from "../../store/Auth-context";
 import Pagination from "../../components/Common/Pagination";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
+import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
+import {
+  canEmployerDecideOnApplication,
+  getApplicationStatusLabel,
+} from "../../helpers/applicationStatus";
 
 interface EmployerProfileProps {
     user: Employer;
 }
+
+const buildEmployerProfileForm = (user: Employer) => ({
+    name: user.name ?? "",
+    phoneNumber: user.phoneNumber ?? "",
+    streetName: user.address?.street?.name ?? "",
+    streetNumber: user.address?.street?.number ? String(user.address.street.number) : "",
+    city: user.address?.city?.name ?? "",
+    postalCode: user.address?.city?.postalCode ? String(user.address.city.postalCode) : "",
+    country: user.address?.city?.country ?? "",
+    region: user.address?.city?.region ?? "",
+});
+
+const formatEmployerAddress = (user: Employer) => {
+    const form = buildEmployerProfileForm(user);
+    if (!form.streetName && !form.city) {
+        return "-";
+    }
+
+    return `${form.streetName} ${form.streetNumber}, ${form.city}`.trim();
+};
 
 const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -40,6 +65,8 @@ const getStatusBadgeStyle = (status: string) => {
             return { backgroundColor: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: "12px" };
         case "Cancelled":
             return { backgroundColor: "#f3f4f6", color: "#374151", padding: "2px 8px", borderRadius: "12px" };
+        case "Expired":
+            return { backgroundColor: "#e5e7eb", color: "#374151", padding: "2px 8px", borderRadius: "12px" };
         default:
             return { backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "12px" };
     }
@@ -48,6 +75,7 @@ const getStatusBadgeStyle = (status: string) => {
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const { t } = useTranslation();
     const { refreshMe } = useContext(AuthContext);
+    const isEmployerShell = useIsEmployerShell();
     const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const [allJobPosts, setAllJobPosts] = useState<JobPost[]>([]);
     const [positionOptions, setPositionOptions] = useState<string[]>([]);
@@ -65,8 +93,38 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
+    const [isProfileSaving, setIsProfileSaving] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileForm, setProfileForm] = useState(() => buildEmployerProfileForm(user));
     const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
     const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
+
+    useEffect(() => {
+        setProfileForm(buildEmployerProfileForm(user));
+    }, [
+        user.name,
+        user.phoneNumber,
+        user.address?.street?.name,
+        user.address?.street?.number,
+        user.address?.city?.name,
+        user.address?.city?.postalCode,
+        user.address?.city?.country,
+        user.address?.city?.region,
+    ]);
+
+    const resetProfileForm = () => {
+        setProfileForm(buildEmployerProfileForm(user));
+    };
+
+    const handleStartProfileEdit = () => {
+        resetProfileForm();
+        setIsEditingProfile(true);
+    };
+
+    const handleCancelProfileEdit = () => {
+        resetProfileForm();
+        setIsEditingProfile(false);
+    };
 
     useEffect(() => {
         const loadReceivedReviews = async () => {
@@ -109,6 +167,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     const [newBranch, setNewBranch] = useState({
         name: "",
         phoneNumber: "",
+        pib: user.pib ?? "",
+        mb: user.mb ?? "",
         streetName: "",
         streetNumber: "",
         city: "",
@@ -116,6 +176,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         country: "",
         region: ""
     });
+
+    useEffect(() => {
+        setNewBranch((previous) => ({
+            ...previous,
+            pib: previous.pib || user.pib || "",
+            mb: previous.mb || user.mb || "",
+        }));
+    }, [user.pib, user.mb]);
 
     const selectedJobPost = useMemo(
         () => allJobPosts.find((post) => post.id === selectedJobPostId),
@@ -357,6 +425,36 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         }
     };
 
+    const handleProfileSave = async (event: FormEvent) => {
+        event.preventDefault();
+
+        if (!profileForm.name.trim()) {
+            toast.error(t("registration.companyRequired"));
+            return;
+        }
+
+        setIsProfileSaving(true);
+        try {
+            await UpdateMyEmployerProfile({
+                name: profileForm.name.trim(),
+                phoneNumber: profileForm.phoneNumber.trim(),
+                streetName: profileForm.streetName.trim(),
+                streetNumber: profileForm.streetNumber.trim(),
+                city: profileForm.city.trim(),
+                postalCode: profileForm.postalCode.trim(),
+                country: profileForm.country.trim(),
+                region: profileForm.region.trim(),
+            });
+            toast.success(t("profile.profileUpdated"));
+            setIsEditingProfile(false);
+            void refreshMe();
+        } catch {
+            toast.error(t("profile.profileUpdateError"));
+        } finally {
+            setIsProfileSaving(false);
+        }
+    };
+
     const handleBranchFieldChange = (field: keyof typeof newBranch, value: string) => {
         setNewBranch((prev) => ({
             ...prev,
@@ -373,16 +471,14 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
         setIsCreatingLocation(true);
         try {
-            const response = await CreateMyRestaurantLocation({
-                ...newBranch,
-                pib: user.pib,
-                mb: user.mb
-            });
+            const response = await CreateMyRestaurantLocation(newBranch);
 
             setLocations((prev) => [...prev, response.data]);
             setNewBranch({
                 name: "",
                 phoneNumber: "",
+                pib: user.pib ?? "",
+                mb: user.mb ?? "",
                 streetName: "",
                 streetNumber: "",
                 city: "",
@@ -407,7 +503,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     };
 
     return (
-        <div className={styles.profilePage}>
+        <div className={`${styles.profilePage} ${isEmployerShell ? styles.profilePageShell : ""}`}>
             <SubscriptionBanner subscription={user.subscription} />
 
             <section className={styles.panel}>
@@ -428,7 +524,20 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         />
                     </div>
                     <div className={styles.profileInfoColumn}>
-                        <h2 className={styles.profileInfoTitle}>{t("profile.employerInfo")}</h2>
+                        <div className={styles.profileInfoHeader}>
+                            <h2 className={styles.profileInfoTitle}>{t("profile.employerInfo")}</h2>
+                            {!isEditingProfile && (
+                                <button
+                                    type="button"
+                                    className={styles.editIconButton}
+                                    aria-label={t("profile.editEmployerInfo")}
+                                    title={t("profile.edit")}
+                                    onClick={handleStartProfileEdit}
+                                >
+                                    ✎
+                                </button>
+                            )}
+                        </div>
                         <RatingBadge
                             averageRating={reviewSummary.averageRating}
                             reviewCount={reviewSummary.reviewCount}
@@ -436,6 +545,120 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             subjectSlug={user.publicSlug}
                             subjectId={user.id}
                         />
+                        {isEditingProfile ? (
+                            <form className={styles.profileFormGrid} onSubmit={handleProfileSave}>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.name}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, name: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.phone")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.phoneNumber}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.email")}</span>
+                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.email} readOnly />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.pib")}</span>
+                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.pib} readOnly />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.mb")}</span>
+                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.mb} readOnly />
+                                </label>
+                                <p className={styles.contactPrivacyNotice}>{t("profile.legalEntityReadOnlyNotice")}</p>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.streetName")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.streetName}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, streetName: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.streetNumber")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.streetNumber}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, streetNumber: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.city")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.city}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, city: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.postalCode")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.postalCode}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, postalCode: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.country")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.country}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, country: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("registration.region")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.region}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, region: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <div className={styles.profileEditActions}>
+                                    <button
+                                        type="submit"
+                                        className={`${styles.button} ${styles.buttonPrimary}`}
+                                        disabled={isProfileSaving}
+                                    >
+                                        {isProfileSaving ? t("common.loading") : t("profile.saveChanges")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.button} ${styles.buttonSecondary}`}
+                                        onClick={handleCancelProfileEdit}
+                                        disabled={isProfileSaving}
+                                    >
+                                        {t("common.cancel")}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
                         <div className={styles.infoGrid}>
                             <div className={styles.infoRow}>
                                 <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
@@ -443,11 +666,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             </div>
                             <div className={styles.infoRow}>
                                 <span className={styles.infoLabel}>{t("profile.address")}</span>
-                                <span className={styles.infoValue}>
-                                    {locations[0]
-                                        ? `${locations[0].streetName} ${locations[0].streetNumber}, ${locations[0].city}`
-                                        : "-"}
-                                </span>
+                                <span className={styles.infoValue}>{formatEmployerAddress(user)}</span>
                             </div>
                             <div className={styles.infoRow}>
                                 <span className={styles.infoLabel}>{t("profile.phone")}</span>
@@ -477,11 +696,13 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 </div>
                             )}
                         </div>
+                        )}
                     </div>
                 </div>
             </section>
 
             <CollapsibleSection title={t("profile.addBranch")}>
+                <p className={styles.contactPrivacyNotice}>{t("profile.branchLegalEntityHint")}</p>
                 <div className={styles.branchForm}>
                     <input
                         className={styles.input}
@@ -497,8 +718,20 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                         value={newBranch.phoneNumber}
                         onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
                     />
-                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.pib} disabled />
-                    <input className={`${styles.input} ${styles.readOnlyInput}`} type="text" value={user.mb} disabled />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.pib")}
+                        value={newBranch.pib}
+                        onChange={(e) => handleBranchFieldChange("pib", e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder={t("registration.mb")}
+                        value={newBranch.mb}
+                        onChange={(e) => handleBranchFieldChange("mb", e.target.value)}
+                    />
                     <input
                         className={styles.input}
                         type="text"
@@ -557,6 +790,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                             <strong>{location.name}</strong>
                             <p>{location.city}, {location.streetName} {location.streetNumber}</p>
                             <p>{location.phoneNumber}</p>
+                            <p>{t("registration.pib")}: {location.pib} · {t("registration.mb")}: {location.mb}</p>
                         </div>
                     ))}
                 </div>
@@ -783,9 +1017,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                     subjectType="employee"
                                     subjectId={applicant.userId}
                                 />{" "}
-                                <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
+                                <span style={getStatusBadgeStyle(applicant.status)}>
+                                    {getApplicationStatusLabel(applicant.status, t)}
+                                </span>
                             </p>
-                            {applicant.status === "Applied" && (
+                            {canEmployerDecideOnApplication(applicant.status) && (
                                 <div className={styles.actionsRow}>
                                     <button
                                         className={`${styles.button} ${styles.buttonPrimary}`}

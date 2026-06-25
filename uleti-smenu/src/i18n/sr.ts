@@ -16,6 +16,16 @@ const sr = {
     loadingMore: "Učitavanje...",
     loadedOf: "Prikazano {{visible}} od {{total}}"
   },
+  publicBrowse: {
+    guestProfileBanner: "Prijavite se da vidite lokacije, kontakt podatke i prijavite se na smene.",
+    guestJobPostsBanner: "Pregledajte otvorene smene ispod. Prijavite se da biste se prijavili i pratili prijave.",
+    signIn: "Prijava",
+    register: "Registracija",
+    loginToApply: "Prijavite se da biste se prijavili"
+  },
+  guest: {
+    sidebarNavigation: "Navigacija za pregled"
+  },
   nav: {
     home: "Početna",
     jobPosts: "Oglasi",
@@ -51,6 +61,19 @@ const sr = {
     profileSubtitle: "Uredi svoje informacije i predstavi se poslodavcima.",
     messagesTitle: "Poruke",
     messagesSubtitle: "Komuniciraj sa restoranima."
+  },
+  employerShell: {
+    sidebarNavigation: "Navigacija poslodavca",
+    greetingMorning: "Dobro jutro, {{name}}! 👋",
+    greetingAfternoon: "Dobar dan, {{name}}! 👋",
+    greetingEvening: "Dobro veče, {{name}}! 👋",
+    defaultName: "poslodavče",
+    jobPostsTitle: "Moji oglasi",
+    jobPostsSubtitle: "Upravljaj oglasima i pregledaj kandidate.",
+    profileTitle: "Moj profil",
+    profileSubtitle: "Upravljaj podacima firme, restoranima i oglasima.",
+    messagesTitle: "Poruke",
+    messagesSubtitle: "Komuniciraj sa kandidatima."
   },
   header: {
     city: "Grad",
@@ -665,6 +688,7 @@ const sr = {
     rejecting: "Odbijanje...",
     finalAccepted: "PRIHVAĆEN",
     finalDeclined: "ODBIJEN",
+    finalExpired: "ISTEKLO",
     loadError: "Učitavanje kandidata nije uspelo.",
     updateError: "Izmena statusa kandidata nije uspela.",
     accepted: "Kandidat je prihvaćen.",
@@ -689,6 +713,11 @@ const sr = {
     email: "Email",
     phone: "Telefon",
     editPersonalInfo: "Uredi lične informacije",
+    editEmployerInfo: "Uredi podatke poslodavca",
+    legalEntityReadOnlyNotice:
+      "PIB i matični broj su postavljeni pri registraciji i ovde se ne mogu menjati. Ako restoran posluje pod drugim pravnim licem, dodajte novu filijalu ispod.",
+    branchLegalEntityHint:
+      "Svaka filijala može pripadati drugoj firmi. Unesite PIB i matični broj te lokacije ako se razlikuju od glavnog naloga.",
     contactPrivacyNotice:
       "Tvoj email i broj telefona su privatni. Vide ih samo ti i UletiSmenu podrška — drugi korisnici nemaju pristup ovim podacima.",
     myApplications: "Prijavljeni oglasi",
@@ -704,7 +733,8 @@ const sr = {
       applied: "Čeka odgovor",
       accepted: "Prihvaćeno",
       denied: "Odbijeno",
-      cancelled: "Otkazano"
+      cancelled: "Otkazano",
+      expired: "Isteklo"
     },
     noApplications: "Nema prijava za izabrani filter.",
     cancelApplication: "Otkaži prijavu",

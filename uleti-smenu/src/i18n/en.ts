@@ -16,6 +16,16 @@ const en = {
     loadingMore: "Loading more...",
     loadedOf: "Showing {{visible}} of {{total}}"
   },
+  publicBrowse: {
+    guestProfileBanner: "Sign in to see branch locations, contact details, and apply for shifts.",
+    guestJobPostsBanner: "Browse open shifts below. Sign in to apply and track your applications.",
+    signIn: "Sign in",
+    register: "Create account",
+    loginToApply: "Sign in to apply"
+  },
+  guest: {
+    sidebarNavigation: "Browse navigation"
+  },
   nav: {
     home: "Home",
     jobPosts: "Job posts",
@@ -51,6 +61,19 @@ const en = {
     profileSubtitle: "Edit your information and present yourself to employers.",
     messagesTitle: "Messages",
     messagesSubtitle: "Chat with restaurants."
+  },
+  employerShell: {
+    sidebarNavigation: "Employer navigation",
+    greetingMorning: "Good morning, {{name}}! 👋",
+    greetingAfternoon: "Good afternoon, {{name}}! 👋",
+    greetingEvening: "Good evening, {{name}}! 👋",
+    defaultName: "employer",
+    jobPostsTitle: "My job posts",
+    jobPostsSubtitle: "Manage your listings and review applicants.",
+    profileTitle: "My profile",
+    profileSubtitle: "Manage your company info, restaurants, and job posts.",
+    messagesTitle: "Messages",
+    messagesSubtitle: "Chat with candidates."
   },
   header: {
     city: "City",
@@ -664,6 +687,7 @@ const en = {
     rejecting: "Rejecting...",
     finalAccepted: "ACCEPTED",
     finalDeclined: "DECLINED",
+    finalExpired: "EXPIRED",
     loadError: "Unable to load applicants for this post.",
     updateError: "Unable to update applicant status.",
     accepted: "Applicant accepted.",
@@ -688,6 +712,11 @@ const en = {
     email: "Email",
     phone: "Phone",
     editPersonalInfo: "Edit personal information",
+    editEmployerInfo: "Edit employer information",
+    legalEntityReadOnlyNotice:
+      "PIB and matični broj are set at registration and cannot be changed here. Use a new branch below if the restaurant operates under a different legal entity.",
+    branchLegalEntityHint:
+      "Each branch can belong to a different company. Enter that location's PIB and matični broj when it differs from your main account.",
     contactPrivacyNotice:
       "Your email and phone number are private. Only you and UletiSmenu support can see them — other users cannot.",
     myApplications: "Applied Job Posts",
@@ -703,7 +732,8 @@ const en = {
       applied: "Awaiting response",
       accepted: "Accepted",
       denied: "Declined",
-      cancelled: "Cancelled"
+      cancelled: "Cancelled",
+      expired: "Expired"
     },
     noApplications: "No applications for this filter.",
     cancelApplication: "Cancel application",

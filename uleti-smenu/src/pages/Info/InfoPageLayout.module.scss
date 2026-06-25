@@ -1,119 +1,126 @@
 .page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 1rem;
+  width: 100%;
 }
 
-.header {
-  margin-bottom: 1.75rem;
-}
-
-.header h1 {
-  margin: 0 0 0.75rem;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.intro {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: #4b5563;
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .section {
-  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 .section h2 {
-  margin: 0 0 0.85rem;
-  font-size: 1.25rem;
-  color: #111827;
+  margin: 0 0 0.65rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
 }
 
 .section p {
-  margin: 0 0 0.75rem;
+  margin: 0;
+  font-size: 0.95rem;
   line-height: 1.65;
-  color: #374151;
+  color: #64748b;
 }
 
 .card {
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   background: #ffffff;
-  padding: 1.1rem 1.15rem;
-  margin-bottom: 0.85rem;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  padding: 1.2rem 1.35rem;
+  margin-bottom: 0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 .card h3 {
   margin: 0 0 0.45rem;
   font-size: 1.02rem;
+  font-weight: 700;
   color: #0f172a;
 }
 
 .card p {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.6;
-  color: #4b5563;
+  line-height: 1.65;
+  color: #64748b;
 }
 
 .pricingCard {
   border: 1px solid #bfdbfe;
   border-radius: 14px;
-  background: #eff6ff;
-  padding: 1.1rem 1.15rem;
-  margin: 1rem 0;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+  padding: 1.2rem 1.35rem;
+  margin: 1rem 0 0.75rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
 }
 
 .pricingCard h3 {
   margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 700;
   color: #1e3a8a;
 }
 
 .pricingHighlight {
   margin: 0 0 0.5rem;
   font-size: 1.35rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #1d4ed8;
+  letter-spacing: -0.02em;
 }
 
 .pricingNote {
+  margin: 0;
   font-size: 0.92rem;
-  color: #6b7280;
+  line-height: 1.6;
+  color: #64748b;
 }
 
 .stepNumber {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.85rem;
+  height: 1.85rem;
   border-radius: 999px;
   background: #2563eb;
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.65rem;
 }
 
 .tabs {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.25rem;
   flex-wrap: wrap;
 }
 
 .tab {
-  border: 1px solid #d1d5db;
+  border: 1px solid #dbe3ee;
   background: #ffffff;
-  color: #374151;
+  color: #64748b;
   border-radius: 999px;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1rem;
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .tabActive {
@@ -126,7 +133,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
-  margin-top: 1.25rem;
+  margin-top: 0.25rem;
 }
 
 .ctaPrimary,
@@ -135,10 +142,11 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  padding: 0.6rem 1.1rem;
-  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  border-radius: 12px;
   font-size: 0.92rem;
   font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .ctaPrimary {
@@ -152,60 +160,73 @@
 
 .ctaSecondary {
   background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #374151;
+  border: 1px solid #dbe3ee;
+  color: #334155;
 }
 
 .ctaSecondary:hover {
-  background: #f9fafb;
+  background: #f8fafc;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
 }
 
 .faqItem {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0.9rem 0;
-}
-
-.faqItem:last-child {
-  border-bottom: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 .faqItem h3 {
   margin: 0 0 0.4rem;
   font-size: 1rem;
-  color: #111827;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .faqItem p {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.6;
-  color: #4b5563;
+  line-height: 1.65;
+  color: #64748b;
 }
 
 .bulletList {
   margin: 0;
   padding-left: 1.2rem;
-  color: #374151;
+  color: #64748b;
   line-height: 1.65;
+  font-size: 0.95rem;
 }
 
 .bulletList li {
   margin-bottom: 0.45rem;
 }
 
+.bulletList li::marker {
+  color: #2563eb;
+}
+
 .legalUpdated {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: 0.88rem;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .legalDisclaimer {
-  border: 1px solid #fcd34d;
+  border: 1px solid #fde68a;
   background: #fffbeb;
   color: #92400e;
   border-radius: 12px;
-  padding: 0.85rem 1rem;
-  margin-bottom: 1rem;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.75rem;
   font-size: 0.92rem;
   line-height: 1.55;
 }

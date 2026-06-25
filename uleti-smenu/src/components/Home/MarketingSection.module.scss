@@ -4,7 +4,12 @@
 }
 
 .sectionLanding {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: transparent;
+  padding: 3rem 1.5rem 0;
+}
+
+.sectionLanding .footerCta {
+  margin-bottom: 0;
 }
 
 .inner {

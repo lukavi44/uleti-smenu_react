@@ -28,7 +28,8 @@ const RestaurantsDirectory = () => {
   const debouncedSearch = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS);
 
   const canViewProfile =
-    authStatus === "authenticated" && (role === "Employee" || role === "Employer");
+    authStatus === "unauthenticated" ||
+    (authStatus === "authenticated" && (role === "Employee" || role === "Employer"));
   const showJobPostsCount = role !== "Employer";
   const myEmployerId = me && "id" in me ? String(me.id) : undefined;
 

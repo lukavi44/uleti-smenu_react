@@ -5,9 +5,10 @@
 
 .card {
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
   background: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 .header {
@@ -17,31 +18,39 @@
   align-items: center;
 }
 
+.header strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
 .rating {
   color: #f59e0b;
   letter-spacing: 0.05em;
+  font-size: 0.9rem;
 }
 
 .meta {
   margin: 0.35rem 0 0;
-  color: #6b7280;
+  color: #64748b;
   font-size: 0.88rem;
 }
 
 .comment {
   margin: 0.55rem 0 0;
-  color: #374151;
-  line-height: 1.5;
+  color: #475569;
+  line-height: 1.55;
+  font-size: 0.95rem;
 }
 
 .date {
   display: block;
   margin-top: 0.45rem;
-  color: #9ca3af;
+  color: #94a3b8;
   font-size: 0.78rem;
 }
 
 .mutedText {
   margin: 0;
-  color: #6b7280;
+  color: #64748b;
+  font-size: 0.95rem;
 }

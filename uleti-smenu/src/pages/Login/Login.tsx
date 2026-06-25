@@ -57,7 +57,10 @@ const LoginPage = () => {
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
       await refreshAuthState();
-      navigate("/");
+      const returnUrl = searchParams.get("returnUrl");
+      const safeReturnUrl =
+        returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : "/";
+      navigate(safeReturnUrl);
     } catch (error: unknown) {
       console.error("Login failed:", error);
       if (axios.isAxiosError(error)) {

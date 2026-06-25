@@ -55,6 +55,8 @@ function App() {
             <Route path="privacy" element={<LegalPage type="privacy" />} />
             <Route path="cookies" element={<LegalPage type="cookies" />} />
             <Route path="restaurants" element={<RestaurantsPage />} />
+            <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
+            <Route path="restaurants/:slug/reviews" element={<ReviewSubjectPage subjectType="employer" />} />
             <Route element={<LoggedOutRoute />}>
               <Route path="registration" element={<RegistrationChoicePage />} />
               <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
@@ -63,12 +65,10 @@ function App() {
               <Route path="login" element={<LoginPage />} />
             </Route>
             <Route element={<RequireAuth />}>
-              <Route path='oglasi-za-posao' element={<JobPosts/>} />
+              <Route path="oglasi-za-posao" element={<JobPosts />} />
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
               <Route path="employees/:employeeId/reviews" element={<ReviewSubjectPage subjectType="employee"/>}/>
-              <Route path="restaurants/:slug" element={<EmployerPublicProfilePage/>}/>
-              <Route path="restaurants/:slug/reviews" element={<ReviewSubjectPage subjectType="employer"/>}/>
               <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
               <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>

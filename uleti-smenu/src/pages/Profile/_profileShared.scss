@@ -1,3 +1,14 @@
+.profilePageShell {
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.profilePageShell .panel {
+  border-color: #e8edf5;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
 .profilePage {
   max-width: 1100px;
   margin: 2rem auto;

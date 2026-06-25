@@ -22,6 +22,8 @@ import {
 
   GetEmployerDirectoryPreviewBySlug,
 
+  GetEmployerPublicPreviewBySlug,
+
   GetEmployerPublicProfileBySlug,
 
 } from "../../services/employer-profile-service";
@@ -64,7 +66,9 @@ const EmployerPublicProfilePage = () => {
 
   const isEmployerPreview = role === "Employer";
 
-  const canAccessPage = isEmployeeView || isEmployerPreview;
+  const isGuestView = authStatus === "unauthenticated";
+
+  const canAccessPage = isEmployeeView || isEmployerPreview || isGuestView;
 
   const myEmployerSlug =
     me && "publicSlug" in me ? String(me.publicSlug ?? "").trim().toLowerCase() : "";
@@ -147,9 +151,17 @@ const EmployerPublicProfilePage = () => {
 
           setPreview(null);
 
-        } else {
+        } else if (isEmployerPreview) {
 
           const response = await GetEmployerDirectoryPreviewBySlug(slug);
+
+          setPreview(response.data);
+
+          setProfile(null);
+
+        } else {
+
+          const response = await GetEmployerPublicPreviewBySlug(slug);
 
           setPreview(response.data);
 
@@ -175,13 +187,13 @@ const EmployerPublicProfilePage = () => {
 
 
 
-    if (authStatus === "authenticated") {
+    if (authStatus !== "loading") {
 
       void loadProfile();
 
     }
 
-  }, [authStatus, canAccessPage, isEmployeeView, isOwnRestaurant, slug]);
+  }, [authStatus, canAccessPage, isEmployeeView, isEmployerPreview, isOwnRestaurant, slug]);
 
 
 
@@ -307,7 +319,7 @@ const EmployerPublicProfilePage = () => {
 
 
 
-  if (authStatus === "unauthenticated" || !canAccessPage) {
+  if (authStatus === "authenticated" && !canAccessPage) {
 
     return <div className={styles.page}>{t("common.unauthorized")}</div>;
 
@@ -346,6 +358,32 @@ const EmployerPublicProfilePage = () => {
         {!isLoading && !loadError && preview && (
 
           <article className={styles.previewCard}>
+
+            {isGuestView && (
+
+              <div className={styles.guestBanner}>
+
+                <p>{t("publicBrowse.guestProfileBanner")}</p>
+
+                <div className={styles.guestBannerActions}>
+
+                  <Link className={styles.guestBannerPrimary} to="/login">
+
+                    {t("publicBrowse.signIn")}
+
+                  </Link>
+
+                  <Link className={styles.guestBannerSecondary} to="/registration/candidate">
+
+                    {t("publicBrowse.register")}
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+            )}
 
             <header className={styles.header}>
 
@@ -396,6 +434,16 @@ const EmployerPublicProfilePage = () => {
                   {preview.activeJobPostsCount}
 
                 </p>
+
+                {preview.activeJobPostsCount > 0 && (
+
+                  <Link className={styles.jobPostLink} to="/oglasi-za-posao">
+
+                    {t("employerProfile.browseAllJobPosts")}
+
+                  </Link>
+
+                )}
 
               </div>
 

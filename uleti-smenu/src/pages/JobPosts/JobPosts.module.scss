@@ -52,12 +52,28 @@
   overflow: visible;
 }
 
+.posts-container-employer {
+  height: auto;
+  min-height: calc(100vh - 5rem);
+  overflow: visible;
+}
+
 .posts-container-candidate .left-panel {
   height: auto;
   max-width: none;
 }
 
+.posts-container-employer .left-panel {
+  height: auto;
+  max-width: none;
+}
+
 .posts-container-candidate .posts-list {
+  padding-top: 0.25rem;
+  align-items: stretch;
+}
+
+.posts-container-employer .posts-list {
   padding-top: 0.25rem;
   align-items: stretch;
 }
@@ -327,6 +343,63 @@
   .apply-button:disabled {
     background: #93c5fd;
     cursor: not-allowed;
+  }
+
+  .guest-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.65rem;
+
+    .apply-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+  }
+
+  .guestBanner {
+    margin-bottom: 1rem;
+    padding: 1rem 1.1rem;
+    border-radius: 12px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+
+    p {
+      margin: 0 0 0.75rem;
+      color: #1e3a8a;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+  }
+
+  .guestBannerActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .guestBannerPrimary,
+  .guestBannerSecondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .guestBannerPrimary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .guestBannerSecondary {
+    background: #ffffff;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
   }
 
   .empty-message {
