@@ -1,0 +1,219 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(560px, 82vh, 780px);
+  display: flex;
+  align-items: center;
+  padding: 3.5rem 1.5rem 3rem;
+  color: #0f172a;
+}
+
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(147, 197, 253, 0.45), transparent 38%),
+    radial-gradient(circle at 88% 14%, rgba(196, 181, 253, 0.35), transparent 32%),
+    linear-gradient(180deg, #f8fbff 0%, #f1f6ff 55%, #f8fffe 100%);
+}
+
+.heroOrbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orbOne,
+.orbTwo {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.orbOne {
+  width: 320px;
+  height: 320px;
+  top: 6%;
+  right: 8%;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.orbTwo {
+  width: 200px;
+  height: 200px;
+  bottom: 10%;
+  left: 4%;
+  background: rgba(118, 199, 192, 0.18);
+}
+
+.dotGrid {
+  position: absolute;
+  top: 12%;
+  right: 4%;
+  width: min(42vw, 420px);
+  height: min(52vh, 520px);
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.35) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 92%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.heroContent {
+  max-width: 620px;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #2563eb;
+}
+
+.heroSubtitle {
+  margin: 1rem 0 0;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  line-height: 1.4;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.heroDescription {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #64748b;
+  max-width: 46ch;
+}
+
+.heroCtas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0.7rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.buttonPrimary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.buttonPrimary:hover {
+  background: #1d4ed8;
+}
+
+.buttonSecondary {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.buttonSecondary:hover {
+  background: #f8fafc;
+}
+
+.heroLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.heroLink:hover {
+  text-decoration: underline;
+}
+
+.heroLinkIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.heroVisual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroVisualCard {
+  width: min(100%, 400px);
+  padding: 1.35rem 1.25rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.1);
+}
+
+.heroStatsMobile {
+  margin-top: 1.75rem;
+  padding: 1.1rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 2.5rem 1rem 2rem;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .heroDescription {
+    max-width: none;
+  }
+
+  .dotGrid {
+    opacity: 0.45;
+    right: -8%;
+    width: 70vw;
+    height: 40vh;
+  }
+}

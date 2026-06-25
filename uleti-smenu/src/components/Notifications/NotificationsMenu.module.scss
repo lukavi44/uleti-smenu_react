@@ -1,0 +1,114 @@
+.wrapper {
+  position: relative;
+}
+
+.panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+  width: min(92vw, 320px);
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  padding: 0.75rem;
+  z-index: 120;
+}
+
+.panel h4 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.muted {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.item {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #eff6ff;
+  padding: 0.6rem;
+  margin-bottom: 0.55rem;
+  touch-action: pan-y;
+  user-select: none;
+  overflow: hidden;
+}
+
+.item p {
+  margin: 0 0 0.3rem;
+  font-size: 0.84rem;
+  color: #1f2937;
+  line-height: 1.35;
+}
+
+.item small {
+  display: block;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+}
+
+.item button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.itemLink {
+  cursor: pointer;
+  color: #1d4ed8;
+}
+
+.itemLink:hover {
+  text-decoration: underline;
+}
+
+.deleteButton {
+  min-width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.itemRead {
+  background: #ffffff;
+}
+
+.itemRemoving {
+  transform: translateX(-140%) !important;
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
+  transition:
+    transform 0.24s ease-in,
+    opacity 0.24s ease-in,
+    max-height 0.24s ease-in,
+    margin 0.24s ease-in,
+    padding 0.24s ease-in,
+    border-color 0.24s ease-in;
+}

@@ -1,7 +1,13 @@
-import EmployersList from "../../components/Employers/EmployersList";
+import RestaurantsPageHeader from "../../components/Restaurants/RestaurantsPageHeader";
+import RestaurantsDirectory from "../../components/Restaurants/RestaurantsDirectory";
 
 const RestaurantsPage = () => {
-  return <EmployersList variant="page" />;
+  return (
+    <>
+      <RestaurantsPageHeader />
+      <RestaurantsDirectory />
+    </>
+  );
 };
 
 export default RestaurantsPage;

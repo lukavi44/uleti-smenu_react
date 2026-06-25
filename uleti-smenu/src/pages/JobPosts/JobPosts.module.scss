@@ -46,6 +46,34 @@
 
 // }
 
+.posts-container-candidate {
+  height: auto;
+  min-height: calc(100vh - 5rem);
+  overflow: visible;
+}
+
+.posts-container-candidate .left-panel {
+  height: auto;
+  max-width: none;
+}
+
+.posts-container-candidate .posts-list {
+  padding-top: 0.25rem;
+  align-items: stretch;
+}
+
+.employee-page-toolbar {
+  width: 100%;
+  padding: 0;
+}
+
+.results-count {
+  margin: 0 0 0.85rem;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
 .posts-container {
     display: flex;
     justify-content: center;
@@ -164,6 +192,11 @@
     transform-origin: center center;
   }
 
+  .posts-container-candidate .jobpost-card-wrapper {
+    width: 100%;
+    max-width: none;
+  }
+
   .jobpost-card-wrapper:hover {
     transform: scale(1.05);
     z-index: 3;
@@ -199,6 +232,8 @@
   }
 
   .employee-jobpost-card {
+    width: 100%;
+    max-width: none;
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     padding: 1rem;

@@ -36,6 +36,7 @@ type JobPostsFiltersBarProps = {
   onSortChange?: (value: string) => void;
   showClearFilters?: boolean;
   onClearFilters?: () => void;
+  layout?: "inline" | "panel";
 };
 
 const JobPostsFiltersBar = ({
@@ -68,11 +69,12 @@ const JobPostsFiltersBar = ({
   onSortChange,
   showClearFilters = false,
   onClearFilters,
+  layout = "inline",
 }: JobPostsFiltersBarProps) => {
   const { t } = useTranslation();
 
   return (
-    <div className={styles.filtersBar}>
+    <div className={`${styles.filtersBar} ${layout === "panel" ? styles.filtersBarPanel : ""}`}>
       <div className={styles.filtersGrid}>
         {showLifecycle && (
           <div className={styles.filterField}>
@@ -237,7 +239,7 @@ const JobPostsFiltersBar = ({
           </div>
         )}
       </div>
-      {showClearFilters && onClearFilters && (
+      {layout !== "panel" && showClearFilters && onClearFilters && (
         <div className={styles.filtersActions}>
           <button type="button" className={styles.clearFiltersButton} onClick={onClearFilters}>
             {t("jobPosts.clearFilters")}

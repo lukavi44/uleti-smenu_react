@@ -4,6 +4,8 @@ export interface ChatConversation {
   jobPostId: string;
   jobPostTitle: string;
   otherPartyName: string;
+  otherPartyId?: string;
+  otherPartyProfilePhoto?: string;
   lastMessagePreview?: string;
   lastMessageAtUtc?: string;
   unreadCount: number;

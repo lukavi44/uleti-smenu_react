@@ -12,7 +12,7 @@ const MobileBottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const hiddenRoutes = ["/login", "/registration", "/registration-user"];
+  const hiddenRoutes = ["/login", "/registration"];
   if (hiddenRoutes.some((route) => location.pathname.startsWith(route))) {
     return null;
   }

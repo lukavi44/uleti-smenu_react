@@ -29,8 +29,11 @@ export interface GetVisibleJobPostsPagedParams {
   city?: string;
   restaurantLocationId?: string;
   position?: string;
+  positions?: string[];
   minSalary?: number;
   maxSalary?: number;
+  shiftDateFrom?: string;
+  shiftDateTo?: string;
   applicationFilter?: "all" | "notApplied" | "applied";
   favouritesOnly?: boolean;
 }
@@ -39,6 +42,8 @@ export interface VisibleJobPostFilterOptions {
   cities: string[];
   locations: Array<{ id: string; name: string; city: string }>;
   positions: string[];
+  minSalary?: number;
+  maxSalary?: number;
 }
 
 const normalizePagedResult = <T,>(data: unknown): PagedResult<T> => {
@@ -71,12 +76,16 @@ const normalizeFilterOptions = (data: unknown): VisibleJobPostFilterOptions => {
         Cities?: string[];
         Locations?: Array<{ id: string; name: string; city: string }>;
         Positions?: string[];
+        MinSalary?: number;
+        MaxSalary?: number;
     };
 
     return {
         cities: options.cities ?? options.Cities ?? [],
         locations: options.locations ?? options.Locations ?? [],
         positions: options.positions ?? options.Positions ?? [],
+        minSalary: options.minSalary ?? options.MinSalary,
+        maxSalary: options.maxSalary ?? options.MaxSalary,
     };
 };
 
@@ -97,14 +106,20 @@ export const GetVisibleJobPostsPaged = async(
             city: params.city || undefined,
             restaurantLocationId: params.restaurantLocationId || undefined,
             position: params.position || undefined,
+            positions: params.positions?.length ? params.positions : undefined,
             minSalary: params.minSalary,
             maxSalary: params.maxSalary,
+            shiftDateFrom: params.shiftDateFrom,
+            shiftDateTo: params.shiftDateTo,
             applicationFilter:
                 params.applicationFilter && params.applicationFilter !== "all"
                     ? params.applicationFilter
                     : undefined,
             favouritesOnly: params.favouritesOnly || undefined,
-        }
+        },
+        paramsSerializer: {
+            indexes: null,
+        },
     });
 
     return {

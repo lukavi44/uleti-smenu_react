@@ -60,7 +60,7 @@ const HowItWorksPage = () => {
       <div className={styles.ctaRow}>
         {activeTab === "candidates" ? (
           <>
-            <Link className={styles.ctaPrimary} to="/registration-user">
+            <Link className={styles.ctaPrimary} to="/registration/candidate">
               {t("info.howItWorks.ctaRegisterCandidate")}
             </Link>
             <Link className={styles.ctaSecondary} to="/for-candidates">
@@ -69,7 +69,7 @@ const HowItWorksPage = () => {
           </>
         ) : (
           <>
-            <Link className={styles.ctaPrimary} to="/registration">
+            <Link className={styles.ctaPrimary} to="/registration/employer">
               {t("info.howItWorks.ctaRegisterEmployer")}
             </Link>
             <Link className={styles.ctaSecondary} to="/for-employers">

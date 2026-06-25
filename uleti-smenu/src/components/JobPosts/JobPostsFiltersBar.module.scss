@@ -73,6 +73,18 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
+.filtersBarPanel {
+  border-bottom: none;
+  box-shadow: none;
+}
+
+.filtersBarPanel .filtersGrid {
+  width: 100%;
+  margin: 0;
+  padding: 0.85rem 1.1rem 1rem;
+  grid-template-columns: 1fr;
+}
+
 @media only screen and (max-width: 768px) {
   .filtersGrid {
     grid-template-columns: 1fr 1fr;

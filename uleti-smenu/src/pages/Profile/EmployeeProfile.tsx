@@ -1,10 +1,10 @@
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { Employee } from "../../models/User.model";
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from "react";
 import { EmployeeApplication } from "../../models/Application.model";
 import { CancelMyApplication, GetMyApplications } from "../../services/application-service";
-import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
+import { GetEmployersWithFavouriteStatus, PatchClientFavorite, UpdateMyEmployeeProfile, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
 import { toast } from "react-toastify";
 import styles from "./Profile.module.scss";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
@@ -70,6 +70,42 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
+    const [isProfileSaving, setIsProfileSaving] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileForm, setProfileForm] = useState({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber ?? "",
+        city: user.city ?? user.address?.city?.name ?? "",
+    });
+
+    useEffect(() => {
+        setProfileForm({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber ?? "",
+            city: user.city ?? user.address?.city?.name ?? "",
+        });
+    }, [user.firstName, user.lastName, user.phoneNumber, user.city, user.address?.city?.name]);
+
+    const resetProfileForm = () => {
+        setProfileForm({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber ?? "",
+            city: user.city ?? user.address?.city?.name ?? "",
+        });
+    };
+
+    const handleStartProfileEdit = () => {
+        resetProfileForm();
+        setIsEditingProfile(true);
+    };
+
+    const handleCancelProfileEdit = () => {
+        resetProfileForm();
+        setIsEditingProfile(false);
+    };
 
     useEffect(() => {
         setProfilePhotoUrl(getImageUrl(user.profilePhoto));
@@ -241,6 +277,32 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         }
     };
 
+    const handleProfileSave = async (event: FormEvent) => {
+        event.preventDefault();
+
+        if (!profileForm.firstName.trim() || !profileForm.lastName.trim()) {
+            toast.error(t("registration.firstNameRequired"));
+            return;
+        }
+
+        setIsProfileSaving(true);
+        try {
+            await UpdateMyEmployeeProfile({
+                firstName: profileForm.firstName.trim(),
+                lastName: profileForm.lastName.trim(),
+                phoneNumber: profileForm.phoneNumber.trim(),
+                city: profileForm.city.trim() || undefined,
+            });
+            toast.success(t("profile.profileUpdated"));
+            setIsEditingProfile(false);
+            void refreshMe();
+        } catch {
+            toast.error(t("profile.profileUpdateError"));
+        } finally {
+            setIsProfileSaving(false);
+        }
+    };
+
     const handleUnfavourite = async (restaurantId: string) => {
         if (favouriteActionInProgressId !== null) {
             return;
@@ -289,27 +351,117 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                         />
                     </div>
                     <div className={styles.profileInfoColumn}>
-                        <h2 className={styles.profileInfoTitle}>{t("profile.employeeInfo")}</h2>
+                        <div className={styles.profileInfoHeader}>
+                            <h2 className={styles.profileInfoTitle}>{t("profile.personalInfo")}</h2>
+                            {!isEditingProfile && (
+                                <button
+                                    type="button"
+                                    className={styles.editIconButton}
+                                    aria-label={t("profile.editPersonalInfo")}
+                                    title={t("profile.edit")}
+                                    onClick={handleStartProfileEdit}
+                                >
+                                    ✎
+                                </button>
+                            )}
+                        </div>
                         <RatingBadge
                             averageRating={reviewSummary.averageRating}
                             reviewCount={reviewSummary.reviewCount}
                             subjectType="employee"
                             subjectId={user.id}
                         />
-                        <div className={styles.infoGrid}>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.fullName")}</span>
-                                <span className={styles.infoValue}>{user.firstName} {user.lastName}</span>
+                        <p className={styles.contactPrivacyNotice}>{t("profile.contactPrivacyNotice")}</p>
+                        {isEditingProfile ? (
+                            <form className={styles.profileFormGrid} onSubmit={handleProfileSave}>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.firstName")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.firstName}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, firstName: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.lastName")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.lastName}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, lastName: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.email")}</span>
+                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.email} readOnly />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.phone")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.phoneNumber}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <label className={styles.profileField}>
+                                    <span className={styles.infoLabel}>{t("profile.city")}</span>
+                                    <input
+                                        className={styles.input}
+                                        value={profileForm.city}
+                                        onChange={(event) =>
+                                            setProfileForm((previous) => ({ ...previous, city: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <div className={styles.profileEditActions}>
+                                    <button
+                                        type="submit"
+                                        className={`${styles.button} ${styles.buttonPrimary}`}
+                                        disabled={isProfileSaving}
+                                    >
+                                        {isProfileSaving ? t("common.loading") : t("profile.saveChanges")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.button} ${styles.buttonSecondary}`}
+                                        onClick={handleCancelProfileEdit}
+                                        disabled={isProfileSaving}
+                                    >
+                                        {t("common.cancel")}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className={styles.infoGrid}>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("profile.firstName")}</span>
+                                    <span className={styles.infoValue}>{user.firstName || "-"}</span>
+                                </div>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("profile.lastName")}</span>
+                                    <span className={styles.infoValue}>{user.lastName || "-"}</span>
+                                </div>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("profile.email")}</span>
+                                    <span className={styles.infoValue}>{user.email}</span>
+                                </div>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("profile.phone")}</span>
+                                    <span className={styles.infoValue}>{user.phoneNumber?.trim() || "-"}</span>
+                                </div>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>{t("profile.city")}</span>
+                                    <span className={styles.infoValue}>
+                                        {user.city?.trim() || user.address?.city?.name?.trim() || "-"}
+                                    </span>
+                                </div>
                             </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.email")}</span>
-                                <span className={styles.infoValue}>{user.email}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.phone")}</span>
-                                <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </section>

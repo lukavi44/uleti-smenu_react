@@ -24,6 +24,15 @@ import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import JobPostsFiltersBar from "../../components/JobPosts/JobPostsFiltersBar";
+import JobPostsEmployeeHeader from "../../components/JobPosts/JobPostsEmployeeHeader";
+import JobPostsActiveFilterChips from "../../components/JobPosts/JobPostsActiveFilterChips";
+import JobPostsFiltersDrawer from "../../components/JobPosts/JobPostsFiltersDrawer";
+import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
+import {
+    buildEmployeeActiveFilterChips,
+    removeEmployeeActiveFilter,
+} from "../../helpers/jobPostActiveFilters";
+import { resolveShiftDateRange, ShiftDatePreset } from "../../helpers/shiftDateFilter";
 import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 
@@ -67,14 +76,19 @@ const parseSortValue = (value: string): { sortBy: "createdAt" | "salary"; sortDi
 };
 
 const SALARY_FILTER_DEBOUNCE_MS = 400;
+const DEFAULT_SALARY_MIN = 3000;
+const DEFAULT_SALARY_MAX = 10000;
 
 const JobPosts = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { role, me } = useContext(AuthContext);
+    const isCandidateShell = useIsCandidateShell();
+    const isEmployeeCandidateView = isCandidateShell && role === "Employee";
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
+    const [hideAppliedPosts, setHideAppliedPosts] = useState(false);
     const [favouriteFilter, setFavouriteFilter] = useState<"all" | "favourites">("all");
     const [sortBy, setSortBy] = useState<"createdAt" | "salary">("createdAt");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -97,6 +111,19 @@ const JobPosts = () => {
         locations: [],
         positions: [],
     });
+    const salaryBounds = useMemo(
+        () => ({
+            min: employeeFilterOptions.minSalary ?? DEFAULT_SALARY_MIN,
+            max: employeeFilterOptions.maxSalary ?? DEFAULT_SALARY_MAX,
+        }),
+        [employeeFilterOptions.minSalary, employeeFilterOptions.maxSalary]
+    );
+    const [isEmployeeFiltersOpen, setIsEmployeeFiltersOpen] = useState(false);
+    const [employeePositionFilters, setEmployeePositionFilters] = useState<string[]>([]);
+    const [shiftDatePreset, setShiftDatePreset] = useState<ShiftDatePreset>("any");
+    const [shiftDateCustom, setShiftDateCustom] = useState("");
+    const [salarySliderMin, setSalarySliderMin] = useState(DEFAULT_SALARY_MIN);
+    const [salarySliderMax, setSalarySliderMax] = useState(DEFAULT_SALARY_MAX);
     const leftPanelRef = useRef<HTMLDivElement>(null);
     const savedListScrollTopRef = useRef(0);
 
@@ -162,12 +189,29 @@ const JobPosts = () => {
         reset: resetEmployerJobPosts,
     } = useServerLazyLoad(fetchEmployerJobPostsPage, employerJobPostsResetKey);
 
-    const employeeJobPostsResetKey = `${role}|${employeeFilter}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${debouncedMinSalary}|${debouncedMaxSalary}`;
+    const employeeJobPostsResetKey = `${role}|${employeeFilter}|${hideAppliedPosts}|${favouriteFilter}|${sortBy}|${sortDirection}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employeePositionFilters.join(",")}|${debouncedMinSalary}|${debouncedMaxSalary}|${salarySliderMin}|${salarySliderMax}|${shiftDatePreset}|${shiftDateCustom}|${isCandidateShell}`;
     const fetchEmployeeJobPostsPage = useCallback(
         async (page: number) => {
             if (role !== "Employee") {
                 return { items: [], totalCount: 0 };
             }
+
+            const shiftDateRange = resolveShiftDateRange(shiftDatePreset, shiftDateCustom);
+            const positions = isEmployeeCandidateView
+                ? employeePositionFilters.length > 0
+                    ? employeePositionFilters
+                    : undefined
+                : positionFilter
+                    ? [positionFilter]
+                    : undefined;
+            const salaryRangeActive =
+                salarySliderMin > salaryBounds.min || salarySliderMax < salaryBounds.max;
+
+            const applicationFilter = isEmployeeCandidateView
+                ? hideAppliedPosts
+                    ? "notApplied"
+                    : "all"
+                : employeeFilter;
 
             const response = await GetVisibleJobPostsPaged({
                 page,
@@ -176,10 +220,18 @@ const JobPosts = () => {
                 sortDirection,
                 city: cityFilter || undefined,
                 restaurantLocationId: restaurantFilter || undefined,
-                position: positionFilter || undefined,
-                minSalary: parseOptionalSalary(debouncedMinSalary),
-                maxSalary: parseOptionalSalary(debouncedMaxSalary),
-                applicationFilter: employeeFilter,
+                positions,
+                minSalary:
+                    isEmployeeCandidateView && salaryRangeActive
+                        ? salarySliderMin
+                        : parseOptionalSalary(debouncedMinSalary),
+                maxSalary:
+                    isEmployeeCandidateView && salaryRangeActive
+                        ? salarySliderMax
+                        : parseOptionalSalary(debouncedMaxSalary),
+                shiftDateFrom: shiftDateRange.from?.toISOString(),
+                shiftDateTo: shiftDateRange.to?.toISOString(),
+                applicationFilter,
                 favouritesOnly: favouriteFilter === "favourites",
             });
 
@@ -191,14 +243,23 @@ const JobPosts = () => {
         [
             role,
             employeeFilter,
+            hideAppliedPosts,
             favouriteFilter,
             sortBy,
             sortDirection,
             cityFilter,
             restaurantFilter,
             positionFilter,
+            employeePositionFilters,
             debouncedMinSalary,
             debouncedMaxSalary,
+            salarySliderMin,
+            salarySliderMax,
+            shiftDatePreset,
+            shiftDateCustom,
+            isEmployeeCandidateView,
+            salaryBounds.min,
+            salaryBounds.max,
         ]
     );
 
@@ -265,9 +326,15 @@ const JobPosts = () => {
     }, [role, cityFilter]);
 
     useEffect(() => {
+        setSalarySliderMin((current) => Math.max(salaryBounds.min, Math.min(current, salaryBounds.max)));
+        setSalarySliderMax((current) => Math.max(salaryBounds.min, Math.min(current, salaryBounds.max)));
+    }, [salaryBounds.min, salaryBounds.max]);
+
+    useEffect(() => {
         leftPanelRef.current?.scrollTo(0, 0);
     }, [
         employeeFilter,
+        hideAppliedPosts,
         favouriteFilter,
         sortBy,
         sortDirection,
@@ -275,8 +342,13 @@ const JobPosts = () => {
         cityFilter,
         restaurantFilter,
         positionFilter,
+        employeePositionFilters,
         debouncedMinSalary,
         debouncedMaxSalary,
+        salarySliderMin,
+        salarySliderMax,
+        shiftDatePreset,
+        shiftDateCustom,
         employerSortBy,
         employerSortDirection,
     ]);
@@ -347,22 +419,36 @@ const JobPosts = () => {
     const hasEmployeeFiltersActive = useMemo(
         () =>
             employeeFilter !== "all" ||
+            hideAppliedPosts ||
             favouriteFilter !== "all" ||
             Boolean(cityFilter) ||
             Boolean(restaurantFilter) ||
             Boolean(positionFilter) ||
+            employeePositionFilters.length > 0 ||
             Boolean(minSalaryInput) ||
             Boolean(maxSalaryInput) ||
+            salarySliderMin > salaryBounds.min ||
+            salarySliderMax < salaryBounds.max ||
+            shiftDatePreset !== "any" ||
+            Boolean(shiftDateCustom) ||
             sortBy !== "createdAt" ||
             sortDirection !== "desc",
         [
             employeeFilter,
+            hideAppliedPosts,
             favouriteFilter,
             cityFilter,
             restaurantFilter,
             positionFilter,
+            employeePositionFilters,
             minSalaryInput,
             maxSalaryInput,
+            salarySliderMin,
+            salarySliderMax,
+            salaryBounds.min,
+            salaryBounds.max,
+            shiftDatePreset,
+            shiftDateCustom,
             sortBy,
             sortDirection,
         ]
@@ -379,14 +465,33 @@ const JobPosts = () => {
 
     const clearEmployeeFilters = () => {
         setEmployeeFilter("all");
+        setHideAppliedPosts(false);
         setFavouriteFilter("all");
         setSortBy("createdAt");
         setSortDirection("desc");
         setCityFilter("");
         setRestaurantFilter("");
         setPositionFilter("");
+        setEmployeePositionFilters([]);
         setMinSalaryInput("");
         setMaxSalaryInput("");
+        setShiftDatePreset("any");
+        setShiftDateCustom("");
+        setSalarySliderMin(salaryBounds.min);
+        setSalarySliderMax(salaryBounds.max);
+    };
+
+    const handleEmployeePositionToggle = (position: string) => {
+        setEmployeePositionFilters((currentPositions) =>
+            currentPositions.includes(position)
+                ? currentPositions.filter((currentPosition) => currentPosition !== position)
+                : [...currentPositions, position]
+        );
+    };
+
+    const handleEmployeeSalaryChange = (min: number, max: number) => {
+        setSalarySliderMin(min);
+        setSalarySliderMax(max);
     };
 
     const getEmployerEmptyMessage = () => {
@@ -488,9 +593,161 @@ const JobPosts = () => {
         [employeeFilterOptions.positions]
     );
 
+    const employeeActiveFilterChips = useMemo(
+        () =>
+            buildEmployeeActiveFilterChips(
+                {
+                    city: cityFilter,
+                    restaurant: restaurantFilter,
+                    selectedPositions: employeePositionFilters,
+                    salaryMin: salarySliderMin,
+                    salaryMax: salarySliderMax,
+                    salaryBounds,
+                    shiftDatePreset,
+                    shiftDateCustom,
+                    applicationFilter: employeeFilter,
+                    favouritesOnly: favouriteFilter === "favourites",
+                    hideAppliedPosts,
+                    favouriteFilter,
+                    sortBy,
+                    sortDirection,
+                    restaurantOptions: employeeRestaurantOptions,
+                    positionFilter,
+                    minSalaryInput,
+                    maxSalaryInput,
+                    useCandidateFilters: isEmployeeCandidateView,
+                },
+                t
+            ),
+        [
+            cityFilter,
+            restaurantFilter,
+            employeePositionFilters,
+            salarySliderMin,
+            salarySliderMax,
+            salaryBounds,
+            shiftDatePreset,
+            shiftDateCustom,
+            employeeFilter,
+            hideAppliedPosts,
+            favouriteFilter,
+            sortBy,
+            sortDirection,
+            employeeRestaurantOptions,
+            positionFilter,
+            minSalaryInput,
+            maxSalaryInput,
+            isEmployeeCandidateView,
+            t,
+        ]
+    );
+
+    const employeeFiltersBarProps = {
+        showApplicationFilters: true as const,
+        showSort: true as const,
+        restaurantLabelKey: "filterLocation" as const,
+        city: cityFilter,
+        restaurant: restaurantFilter,
+        position: positionFilter,
+        minSalary: minSalaryInput,
+        maxSalary: maxSalaryInput,
+        applicationFilter: employeeFilter,
+        favouriteFilter,
+        sortValue: selectedSortValue,
+        cityOptions: employeeCityOptions,
+        restaurantOptions: employeeRestaurantOptions,
+        positionOptions: employeePositionFilterOptions,
+        onCityChange: handleCityFilterChange,
+        onRestaurantChange: setRestaurantFilter,
+        onPositionChange: setPositionFilter,
+        onMinSalaryChange: setMinSalaryInput,
+        onMaxSalaryChange: setMaxSalaryInput,
+        onApplicationFilterChange: setEmployeeFilter,
+        onFavouriteFilterChange: setFavouriteFilter,
+        onSortChange: handleSortChange,
+    };
+
+    const employeeFiltersPanelProps = {
+        city: cityFilter,
+        cityOptions: employeeCityOptions,
+        selectedPositions: employeePositionFilters,
+        positionOptions: employeeFilterOptions.positions,
+        salaryMin: salarySliderMin,
+        salaryMax: salarySliderMax,
+        salaryBounds,
+        shiftDatePreset,
+        shiftDateCustom,
+        favouritesOnly: favouriteFilter === "favourites",
+        hideAppliedPosts,
+        onCityChange: handleCityFilterChange,
+        onPositionToggle: handleEmployeePositionToggle,
+        onSalaryChange: handleEmployeeSalaryChange,
+        onShiftDatePresetChange: setShiftDatePreset,
+        onShiftDateCustomChange: setShiftDateCustom,
+        onFavouritesOnlyChange: (enabled: boolean) =>
+            setFavouriteFilter(enabled ? "favourites" : "all"),
+        onHideAppliedPostsChange: setHideAppliedPosts,
+    };
+
+    const handleRemoveEmployeeFilter = (chipId: string) => {
+        removeEmployeeActiveFilter(chipId, {
+            onCityChange: handleCityFilterChange,
+            onRestaurantChange: setRestaurantFilter,
+            onPositionChange: setPositionFilter,
+            onPositionToggle: handleEmployeePositionToggle,
+            onMinSalaryChange: setMinSalaryInput,
+            onMaxSalaryChange: setMaxSalaryInput,
+            onSalaryRangeReset: () => {
+                setSalarySliderMin(salaryBounds.min);
+                setSalarySliderMax(salaryBounds.max);
+            },
+            onShiftDateReset: () => {
+                setShiftDatePreset("any");
+                setShiftDateCustom("");
+            },
+            onApplicationFilterChange: setEmployeeFilter,
+            onFavouriteFilterChange: setFavouriteFilter,
+            onFavouritesOnlyChange: (enabled) => setFavouriteFilter(enabled ? "favourites" : "all"),
+            onHideAppliedPostsChange: setHideAppliedPosts,
+            onSortReset: () => {
+                setSortBy("createdAt");
+                setSortDirection("desc");
+            },
+        });
+    };
+
     return (
-        <div className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""}`}>
+        <div
+            className={`${styles["posts-container"]} ${jobPostCreateFormOpened ? styles["form-opened"] : ""} ${
+                isEmployeeCandidateView ? styles["posts-container-candidate"] : ""
+            }`}
+        >
+            {isEmployeeCandidateView ? (
+                <JobPostsFiltersDrawer
+                    isOpen={isEmployeeFiltersOpen}
+                    totalCount={employeeTotalCount}
+                    onClose={() => setIsEmployeeFiltersOpen(false)}
+                    onReset={clearEmployeeFilters}
+                    filtersPanelProps={employeeFiltersPanelProps}
+                />
+            ) : null}
             <div className={styles["left-panel"]}>
+            {isEmployeeCandidateView ? (
+                <div className={styles["employee-page-toolbar"]}>
+                    <JobPostsEmployeeHeader
+                        onOpenFilters={() => setIsEmployeeFiltersOpen(true)}
+                        activeFilterCount={employeeActiveFilterChips.length}
+                    />
+                    <JobPostsActiveFilterChips
+                        chips={employeeActiveFilterChips}
+                        onRemove={handleRemoveEmployeeFilter}
+                        onClearAll={clearEmployeeFilters}
+                    />
+                    <p className={styles["results-count"]}>
+                        {t("jobPosts.shownPostsCount", { count: employeeTotalCount })}
+                    </p>
+                </div>
+            ) : null}
             {role === "Employer" && (
               <JobPostsFiltersBar
                 showLifecycle
@@ -519,30 +776,9 @@ const JobPosts = () => {
                 onClearFilters={clearEmployerFilters}
               />
             )}
-            {role === "Employee" && (
+            {role === "Employee" && !isEmployeeCandidateView && (
               <JobPostsFiltersBar
-                showApplicationFilters
-                showSort
-                restaurantLabelKey="filterLocation"
-                city={cityFilter}
-                restaurant={restaurantFilter}
-                position={positionFilter}
-                minSalary={minSalaryInput}
-                maxSalary={maxSalaryInput}
-                applicationFilter={employeeFilter}
-                favouriteFilter={favouriteFilter}
-                sortValue={selectedSortValue}
-                cityOptions={employeeCityOptions}
-                restaurantOptions={employeeRestaurantOptions}
-                positionOptions={employeePositionFilterOptions}
-                onCityChange={handleCityFilterChange}
-                onRestaurantChange={setRestaurantFilter}
-                onPositionChange={setPositionFilter}
-                onMinSalaryChange={setMinSalaryInput}
-                onMaxSalaryChange={setMaxSalaryInput}
-                onApplicationFilterChange={setEmployeeFilter}
-                onFavouriteFilterChange={setFavouriteFilter}
-                onSortChange={handleSortChange}
+                {...employeeFiltersBarProps}
                 showClearFilters={hasEmployeeFiltersActive}
                 onClearFilters={clearEmployeeFilters}
               />

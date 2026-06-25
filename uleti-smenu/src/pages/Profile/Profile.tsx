@@ -4,10 +4,13 @@ import EmployerProfile from "./EmployerProfile";
 import { Employee, Employer } from "../../models/User.model";
 import EmployeeProfile from "./EmployeeProfile";
 import { useTranslation } from "react-i18next";
+import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 
 const ProfilePage = () => {
   const { t } = useTranslation();
   const { role, me, authStatus } = useContext(AuthContext);
+  const isCandidateShell = useIsCandidateShell();
 
   if (authStatus === "loading") return <div>{t("profile.loadingProfile")}</div>;
   if (authStatus === "unauthenticated") return <div>{t("common.unauthorized")}</div>;
@@ -17,7 +20,17 @@ const ProfilePage = () => {
     case "Employer":
       return <EmployerProfile user={me as Employer} />;
     case "Employee":
-      return <EmployeeProfile user={me as Employee} />;
+      return (
+        <>
+          {isCandidateShell ? (
+            <CandidatePageHeader
+              title={t("candidate.profileTitle")}
+              subtitle={t("candidate.profileSubtitle")}
+            />
+          ) : null}
+          <EmployeeProfile user={me as Employee} />
+        </>
+      );
     // case "Admin":
     //   return <AdminProfile user={user} />;
     default:

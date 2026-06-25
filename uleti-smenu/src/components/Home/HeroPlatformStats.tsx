@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  BuildingStorefrontIcon,
+  CalendarDaysIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { PlatformStats } from "../../models/PlatformStats.model";
 import { GetPlatformStats } from "../../services/platform-service";
@@ -7,9 +12,10 @@ import styles from "./HeroPlatformStats.module.scss";
 
 type HeroPlatformStatsProps = {
   compact?: boolean;
+  showIcons?: boolean;
 };
 
-const HeroPlatformStats = ({ compact = false }: HeroPlatformStatsProps) => {
+const HeroPlatformStats = ({ compact = false, showIcons = false }: HeroPlatformStatsProps) => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<PlatformStats | null>(null);
@@ -48,39 +54,39 @@ const HeroPlatformStats = ({ compact = false }: HeroPlatformStatsProps) => {
     return () => observer.disconnect();
   }, [stats]);
 
-  if (stats === null) {
-    return (
-      <div className={styles.stats} aria-hidden="true">
-        <div className={styles.skeleton} />
-        <div className={styles.skeleton} />
-        <div className={styles.skeleton} />
-      </div>
-    );
-  }
+  const isLoading = stats === null;
+  const iconProps = { "aria-hidden": true as const };
 
   return (
     <div
       ref={containerRef}
       className={`${styles.stats} ${compact ? styles.statsCompact : ""}`}
+      aria-busy={isLoading}
       aria-live="polite"
     >
       <HeroStatCounter
         label={t("home.statsMatches")}
-        value={stats.matchedCount}
+        value={stats?.matchedCount ?? 0}
+        icon={showIcons ? <CalendarDaysIcon {...iconProps} /> : undefined}
         animate={animate}
         compact={compact}
+        loading={isLoading}
       />
       <HeroStatCounter
         label={t("home.statsEmployers")}
-        value={stats.employerCount}
+        value={stats?.employerCount ?? 0}
+        icon={showIcons ? <BuildingStorefrontIcon {...iconProps} /> : undefined}
         animate={animate}
         compact={compact}
+        loading={isLoading}
       />
       <HeroStatCounter
         label={t("home.statsEmployees")}
-        value={stats.employeeCount}
+        value={stats?.employeeCount ?? 0}
+        icon={showIcons ? <UsersIcon {...iconProps} /> : undefined}
         animate={animate}
         compact={compact}
+        loading={isLoading}
       />
     </div>
   );

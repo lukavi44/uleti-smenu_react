@@ -23,6 +23,7 @@ export interface Employer extends User {
 export interface Employee extends User {
     firstName: string;
     lastName: string;
+    city?: string;
   }
 
   export interface LoginUserDto {

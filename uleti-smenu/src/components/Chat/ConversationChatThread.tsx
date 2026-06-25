@@ -12,12 +12,15 @@ import {
   leaveConversation,
   subscribeChatMessages,
 } from "../../services/realtime-service";
+import ChatContactAvatar from "./ChatContactAvatar";
 import styles from "./ConversationChatThread.module.scss";
 
 interface ConversationChatThreadProps {
   conversationId: string;
   active?: boolean;
   variant?: "embedded" | "full";
+  otherPartyName?: string;
+  otherPartyProfilePhoto?: string;
   onMessagesChange?: () => void;
 }
 
@@ -25,6 +28,8 @@ const ConversationChatThread = ({
   conversationId,
   active = true,
   variant = "embedded",
+  otherPartyName = "",
+  otherPartyProfilePhoto,
   onMessagesChange,
 }: ConversationChatThreadProps) => {
   const { t } = useTranslation();
@@ -37,6 +42,13 @@ const ConversationChatThread = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const currentUserId = me && "id" in me ? me.id : "";
+  const currentUserName =
+    me && "firstName" in me
+      ? `${me.firstName} ${me.lastName}`.trim()
+      : me && "name" in me
+        ? String(me.name)
+        : t("chat.you");
+  const currentUserPhoto = me?.profilePhoto?.trim() || undefined;
   const rootClassName =
     variant === "full" ? `${styles.thread} ${styles.threadFull}` : styles.thread;
 
@@ -148,12 +160,30 @@ const ConversationChatThread = ({
               return (
                 <div
                   key={message.id}
-                  className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}
+                  className={`${styles.messageRow} ${isMine ? styles.messageRowMine : styles.messageRowOther}`}
                 >
-                  <span>{message.content}</span>
-                  <span className={styles.messageMeta}>
-                    {new Date(message.sentAtUtc).toLocaleString()}
-                  </span>
+                  {!isMine ? (
+                    <ChatContactAvatar
+                      name={otherPartyName}
+                      profilePhoto={otherPartyProfilePhoto}
+                      size="sm"
+                    />
+                  ) : null}
+                  <div
+                    className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}
+                  >
+                    <span>{message.content}</span>
+                    <span className={styles.messageMeta}>
+                      {new Date(message.sentAtUtc).toLocaleString()}
+                    </span>
+                  </div>
+                  {isMine ? (
+                    <ChatContactAvatar
+                      name={currentUserName}
+                      profilePhoto={currentUserPhoto}
+                      size="sm"
+                    />
+                  ) : null}
                 </div>
               );
             })}

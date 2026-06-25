@@ -7,7 +7,6 @@ import "tailwindcss";
 import logo from '../../assets/logo.png';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { AuthContext } from "../../store/Auth-context";
-import RegistrationDialog from "../Dialog/RegistrationDialog";
 import ConfirmationDialog from "../Dialog/ConfirmationDialog";
 import { DeleteNotification, GetMyNotifications, GetMyUnreadNotificationCount, MarkNotificationAsRead } from "../../services/notification-service";
 import { GetMyUnreadChatCount } from "../../services/chat-service";
@@ -28,7 +27,6 @@ const Header = () => {
     const { t, i18n } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
-    const [isRegisterModalOpened, setIsRegisterModalOpened] = useState(false);
     const [isLogoutModalOpened, setIsLogoutModalOpened] = useState(false);
     const { isLoggedIn, logout, role } = useContext(AuthContext);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -413,7 +411,9 @@ const Header = () => {
                         )}
                         {!isLoggedIn && (
                             <>
-                                <p onClick={() => setIsRegisterModalOpened(!isRegisterModalOpened)}>{t("header.register")}</p>
+                                <NavLink to="/registration">
+                                    <p>{t("header.register")}</p>
+                                </NavLink>
                                 <NavLink to={"/login"}>
                                     <p>{t("header.login")}</p>
                                 </NavLink>
@@ -478,16 +478,9 @@ const Header = () => {
                             </>
                         ) : (
                             <>
-                                <button
-                                    type="button"
-                                    className={styles.mobileOverlayButton}
-                                    onClick={() => {
-                                        closeMobileMenu();
-                                        setIsRegisterModalOpened(true);
-                                    }}
-                                >
+                <NavLink to="/registration" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
                                     {t("header.register")}
-                                </button>
+                                </NavLink>
                                 <NavLink to="/login" className={styles.mobileOverlayLink} onClick={closeMobileMenu}>
                                     {t("header.login")}
                                 </NavLink>
@@ -495,9 +488,6 @@ const Header = () => {
                         )}
                     </nav>
                 </div>
-            )}
-            {isRegisterModalOpened && (
-                <RegistrationDialog onClose={() => setIsRegisterModalOpened(false)} />
             )}
             {isLogoutModalOpened && (
                 <ConfirmationDialog onConfirm={handleOnConfirm} onClose={() => setIsLogoutModalOpened(false)}/>

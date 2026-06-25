@@ -6,6 +6,7 @@ import PlatformShiftList from "../../components/Profile/PlatformShiftList";
 import RatingBadge from "../../components/Reviews/RatingBadge";
 import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
 import { AuthContext } from "../../store/Auth-context";
@@ -80,8 +81,6 @@ const EmployeePublicProfilePage = () => {
                   subjectType="employee"
                   subjectId={employeeId}
                 />
-                <p className={styles.meta}>{profile.email}</p>
-                <p className={styles.meta}>{profile.phoneNumber}</p>
               </div>
             </header>
 
@@ -104,9 +103,9 @@ const EmployeePublicProfilePage = () => {
                       <h3>{experience.position}</h3>
                       <p className={styles.company}>{experience.companyName}</p>
                       <p className={styles.dates}>
-                        {new Date(experience.startDate).toLocaleDateString()} –{" "}
+                        {formatDisplayDate(experience.startDate)} –{" "}
                         {experience.endDate
-                          ? new Date(experience.endDate).toLocaleDateString()
+                          ? formatDisplayDate(experience.endDate)
                           : t("employeeProfile.present")}
                       </p>
                       {experience.description && <p>{experience.description}</p>}

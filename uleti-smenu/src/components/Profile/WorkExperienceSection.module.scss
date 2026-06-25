@@ -4,6 +4,26 @@
   gap: 1rem;
 }
 
+.sectionToolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addButton {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.addButton:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
 .list {
   display: grid;
   gap: 0.75rem;

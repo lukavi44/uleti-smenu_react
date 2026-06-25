@@ -1,0 +1,27 @@
+.avatar,
+.fallback {
+  flex-shrink: 0;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #e2e8f0;
+}
+
+.md {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.68rem;
+}
+
+.fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

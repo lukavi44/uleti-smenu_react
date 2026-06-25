@@ -1,22 +1,29 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ConversationChatThread from "../../components/Chat/ConversationChatThread";
+import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import { ChatConversation } from "../../models/Chat.model";
 import { GetMyChatConversations } from "../../services/chat-service";
+import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
+import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
 import { AuthContext } from "../../store/Auth-context";
 import { subscribeChatMessages, subscribeChatUnreadCount } from "../../services/realtime-service";
+import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import styles from "./MessagesPage.module.scss";
 
 const FALLBACK_REFRESH_INTERVAL_MS = 60000;
 
 const MessagesPage = () => {
   const { t } = useTranslation();
-  const { authStatus, me } = useContext(AuthContext);
+  const { authStatus, me, role } = useContext(AuthContext);
+  const isCandidateShell = useIsCandidateShell();
   const currentUserId = me && "id" in me ? me.id : "";
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [contactPhotos, setContactPhotos] = useState<Record<string, string>>({});
 
   const loadConversations = useCallback(async () => {
     try {
@@ -95,6 +102,75 @@ const MessagesPage = () => {
     };
   }, [authStatus, currentUserId, loadConversations]);
 
+  useEffect(() => {
+    if (conversations.length === 0) {
+      setContactPhotos({});
+      return;
+    }
+
+    const loadContactPhotos = async () => {
+      if (role === "Employee") {
+        try {
+          const response = await GetEmployersWithFavouriteStatus();
+          const photos = Object.fromEntries(
+            response.data
+              .filter((employer) => Boolean(employer.profilePhoto?.trim()))
+              .map((employer) => [employer.id, employer.profilePhoto!.trim()])
+          );
+          setContactPhotos(photos);
+        } catch {
+          setContactPhotos({});
+        }
+        return;
+      }
+
+      if (role === "Employer") {
+        const missingPhotoConversations = conversations.filter(
+          (conversation) =>
+            conversation.otherPartyId &&
+            !conversation.otherPartyProfilePhoto?.trim()
+        );
+
+        if (missingPhotoConversations.length === 0) {
+          setContactPhotos({});
+          return;
+        }
+
+        const entries = await Promise.all(
+          missingPhotoConversations.map(async (conversation) => {
+            try {
+              const response = await GetEmployeePublicProfile(conversation.otherPartyId!);
+              const photo = response.data.profilePhoto?.trim() ?? "";
+              return [conversation.otherPartyId!, photo] as const;
+            } catch {
+              return [conversation.otherPartyId!, ""] as const;
+            }
+          })
+        );
+
+        setContactPhotos(
+          Object.fromEntries(entries.filter(([, photo]) => Boolean(photo)))
+        );
+      }
+    };
+
+    void loadContactPhotos();
+  }, [conversations, role]);
+
+  const resolveContactPhoto = (conversation: ChatConversation) => {
+    const fromConversation = conversation.otherPartyProfilePhoto?.trim();
+    if (fromConversation) {
+      return fromConversation;
+    }
+
+    const otherPartyId = conversation.otherPartyId;
+    if (!otherPartyId) {
+      return undefined;
+    }
+
+    return contactPhotos[otherPartyId]?.trim() || undefined;
+  };
+
   const handleSelectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
   };
@@ -102,6 +178,9 @@ const MessagesPage = () => {
   const selectedConversation = conversations.find(
     (conversation) => conversation.conversationId === selectedConversationId
   );
+  const selectedContactPhoto = selectedConversation
+    ? resolveContactPhoto(selectedConversation)
+    : undefined;
 
   const formatConversationDate = (value?: string) => {
     if (!value) {
@@ -126,7 +205,14 @@ const MessagesPage = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>{t("messages.title")}</h1>
+      {isCandidateShell && role === "Employee" ? (
+        <CandidatePageHeader
+          title={t("candidate.messagesTitle")}
+          subtitle={t("candidate.messagesSubtitle")}
+        />
+      ) : (
+        <h1 className={styles.title}>{t("messages.title")}</h1>
+      )}
 
       {isLoading && <p className={styles.mutedText}>{t("messages.loading")}</p>}
       {loadError && !isLoading && <p className={styles.mutedText}>{t("messages.loadError")}</p>}
@@ -140,6 +226,7 @@ const MessagesPage = () => {
           <aside className={styles.sidebar}>
             {conversations.map((conversation) => {
               const isSelected = conversation.conversationId === selectedConversationId;
+              const contactPhoto = resolveContactPhoto(conversation);
               return (
                 <button
                   key={conversation.conversationId}
@@ -153,6 +240,11 @@ const MessagesPage = () => {
                     </span>
                   )}
                   <div className={styles.conversationHeader}>
+                    <ChatContactAvatar
+                      name={conversation.otherPartyName}
+                      profilePhoto={contactPhoto}
+                      size="md"
+                    />
                     <strong>{conversation.otherPartyName}</strong>
                   </div>
                   <p className={styles.jobTitle}>{conversation.jobPostTitle}</p>
@@ -171,12 +263,23 @@ const MessagesPage = () => {
             {selectedConversation ? (
               <>
                 <div className={styles.threadHeader}>
-                  <h2>{selectedConversation.otherPartyName}</h2>
-                  <p>{selectedConversation.jobPostTitle}</p>
+                  <div className={styles.threadHeaderMain}>
+                    <ChatContactAvatar
+                      name={selectedConversation.otherPartyName}
+                      profilePhoto={selectedContactPhoto}
+                      size="md"
+                    />
+                    <div>
+                      <h2>{selectedConversation.otherPartyName}</h2>
+                      <p>{selectedConversation.jobPostTitle}</p>
+                    </div>
+                  </div>
                 </div>
                 <ConversationChatThread
                   key={selectedConversation.conversationId}
                   conversationId={selectedConversation.conversationId}
+                  otherPartyName={selectedConversation.otherPartyName}
+                  otherPartyProfilePhoto={selectedContactPhoto}
                   active
                   variant="full"
                   onMessagesChange={() => void loadConversations()}

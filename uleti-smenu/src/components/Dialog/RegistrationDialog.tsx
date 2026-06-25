@@ -21,10 +21,10 @@ const RegistrationDialog = ({ onClose }: { onClose: () => void }) => {
                         </NavLink>
                     </div>
                     <div className={styles.options}>
-                        <NavLink to="/registration-user" onClick={onClose}>
+                        <NavLink to="/registration/candidate" onClick={onClose}>
                             <p>{t("dialogs.registerCandidate")}</p>
                         </NavLink>
-                        <NavLink to="/registration" onClick={onClose}>
+                        <NavLink to="/registration/employer" onClick={onClose}>
                             <p>{t("dialogs.registerEmployer")}</p>
                         </NavLink>
                     </div>

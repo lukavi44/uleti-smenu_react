@@ -30,7 +30,7 @@ const ForCandidatesPage = () => {
       </section>
 
       <div className={styles.ctaRow}>
-        <Link className={styles.ctaPrimary} to="/registration-user">
+        <Link className={styles.ctaPrimary} to="/registration/candidate">
           {t("info.forCandidates.ctaRegister")}
         </Link>
         <Link className={styles.ctaSecondary} to="/how-it-works#candidates">

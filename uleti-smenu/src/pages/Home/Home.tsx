@@ -5,7 +5,7 @@ import JobPosts from "../JobPosts/JobPosts";
 import styles from "./Home.module.scss";
 import EmployersList from "../../components/Employers/EmployersList";
 import { AuthContext } from "../../store/Auth-context";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import MarketingSection from "../../components/Home/MarketingSection";
 import HeroPlatformStats from "../../components/Home/HeroPlatformStats";
 import {
@@ -26,6 +26,8 @@ import {
 } from "../../helpers/employerDashboard";
 import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
+import EmployeeDashboard from "../EmployeeDashboard/EmployeeDashboard";
+import PublicLandingPage from "./PublicLandingPage";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 
 const HomePage = () => {
@@ -37,7 +39,6 @@ const HomePage = () => {
   const isEmployerDashboardVisible =
     authStatus === "authenticated" && role === "Employer";
   const showMarketingSection = !isEmployerDashboardVisible;
-  const isLoggedOut = authStatus === "unauthenticated";
   const [dashboardSummary, setDashboardSummary] =
     useState<EmployerDashboardSummary | null>(null);
   const [myLocations, setMyLocations] = useState<RestaurantLocation[]>([]);
@@ -208,6 +209,14 @@ const HomePage = () => {
     </div>
   );
 
+  if (authStatus === "authenticated" && role === "Employee") {
+    return <EmployeeDashboard />;
+  }
+
+  if (authStatus === "unauthenticated") {
+    return <PublicLandingPage />;
+  }
+
   return (
     <>
       <section
@@ -230,19 +239,6 @@ const HomePage = () => {
             <h1 className={styles.heroTitle}>{t("home.heroTitle")}</h1>
             <p className={styles.heroSubtitle}>{t("home.heroSubtitle")}</p>
             {!isEmployerDashboardVisible && isMobile && <HeroPlatformStats />}
-            {isLoggedOut && (
-              <div className={styles.heroCtas}>
-                <NavLink className={`${styles.button} ${styles.buttonPrimary}`} to="/registration-user">
-                  {t("home.heroCtaEmployee")}
-                </NavLink>
-                <NavLink className={`${styles.button} ${styles.buttonSecondary}`} to="/registration">
-                  {t("home.heroCtaEmployer")}
-                </NavLink>
-                <NavLink className={styles.heroLink} to="/how-it-works">
-                  {t("home.heroCtaHowItWorks")}
-                </NavLink>
-              </div>
-            )}
           </div>
 
           {!isMobile && !isEmployerDashboardVisible && (

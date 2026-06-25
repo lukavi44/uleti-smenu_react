@@ -1,0 +1,114 @@
+.card {
+  display: block;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+.cardInteractive {
+  cursor: pointer;
+}
+
+.hero {
+  position: relative;
+  height: 9.5rem;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  position: relative;
+  padding: 2.35rem 1rem 1rem;
+}
+
+.logo {
+  position: absolute;
+  top: -1.45rem;
+  left: 1rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  background: #f8fafc;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.locationIcon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+.jobCount {
+  margin: 0;
+  color: #475569;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.rating,
+.ratingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.ratingLink {
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.ratingLink:hover {
+  color: #2563eb;
+}
+
+.ratingIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #f59e0b;
+}

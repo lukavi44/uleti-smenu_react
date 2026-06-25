@@ -272,8 +272,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             return (
                 fullName.includes(normalizedSearch) ||
                 applicant.firstName.toLowerCase().includes(normalizedSearch) ||
-                applicant.lastName.toLowerCase().includes(normalizedSearch) ||
-                applicant.email.toLowerCase().includes(normalizedSearch)
+                applicant.lastName.toLowerCase().includes(normalizedSearch)
             );
         });
 
@@ -289,10 +288,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                     const secondName = `${secondApplicant.firstName} ${secondApplicant.lastName}`.toLowerCase();
                     return secondName.localeCompare(firstName);
                 }
-                case "email_asc":
-                    return firstApplicant.email.localeCompare(secondApplicant.email);
-                case "email_desc":
-                    return secondApplicant.email.localeCompare(firstApplicant.email);
                 case "appliedAt_asc":
                     return new Date(firstApplicant.appliedAt).getTime() - new Date(secondApplicant.appliedAt).getTime();
                 default:
@@ -768,8 +763,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 <option value="appliedAt_asc">{t("profile.sortAppliedOldest")}</option>
                                 <option value="name_asc">{t("profile.sortNameAsc")}</option>
                                 <option value="name_desc">{t("profile.sortNameDesc")}</option>
-                                <option value="email_asc">{t("profile.sortEmailAsc")}</option>
-                                <option value="email_desc">{t("profile.sortEmailDesc")}</option>
                             </select>
                         </div>
                     </div>
@@ -792,7 +785,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                                 />{" "}
                                 <span style={getStatusBadgeStyle(applicant.status)}>{applicant.status}</span>
                             </p>
-                            <p className={styles.mutedText}>{applicant.email}</p>
                             {applicant.status === "Applied" && (
                                 <div className={styles.actionsRow}>
                                     <button

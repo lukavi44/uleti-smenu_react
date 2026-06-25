@@ -82,6 +82,123 @@
     }
 }
 
+.landingFooter {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 2.5rem 1.5rem 1.5rem;
+}
+
+.landingInner {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.landingGrid {
+    display: grid;
+    grid-template-columns: minmax(200px, 1.2fr) repeat(5, minmax(120px, 1fr));
+    gap: 2rem 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.brandColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.brandLogo {
+    width: 150px;
+    height: auto;
+}
+
+.brandTagline {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #64748b;
+    max-width: 24ch;
+}
+
+.socialRow {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.socialLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.socialLink:hover {
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+.footerColumn {
+    min-width: 0;
+
+    .columnTitle {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #111827;
+        margin-bottom: 0.85rem;
+    }
+
+    ul {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .footerLink {
+            color: #4b5563;
+            text-decoration: none;
+        }
+
+        .footerLink:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+    }
+}
+
+.copyright {
+    margin: 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 0.88rem;
+    color: #64748b;
+}
+
+@media (max-width: 1100px) {
+    .landingGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .brandColumn {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (min-width: 1400px) {
     .info {
         .bottom {

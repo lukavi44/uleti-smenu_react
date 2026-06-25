@@ -8,4 +8,5 @@ export interface EmployerDirectoryPreview {
   city: string;
   reviewSummary: ReviewSummary;
   activeJobPostsCount: number;
+  isFavourite?: boolean;
 }

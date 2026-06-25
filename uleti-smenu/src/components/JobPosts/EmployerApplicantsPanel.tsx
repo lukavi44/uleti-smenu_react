@@ -115,7 +115,6 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                       subjectId={applicant.userId}
                     />
                   </p>
-                  <p className={styles.meta}>{applicant.email} | {applicant.phoneNumber}</p>
                   <p className={styles.meta}>{t("applicants.appliedAt")}: {formatDate(applicant.appliedAt)}</p>
                   <p className={styles.meta}>
                     {t("applicants.status")}: {applicant.status === "Applied" ? t("jobPosts.appliedShort") : getFinalStatusLabel(applicant.status)}

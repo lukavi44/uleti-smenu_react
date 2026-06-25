@@ -1,9 +1,11 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 import './App.css'
 import ScrollToTop from "./router/ScrollToTop";
+import RootLayout from "./router/RootLayout";
 import HomePage from './pages/Home/Home'
 import RegistrationPage from "./pages/Registration/Registration";
+import RegistrationChoicePage from "./pages/Registration/RegistrationChoice";
 import LoginPage from "./pages/Login/Login";
 import AuthContextProvider from "./store/Auth-context";
 import RequireAuth from "./router/RequireAuth";
@@ -11,7 +13,6 @@ import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
 import JobPosts from "./pages/JobPosts/JobPosts";
-import AppShell from "./components/Layout/AppShell";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
 import MessagesPage from "./pages/Messages/MessagesPage";
@@ -42,8 +43,8 @@ function App() {
       <LoadingProvider>
         <AuthContextProvider>
           <ScrollToTop />
-          <AppShell>
           <Routes>
+            <Route element={<RootLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="how-it-works" element={<HowItWorksPage />} />
@@ -55,8 +56,10 @@ function App() {
             <Route path="cookies" element={<LegalPage type="cookies" />} />
             <Route path="restaurants" element={<RestaurantsPage />} />
             <Route element={<LoggedOutRoute />}>
-              <Route path="registration" element={<RegistrationPage userType="employer" />} />
-              <Route path="registration-user" element={<RegistrationPage userType="employee" />} />
+              <Route path="registration" element={<RegistrationChoicePage />} />
+              <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
+              <Route path="registration/employer" element={<RegistrationPage userType="employer" />} />
+              <Route path="registration-user" element={<Navigate to="/registration/candidate" replace />} />
               <Route path="login" element={<LoginPage />} />
             </Route>
             <Route element={<RequireAuth />}>
@@ -71,8 +74,8 @@ function App() {
               <Route path="profile" element={<ProfilePage/>}/>
               <Route path="billing/upgrade" element={<UpgradePage/>}/>
             </Route>
+            </Route>
           </Routes>
-          </AppShell>
         </AuthContextProvider>
       </LoadingProvider>
     </>

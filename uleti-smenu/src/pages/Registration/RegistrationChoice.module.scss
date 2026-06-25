@@ -1,0 +1,111 @@
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.optionCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.optionCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.candidate:hover {
+  border-color: #93c5fd;
+}
+
+.employer:hover {
+  border-color: #6ee7b7;
+}
+
+.optionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.candidate .optionIcon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.employer .optionIcon {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.optionIcon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.optionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.optionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.optionDescription {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.optionCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.candidate .optionCta {
+  color: #2563eb;
+}
+
+.employer .optionCta {
+  color: #059669;
+}
+
+.optionArrow {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .optionCard {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .optionCta {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    padding-left: 3.75rem;
+  }
+}
