@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UsersIcon } from "@heroicons/react/24/outline";
 import { Employer } from "../../models/User.model";
 import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
@@ -92,6 +92,7 @@ const DEFAULT_SALARY_MAX = 10000;
 const JobPosts = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const { role, me, authStatus } = useContext(AuthContext);
     const isCandidateShell = useIsCandidateShell();
     const isEmployerShell = useIsEmployerShell();
@@ -187,6 +188,24 @@ const JobPosts = () => {
         setIsEmployerFiltersOpen(false);
         openJobPostForm();
     };
+
+    useEffect(() => {
+        const state = location.state as { openCreateForm?: boolean } | null;
+        if (!state?.openCreateForm || !isEmployerShellView) {
+            return;
+        }
+
+        const employer = me as Employer;
+        const subscription = employer?.subscription;
+        if (subscription && subscription.canPost === false) {
+            toast.error(t("billing.postingBlocked"));
+            navigate("/billing/upgrade", { replace: true, state: null });
+            return;
+        }
+
+        openJobPostForm();
+        navigate(location.pathname, { replace: true, state: null });
+    }, [isEmployerShellView, location.pathname, location.state, me, navigate, t]);
 
     const employerJobPostsResetKey = `${role}|${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
     const fetchEmployerJobPostsPage = useCallback(
