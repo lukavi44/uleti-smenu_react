@@ -6,6 +6,7 @@ export interface Applicant {
   email: string;
   phoneNumber: string;
   profilePhoto?: string;
+  city?: string;
   status: string;
   appliedAt: string;
   averageRating: number;

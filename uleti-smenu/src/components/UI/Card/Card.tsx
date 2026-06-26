@@ -1,9 +1,10 @@
 import React from "react";
+import ImageWithFallback from "../../Common/ImageWithFallback";
 import styles from "./Card.module.scss";
 
 interface CardProps {
   title: string;
-  img: string;
+  img?: string | null;
   description: string;
   orientation?: "vertical" | "horizontal";
   className?: string;
@@ -25,10 +26,11 @@ const Card: React.FC<CardProps> = ({
       className={`${styles.card} ${isHorizontal ? styles.horizontal : styles.vertical} ${className}`}
     >
       <div className={styles.media}>
-        <img
+        <ImageWithFallback
           src={img}
           alt={title}
           className={isHorizontal ? styles.imageHorizontal : styles.imageVertical}
+          fallbackClassName={isHorizontal ? styles.imageHorizontal : styles.imageVertical}
         />
         {imageOverlay ? <div className={styles.mediaOverlay}>{imageOverlay}</div> : null}
       </div>

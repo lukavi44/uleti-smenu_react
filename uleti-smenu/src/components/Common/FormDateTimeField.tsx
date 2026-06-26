@@ -11,6 +11,8 @@ type FormDateTimeFieldProps<T extends FieldValues> = {
   label: string;
   errorMessage?: string;
   clearable?: boolean;
+  hideLabel?: boolean;
+  placeholder?: string;
 };
 
 const DATE_TIME_FORMAT = "DD.MM.YYYY HH:mm";
@@ -30,6 +32,8 @@ const FormDateTimeField = <T extends FieldValues>({
   label,
   errorMessage,
   clearable = false,
+  hideLabel = false,
+  placeholder,
 }: FormDateTimeFieldProps<T>) => {
   const { i18n } = useTranslation();
 
@@ -43,7 +47,7 @@ const FormDateTimeField = <T extends FieldValues>({
       control={control}
       render={({ field }) => (
         <DateTimePicker
-          label={label}
+          label={hideLabel ? undefined : label}
           value={parseDateTimeValue(field.value)}
           onChange={(value: Dayjs | null) => {
             field.onChange(value?.isValid() ? value.format("YYYY-MM-DDTHH:mm") : "");
@@ -54,7 +58,8 @@ const FormDateTimeField = <T extends FieldValues>({
             field: { clearable },
             textField: {
               fullWidth: true,
-              margin: "normal",
+              margin: hideLabel ? "none" : "normal",
+              placeholder: hideLabel ? placeholder ?? label : undefined,
               error: Boolean(errorMessage),
               helperText: errorMessage,
             },

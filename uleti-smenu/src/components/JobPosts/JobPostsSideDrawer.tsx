@@ -6,23 +6,27 @@ import styles from "./JobPostsSideDrawer.module.scss";
 type JobPostsSideDrawerProps = {
   isOpen: boolean;
   title: string;
+  subtitle?: string;
   ariaLabel?: string;
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
   flushBody?: boolean;
+  variant?: "default" | "form";
 };
 
 const JobPostsSideDrawer = ({
   isOpen,
   title,
+  subtitle,
   ariaLabel,
   onClose,
   children,
   footer,
   wide = false,
   flushBody = false,
+  variant = "default",
 }: JobPostsSideDrawerProps) => {
   const { t } = useTranslation();
 
@@ -59,13 +63,18 @@ const JobPostsSideDrawer = ({
         onClick={onClose}
       />
       <aside
-        className={`${styles.panel} ${wide ? styles.panelWide : ""}`}
+        className={`${styles.panel} ${wide ? styles.panelWide : ""} ${
+          variant === "form" ? styles.panelForm : ""
+        }`}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel ?? title}
       >
-        <div className={styles.panelHeader}>
-          <h2 className={styles.panelTitle}>{title}</h2>
+        <div className={`${styles.panelHeader} ${variant === "form" ? styles.panelHeaderForm : ""}`}>
+          <div className={styles.panelHeaderText}>
+            <h2 className={styles.panelTitle}>{title}</h2>
+            {subtitle ? <p className={styles.panelSubtitle}>{subtitle}</p> : null}
+          </div>
           <button type="button" className={styles.closeButton} onClick={onClose} aria-label={t("common.close")}>
             <XMarkIcon />
           </button>

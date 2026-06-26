@@ -58,6 +58,37 @@
   overflow: visible;
 }
 
+@media (min-width: 1024px) {
+  .posts-container-employer {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.posts-container-employer-split {
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 1.25rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.posts-container-employer-split .left-panel {
+  flex: 1;
+  width: auto;
+  max-width: none;
+  min-width: 0;
+}
+
+.posts-container-employer-split .posts-list {
+  align-items: center;
+  padding-right: 0.25rem;
+}
+
 .posts-container-candidate .left-panel {
   height: auto;
   max-width: none;
@@ -75,7 +106,23 @@
 
 .posts-container-employer .posts-list {
   padding-top: 0.25rem;
-  align-items: stretch;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.posts-container-employer .jobpost-card-wrapper {
+  align-self: center;
+}
+
+.posts-container-employer .jobpost-card-wrapper-mobile {
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+}
+
+.posts-container-employer .jobpost-card-wrapper-mobile:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .employee-page-toolbar {
@@ -242,9 +289,39 @@
     color: #166534;
   }
 
+  .employer-lifecycle-draft {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
   .employer-lifecycle-archived {
     background: #e5e7eb;
     color: #374151;
+  }
+
+  .employer-applicant-count {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 0.8rem;
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .employer-applicant-count-icon {
+    width: 1rem;
+    height: 1rem;
+    color: #64748b;
+    flex-shrink: 0;
   }
 
   .employee-jobpost-card {
@@ -451,6 +528,22 @@
     bottom: 0.75rem;
     z-index: 2;
     pointer-events: auto;
+  }
+
+  .show-candidates-button {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #374151;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.84rem;
+    padding: 0.45rem 0.85rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.14);
+  }
+
+  .show-candidates-button:hover {
+    background: #f9fafb;
   }
 
   .employer-actions {

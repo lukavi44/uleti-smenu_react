@@ -4,6 +4,7 @@ import { AuthContext } from "../../../store/Auth-context";
 import { GetMyUnreadChatCount } from "../../../services/chat-service";
 import { subscribeChatUnreadCount, startRealtimeConnection } from "../../../services/realtime-service";
 import { isChatDetailPath } from "../../../helpers/chatRoutes";
+import { isEmployerJobPostDetailPath } from "../../../helpers/jobPostRoutes";
 import EmployerSidebar from "./EmployerSidebar";
 import EmployerTopBar from "./EmployerTopBar";
 import EmployerMobileHeader from "./EmployerMobileHeader";
@@ -19,7 +20,9 @@ const EmployerLayout = ({ children }: EmployerLayoutProps) => {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const isDashboard = location.pathname === "/";
   const isChatDetail = isChatDetailPath(location.pathname);
+  const isJobPostDetail = isEmployerJobPostDetailPath(location.pathname);
   const isMessagesList = location.pathname === "/messages";
+  const isJobPostsList = location.pathname === "/oglasi-za-posao";
 
   useEffect(() => {
     void startRealtimeConnection();
@@ -45,9 +48,9 @@ const EmployerLayout = ({ children }: EmployerLayoutProps) => {
       <EmployerSidebar unreadChatCount={unreadChatCount} onLogout={() => void logout()} />
       <div className={styles.contentColumn}>
         <main
-          className={`${styles.main} ${isChatDetail ? styles.mainChatDetail : ""} ${isMessagesList ? styles.mainMessagesList : ""}`}
+          className={`${styles.main} ${isChatDetail ? styles.mainChatDetail : ""} ${isJobPostDetail ? styles.mainJobPostDetail : ""} ${isMessagesList ? styles.mainMessagesList : ""} ${isJobPostsList ? styles.mainJobPostsList : ""}`}
         >
-          {!isChatDetail ? <EmployerMobileHeader /> : null}
+          {!isChatDetail && !isJobPostDetail ? <EmployerMobileHeader /> : null}
           {isDashboard ? <EmployerTopBar /> : null}
           {children}
         </main>

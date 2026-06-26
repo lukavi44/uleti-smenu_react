@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useMediaQuery } from "@mui/material";
 import JobPostItem from "../../components/JobPosts/JobPostItem";
 import styles from "./JobPosts.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
@@ -12,12 +13,15 @@ import {
 import { JobPost } from "../../models/JobPost.model";
 import { AuthContext } from "../../store/Auth-context";
 import EmployerApplicantsPanel from "../../components/JobPosts/EmployerApplicantsPanel";
+import EmployerJobPostCandidatesSidePanel from "../../components/JobPosts/EmployerJobPostCandidatesSidePanel";
+import EmployerJobPostMobileCard from "../../components/JobPosts/EmployerJobPostMobileCard";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
+import { UsersIcon } from "@heroicons/react/24/outline";
 import { Employer } from "../../models/User.model";
 import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
@@ -94,7 +98,9 @@ const JobPosts = () => {
     const isGuestBrowse = authStatus === "unauthenticated";
     const isEmployeeCandidateView = isCandidateShell && role === "Employee";
     const isEmployerShellView = isEmployerShell && role === "Employer";
+    const isMobileEmployer = useMediaQuery("(max-width:1023px)");
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
+    const [candidatesPanelJobPost, setCandidatesPanelJobPost] = useState<JobPost | null>(null);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
     const [hideAppliedPosts, setHideAppliedPosts] = useState(false);
@@ -851,13 +857,21 @@ const JobPosts = () => {
     const showLegacyEmployerFormPanel = role === "Employer" && !useEmployerFormDrawer && jobPostCreateFormOpened;
     const showLegacyEmployerFloatingButton = role === "Employer" && !useEmployerFormDrawer && !jobPostCreateFormOpened;
 
+    const handleOpenEmployerJobPost = (jobPost: JobPost) => {
+        navigate(`/oglasi-za-posao/${jobPost.id}`, { state: { jobPost } });
+    };
+
     return (
         <div
             className={`${styles["posts-container"]} ${
                 jobPostCreateFormOpened && !useEmployerFormDrawer ? styles["form-opened"] : ""
             } ${
                 isEmployeeCandidateView || isGuestBrowse ? styles["posts-container-candidate"] : ""
-            } ${isEmployerShellView ? styles["posts-container-employer"] : ""}`}
+            } ${isEmployerShellView ? styles["posts-container-employer"] : ""} ${
+                isEmployerShellView && !isMobileEmployer && candidatesPanelJobPost
+                    ? styles["posts-container-employer-split"]
+                    : ""
+            }`}
         >
             {isEmployeeCandidateView ? (
                 <JobPostsFiltersDrawer
@@ -978,19 +992,51 @@ const JobPosts = () => {
           const isGuest = isGuestBrowse;
           const hasApplied = appliedJobPostIdSet.has(jobPost.id);
           const isArchivedPost = Boolean(jobPost.isArchived);
+          const isDraftPost = jobPost.status === "Draft";
           return (
-            <div key={jobPost.id} className={styles["jobpost-card-wrapper"]}>
+            <div
+              key={jobPost.id}
+              className={`${styles["jobpost-card-wrapper"]} ${isMyPost && isMobileEmployer ? styles["jobpost-card-wrapper-mobile"] : ""}`}
+            >
+              {isMyPost && isMobileEmployer ? (
+                <EmployerJobPostMobileCard jobPost={jobPost} onOpen={handleOpenEmployerJobPost} />
+              ) : (
+                <>
               {isMyPost && (
                 <span
-                  className={`${styles["employer-lifecycle-badge"]} ${isArchivedPost ? styles["employer-lifecycle-archived"] : styles["employer-lifecycle-active"]}`}
+                  className={`${styles["employer-lifecycle-badge"]} ${
+                    isArchivedPost
+                      ? styles["employer-lifecycle-archived"]
+                      : isDraftPost
+                        ? styles["employer-lifecycle-draft"]
+                        : styles["employer-lifecycle-active"]
+                  }`}
                 >
-                  {isArchivedPost ? t("jobPosts.lifecycleArchived") : t("jobPosts.lifecycleActive")}
+                  {isArchivedPost
+                    ? t("jobPosts.lifecycleArchived")
+                    : isDraftPost
+                      ? t("jobPostForm.statusDraft")
+                      : t("jobPosts.lifecycleActive")}
                 </span>
+              )}
+              {isMyPost && !isMobileEmployer && (
+                <div
+                  className={styles["employer-applicant-count"]}
+                  aria-label={t("jobPosts.applicationsCount", { count: jobPost.applicantCount ?? 0 })}
+                >
+                  <UsersIcon className={styles["employer-applicant-count-icon"]} aria-hidden />
+                  <span>{t("jobPosts.applicationsCount", { count: jobPost.applicantCount ?? 0 })}</span>
+                </div>
               )}
               {!isEmployee && (
                 <JobPostItem
                   jobPost={jobPost}
                   disableCardHover={isMyPost}
+                  isSelected={
+                    isMyPost &&
+                    !isMobileEmployer &&
+                    candidatesPanelJobPost?.id === jobPost.id
+                  }
                   imageOverlay={
                     isMyPost ? (
                       <div className={styles["employer-card-overlay"]}>
@@ -1014,10 +1060,23 @@ const JobPosts = () => {
                   </Link>
                 </div>
               )}
-              {isMyPost && (
+              {isMyPost && !isMobileEmployer && isEmployerShellView && (
+                <div className={styles["applicants-button-anchor"]}>
+                  <button
+                    type="button"
+                    className={styles["show-candidates-button"]}
+                    onClick={() => setCandidatesPanelJobPost(jobPost)}
+                  >
+                    {t("applicants.seeApplicants")}
+                  </button>
+                </div>
+              )}
+              {isMyPost && !isMobileEmployer && !isEmployerShellView && (
                 <div className={styles["applicants-button-anchor"]}>
                   <EmployerApplicantsPanel jobPostId={jobPost.id} variant="inlineCard" />
                 </div>
+              )}
+                </>
               )}
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
@@ -1109,6 +1168,13 @@ const JobPosts = () => {
             )}
             </div>
             </div>
+
+            {isEmployerShellView && !isMobileEmployer && candidatesPanelJobPost ? (
+                <EmployerJobPostCandidatesSidePanel
+                    jobPost={candidatesPanelJobPost}
+                    onClose={() => setCandidatesPanelJobPost(null)}
+                />
+            ) : null}
 
             {showLegacyEmployerFormPanel && (
                 <div className={styles["right-panel"]}>

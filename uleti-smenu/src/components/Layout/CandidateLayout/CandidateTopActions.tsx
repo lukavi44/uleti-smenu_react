@@ -1,17 +1,11 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
 import { BellIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
-import { AuthContext } from "../../../store/Auth-context";
-import { Employee } from "../../../models/User.model";
-import { getImageUrl } from "../../../helpers/getHelperUrl";
 import NotificationsMenu from "../../Notifications/NotificationsMenu";
+import CandidateProfileMenu from "./CandidateProfileMenu";
 import styles from "./CandidateTopActions.module.scss";
 
 const CandidateTopActions = () => {
   const { t } = useTranslation();
-  const { me } = useContext(AuthContext);
-  const employee = me && "firstName" in me ? (me as Employee) : null;
 
   return (
     <div className={styles.actions}>
@@ -34,9 +28,7 @@ const CandidateTopActions = () => {
         )}
       />
 
-      <Link to="/profile" className={styles.avatarLink} aria-label={t("nav.profile")}>
-        <img src={getImageUrl(employee?.profilePhoto)} alt="" className={styles.avatar} />
-      </Link>
+      <CandidateProfileMenu />
     </div>
   );
 };

@@ -13,6 +13,7 @@ import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
 import JobPosts from "./pages/JobPosts/JobPosts";
+import EmployerJobPostDetailPage from "./pages/JobPosts/EmployerJobPostDetailPage";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
 import MessagesPage from "./pages/Messages/MessagesPage";
@@ -67,6 +68,7 @@ function App() {
             </Route>
             <Route element={<RequireAuth />}>
               <Route path="oglasi-za-posao" element={<JobPosts />} />
+              <Route path="oglasi-za-posao/:jobPostId" element={<EmployerJobPostDetailPage />} />
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>

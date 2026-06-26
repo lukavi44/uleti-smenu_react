@@ -1,12 +1,18 @@
+import { Link } from "react-router-dom";
 import { BellIcon } from "@heroicons/react/24/outline";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../../store/Auth-context";
+import { Employer } from "../../../models/User.model";
+import { getImageUrl } from "../../../helpers/getHelperUrl";
 import NotificationsMenu from "../../Notifications/NotificationsMenu";
-import EmployerProfileMenu from "./EmployerProfileMenu";
 import shellStyles from "./EmployerLayout.module.scss";
 import styles from "./EmployerTopActions.module.scss";
 
 const EmployerTopActions = () => {
   const { t } = useTranslation();
+  const { me } = useContext(AuthContext);
+  const employer = me && "name" in me ? (me as Employer) : null;
 
   return (
     <div className={`${styles.actions} ${shellStyles.desktopOnly}`}>
@@ -29,7 +35,9 @@ const EmployerTopActions = () => {
         )}
       />
 
-      <EmployerProfileMenu />
+      <Link to="/profile" className={styles.avatarLink} aria-label={t("nav.profile")}>
+        <img src={getImageUrl(employer?.profilePhoto)} alt="" className={styles.avatar} />
+      </Link>
     </div>
   );
 };

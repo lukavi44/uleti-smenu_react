@@ -1,5 +1,12 @@
 import { Employer } from "./User.model"
 
+export interface RecentApplicantPreview {
+    userId: string;
+    profilePhoto?: string;
+    firstName: string;
+    lastName: string;
+}
+
 export interface JobPost {
     id: string,
     title: string,
@@ -15,5 +22,6 @@ export interface JobPost {
     restaurantLocationCity?: string,
     isArchived?: boolean,
     applicantCount?: number,
+    recentApplicants?: RecentApplicantPreview[],
     employer: Employer
 }

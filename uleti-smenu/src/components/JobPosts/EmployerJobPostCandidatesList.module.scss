@@ -1,0 +1,331 @@
+.panel,
+.panelDesktop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.panelDesktop {
+  gap: 0.65rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.searchField {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.05rem;
+  height: 1.05rem;
+  max-width: none;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.75rem 0.55rem 2.35rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.filterButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filterButtonActive {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.filterIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.filterChip {
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+
+.filterChipActive {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.summary {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.muted {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.cardMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.9rem;
+  text-align: left;
+}
+
+.avatarLink {
+  flex-shrink: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardBodyLink {
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.chevronLink {
+  display: inline-flex;
+  align-items: flex-start;
+  margin-top: 0.15rem;
+  color: inherit;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.cardBody {
+  min-width: 0;
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.onlineDot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+}
+
+.onlineDotActive {
+  background: #22c55e;
+}
+
+.onlineDotIdle {
+  background: #cbd5e1;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cardTop strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.statusBadgeaccepted {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.statusBadgepending {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusBadgerejected {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.ratingRow {
+  margin-top: 0.25rem;
+}
+
+.location {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.meta {
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.messagePreview {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #cbd5e1;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  padding: 0 0.9rem 0.9rem;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acceptButton {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.rejectButton {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.actionIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.messageButton {
+  width: calc(100% - 1.8rem);
+  margin: 0 0.9rem 0.9rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+}
+
+.desktopAcceptedActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  padding: 0 0.9rem 0.9rem;
+}
+
+.desktopAcceptedActions .messageButton {
+  width: 100%;
+  margin: 0;
+}
+
+.viewProfileButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.7rem 0.85rem;
+  text-decoration: none;
+}
+
+.privacyNote {
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  text-align: center;
+}

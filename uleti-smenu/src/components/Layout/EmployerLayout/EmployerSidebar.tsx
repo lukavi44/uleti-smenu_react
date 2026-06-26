@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import {
   ArrowRightOnRectangleIcon,
+  BuildingStorefrontIcon,
   ChatBubbleLeftRightIcon,
   CreditCardIcon,
   HomeIcon,
@@ -8,6 +9,7 @@ import {
   UserIcon,
 } from "@heroicons/react/24/outline";
 import {
+  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
   CreditCardIcon as CreditCardIconSolid,
   HomeIcon as HomeIconSolid,
@@ -29,6 +31,12 @@ const EmployerSidebar = ({ unreadChatCount, onLogout }: EmployerSidebarProps) =>
   const navItems = [
     { to: "/", label: t("nav.home"), Icon: HomeIcon, ActiveIcon: HomeIconSolid, end: true },
     { to: "/oglasi-za-posao", label: t("nav.jobPosts"), Icon: NewspaperIcon, ActiveIcon: NewspaperIconSolid },
+    {
+      to: "/restaurants",
+      label: t("header.restaurants"),
+      Icon: BuildingStorefrontIcon,
+      ActiveIcon: BuildingStorefrontIconSolid,
+    },
     {
       to: "/messages",
       label: t("header.messages"),

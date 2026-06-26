@@ -64,10 +64,23 @@
 }
 
 .applicantRow {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 0.65rem;
   background: #f9fafb;
+}
+
+.applicantAvatarLink {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.applicantContent {
+  flex: 1;
+  min-width: 0;
 }
 
 .name {

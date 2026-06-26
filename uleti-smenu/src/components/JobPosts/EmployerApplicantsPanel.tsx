@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Applicant } from "../../models/Application.model";
 import RatingBadge from "../Reviews/RatingBadge";
+import ChatContactAvatar from "../Chat/ChatContactAvatar";
 import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
 import styles from "./EmployerApplicantsPanel.module.scss";
 import { useTranslation } from "react-i18next";
@@ -111,6 +112,18 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
             <div className={styles.applicantList}>
               {applicants.map((applicant) => (
                 <div key={applicant.applicationId} className={styles.applicantRow}>
+                  <Link
+                    to={`/employees/${applicant.userId}`}
+                    className={styles.applicantAvatarLink}
+                    aria-label={`${applicant.firstName} ${applicant.lastName}`}
+                  >
+                    <ChatContactAvatar
+                      name={`${applicant.firstName} ${applicant.lastName}`}
+                      profilePhoto={applicant.profilePhoto}
+                      size="sm"
+                    />
+                  </Link>
+                  <div className={styles.applicantContent}>
                   <p className={styles.name}>
                     <Link className={styles.profileLink} to={`/employees/${applicant.userId}`}>
                       {applicant.firstName} {applicant.lastName}
@@ -162,6 +175,7 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                       </span>
                     </div>
                   )}
+                  </div>
                 </div>
               ))}
             </div>

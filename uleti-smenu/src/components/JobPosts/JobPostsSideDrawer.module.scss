@@ -29,9 +29,22 @@
   width: min(100%, 32rem);
 }
 
+.panelForm {
+  top: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  height: auto;
+  width: min(100%, 48vw);
+  max-width: 44rem;
+  border-radius: 16px;
+  border: 1px solid #e8edf5;
+  box-shadow: -16px 0 48px rgba(15, 23, 42, 0.14);
+  animation: slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .panelHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   padding: 1.1rem 1.1rem 0.85rem;
@@ -39,11 +52,27 @@
   flex-shrink: 0;
 }
 
+.panelHeaderForm {
+  padding: 1.25rem 1.35rem 1rem;
+}
+
+.panelHeaderText {
+  min-width: 0;
+}
+
 .panelTitle {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
   color: #0f172a;
+}
+
+.panelSubtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .closeButton {
@@ -78,10 +107,27 @@
   display: flex;
   flex-direction: row;
   gap: 0.65rem;
-  padding: 1rem 1.1rem calc(1rem + env(safe-area-inset-bottom));
+  padding: 1rem 1.35rem calc(1rem + env(safe-area-inset-bottom));
   border-top: 1px solid #e8edf5;
   background: #ffffff;
   flex-shrink: 0;
+  border-radius: 0 0 16px 16px;
+}
+
+.cancelButton {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  padding: 0.8rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background: #f8fafc;
 }
 
 .resetButton {
@@ -119,5 +165,21 @@
 
   to {
     transform: translateX(0);
+  }
+}
+
+@media (max-width: 1023px) {
+  .panelForm {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    border: none;
+  }
+
+  .panelFooter {
+    border-radius: 0;
   }
 }
