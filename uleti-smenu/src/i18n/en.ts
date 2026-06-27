@@ -120,6 +120,10 @@ const en = {
     activePosts: "Active posts",
     dashboard: {
       viewAllCandidates: "View all candidates",
+      pendingApplicants: "Applied candidates",
+      pendingApplicantsHint: "Awaiting your decision",
+      unreadMessages: "Unread messages",
+      viewMessages: "Open messages →",
       createPostTitle: "Publish a new job post",
       createPostSubtitle: "Find great people for your team.",
       tabActive: "Active",

@@ -3,16 +3,15 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../store/Auth-context";
 import { JobPost } from "../../models/JobPost.model";
-import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { EmployerDashboardSummary } from "../../models/EmployerDashboardSummary.model";
 import {
   GetEmployerDashboardSummary,
   GetMyJobPosts,
   GetMyJobPostsPaged,
 } from "../../services/jobPost-service";
-import { GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
+import { GetMyUnreadChatCount } from "../../services/chat-service";
+import { subscribeChatUnreadCount, startRealtimeConnection } from "../../services/realtime-service";
 import {
-  buildApplicantCountsFromPosts,
   buildEmployerDashboardSummaryFromPosts,
   normalizeEmployerDashboardSummary,
 } from "../../helpers/employerDashboard";
@@ -30,14 +29,37 @@ const EmployerDashboard = () => {
   const { t } = useTranslation();
   const { authStatus, role } = useContext(AuthContext);
   const [dashboardSummary, setDashboardSummary] = useState<EmployerDashboardSummary | null>(null);
-  const [myLocations, setMyLocations] = useState<RestaurantLocation[]>([]);
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
   const [pendingApplicants, setPendingApplicants] = useState<PendingApplicantItem[]>([]);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [isOverviewLoading, setIsOverviewLoading] = useState(true);
   const [isJobPostsLoading, setIsJobPostsLoading] = useState(true);
   const [isPendingLoading, setIsPendingLoading] = useState(true);
 
   const isEmployer = authStatus === "authenticated" && role === "Employer";
+
+  useEffect(() => {
+    if (!isEmployer) {
+      return;
+    }
+
+    void startRealtimeConnection();
+
+    const loadUnread = async () => {
+      try {
+        const response = await GetMyUnreadChatCount();
+        setUnreadMessagesCount(response.data.count);
+      } catch {
+        setUnreadMessagesCount(0);
+      }
+    };
+
+    void loadUnread();
+    const unsubscribe = subscribeChatUnreadCount((count) => setUnreadMessagesCount(count));
+    return () => {
+      unsubscribe();
+    };
+  }, [isEmployer]);
 
   useEffect(() => {
     const loadEmployerDashboardOverview = async () => {
@@ -48,9 +70,6 @@ const EmployerDashboard = () => {
       setIsOverviewLoading(true);
 
       try {
-        const locationsResponse = await GetMyRestaurantLocations();
-        setMyLocations(locationsResponse.data);
-
         try {
           const summaryResponse = await GetEmployerDashboardSummary();
           setDashboardSummary(
@@ -64,14 +83,10 @@ const EmployerDashboard = () => {
             GetMyJobPosts(),
           ]);
 
-          const posts = allPostsResponse.data;
-          const applicantCountsByPostId = buildApplicantCountsFromPosts(posts);
-
           setDashboardSummary(
             buildEmployerDashboardSummaryFromPosts(
-              posts,
-              activePostsResponse.data.totalCount,
-              applicantCountsByPostId
+              allPostsResponse.data,
+              activePostsResponse.data.totalCount
             )
           );
         }
@@ -132,13 +147,17 @@ const EmployerDashboard = () => {
       previous
         ? {
             ...previous,
-            totalApplicantsCount: Math.max(0, previous.totalApplicantsCount - 1),
+            pendingApplicantsCount: Math.max(0, previous.pendingApplicantsCount - 1),
           }
         : previous
     );
   };
 
   const pendingCount = useMemo(() => pendingApplicants.length, [pendingApplicants]);
+
+  const displayedPendingCount = !isPendingLoading
+    ? pendingCount
+    : (dashboardSummary?.pendingApplicantsCount ?? 0);
 
   if (!isEmployer) {
     return null;
@@ -154,8 +173,8 @@ const EmployerDashboard = () => {
         ) : (
           <EmployerDashboardSummaryCards
             activeJobPostsCount={dashboardSummary?.activeJobPostsCount ?? 0}
-            totalApplicantsCount={dashboardSummary?.totalApplicantsCount ?? 0}
-            locations={myLocations}
+            pendingApplicantsCount={displayedPendingCount}
+            unreadMessagesCount={unreadMessagesCount}
           />
         )}
       </section>

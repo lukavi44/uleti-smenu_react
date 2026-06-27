@@ -1,37 +1,34 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  BuildingStorefrontIcon,
+  ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   MegaphoneIcon,
   PlusIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import styles from "./EmployerDashboardSummaryCards.module.scss";
 
 type EmployerDashboardSummaryCardsProps = {
   activeJobPostsCount: number;
-  totalApplicantsCount: number;
-  locations: RestaurantLocation[];
+  pendingApplicantsCount: number;
+  unreadMessagesCount: number;
 };
 
 const EmployerDashboardSummaryCards = ({
   activeJobPostsCount,
-  totalApplicantsCount,
-  locations,
+  pendingApplicantsCount,
+  unreadMessagesCount,
 }: EmployerDashboardSummaryCardsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const branchNames = locations
-    .map((location) => location.name)
-    .filter(Boolean)
-    .slice(0, 2)
-    .join(", ");
-
   const handleCreatePost = () => {
     navigate("/oglasi-za-posao", { state: { openCreateForm: true } });
+  };
+
+  const handleOpenMessages = () => {
+    navigate("/messages");
   };
 
   return (
@@ -51,21 +48,30 @@ const EmployerDashboardSummaryCards = ({
           <UsersIcon className={styles.icon} aria-hidden />
         </div>
         <div className={styles.content}>
-          <p className={styles.label}>{t("home.totalApplicants")}</p>
-          <p className={styles.value}>{totalApplicantsCount}</p>
+          <p className={styles.label}>{t("home.dashboard.pendingApplicants")}</p>
+          <p className={styles.value}>{pendingApplicantsCount}</p>
+          {pendingApplicantsCount > 0 ? (
+            <p className={styles.hint}>{t("home.dashboard.pendingApplicantsHint")}</p>
+          ) : null}
         </div>
       </article>
 
-      <article className={`${styles.card} ${styles.cardPurple}`}>
-        <div className={`${styles.iconWrap} ${styles.iconPurple}`}>
-          <BuildingStorefrontIcon className={styles.icon} aria-hidden />
+      <button
+        type="button"
+        className={`${styles.card} ${styles.cardAmber} ${styles.clickableCard}`}
+        onClick={handleOpenMessages}
+      >
+        <div className={`${styles.iconWrap} ${styles.iconAmber}`}>
+          <ChatBubbleLeftRightIcon className={styles.icon} aria-hidden />
         </div>
         <div className={styles.content}>
-          <p className={styles.label}>{t("home.branches")}</p>
-          <p className={styles.value}>{locations.length}</p>
-          {branchNames ? <p className={styles.hint}>{branchNames}</p> : null}
+          <p className={styles.label}>{t("home.dashboard.unreadMessages")}</p>
+          <p className={styles.value}>{unreadMessagesCount}</p>
+          {unreadMessagesCount > 0 ? (
+            <p className={styles.hint}>{t("home.dashboard.viewMessages")}</p>
+          ) : null}
         </div>
-      </article>
+      </button>
 
       <article className={`${styles.card} ${styles.ctaCard}`}>
         <div className={styles.ctaIllustration} aria-hidden>

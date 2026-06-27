@@ -1,5 +1,5 @@
 export interface EmployerDashboardSummary {
     activeJobPostsCount: number;
-    totalApplicantsCount: number;
+    pendingApplicantsCount: number;
     activePostsByLocationId: Record<string, number>;
 }

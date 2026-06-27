@@ -120,6 +120,10 @@ const sr = {
     activePosts: "Aktivni oglasi",
     dashboard: {
       viewAllCandidates: "Pogledaj sve kandidate",
+      pendingApplicants: "Prijavljeni kandidati",
+      pendingApplicantsHint: "Čekaju vašu odluku",
+      unreadMessages: "Nepročitane poruke",
+      viewMessages: "Otvori poruke →",
       createPostTitle: "Objavite novi oglas",
       createPostSubtitle: "Pronađite sjajne ljude za svoj tim.",
       tabActive: "Aktivni",

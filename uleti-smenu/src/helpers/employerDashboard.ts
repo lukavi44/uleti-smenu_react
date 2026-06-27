@@ -7,8 +7,12 @@ export const normalizeEmployerDashboardSummary = (
   activeJobPostsCount: Number(
     data.activeJobPostsCount ?? data.ActiveJobPostsCount ?? 0
   ),
-  totalApplicantsCount: Number(
-    data.totalApplicantsCount ?? data.TotalApplicantsCount ?? 0
+  pendingApplicantsCount: Number(
+    data.pendingApplicantsCount ??
+      data.PendingApplicantsCount ??
+      data.totalApplicantsCount ??
+      data.TotalApplicantsCount ??
+      0
   ),
   activePostsByLocationId: (data.activePostsByLocationId ??
     data.ActivePostsByLocationId ??
@@ -17,8 +21,7 @@ export const normalizeEmployerDashboardSummary = (
 
 export const buildEmployerDashboardSummaryFromPosts = (
   posts: JobPost[],
-  activeJobPostsCount: number,
-  applicantCountsByPostId: Record<string, number>
+  activeJobPostsCount: number
 ): EmployerDashboardSummary => {
   const activePostsByLocationId: Record<string, number> = {};
 
@@ -31,14 +34,9 @@ export const buildEmployerDashboardSummaryFromPosts = (
       (activePostsByLocationId[post.restaurantLocationId] ?? 0) + 1;
   });
 
-  const totalApplicantsCount = Object.values(applicantCountsByPostId).reduce(
-    (sum, count) => sum + count,
-    0
-  );
-
   return {
     activeJobPostsCount,
-    totalApplicantsCount,
+    pendingApplicantsCount: 0,
     activePostsByLocationId,
   };
 };

@@ -40,9 +40,25 @@
   color: #16a34a;
 }
 
-.iconPurple {
-  background: #ede9fe;
-  color: #7c3aed;
+.iconAmber {
+  background: #ffedd5;
+  color: #d97706;
+}
+
+.cardAmber {
+  background: #ffffff;
+}
+
+.clickableCard {
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  width: 100%;
+}
+
+.clickableCard:hover {
+  border-color: #fdba74;
+  box-shadow: 0 10px 28px rgba(217, 119, 6, 0.1);
 }
 
 .content {
