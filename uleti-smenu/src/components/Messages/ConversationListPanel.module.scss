@@ -6,7 +6,8 @@
   border-radius: 14px;
   background: #ffffff;
   padding: 0.65rem;
-  max-height: 620px;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -106,10 +107,11 @@
   gap: 0.35rem;
   overflow-y: auto;
   min-height: 0;
+  flex: 1;
 }
 
 .panel:not(.panelMobile) .list {
-  max-height: 620px;
+  max-height: none;
 }
 
 .empty {

@@ -724,6 +724,7 @@ const sr = {
     openChat: "Otvori chat",
     hideChat: "Sakrij chat",
     loading: "Učitavanje chata...",
+    loadingOlder: "Učitavanje starijih poruka...",
     loadError: "Chat nije mogao da se učita.",
     noMessages: "Još nema poruka. Započnite razgovor.",
     messagePlaceholder: "Napišite poruku...",

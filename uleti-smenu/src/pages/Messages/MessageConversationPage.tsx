@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { ArrowLeftIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
@@ -23,6 +23,10 @@ const MessageConversationPage = () => {
     resolveContactPhoto,
     getConversationById,
   } = useChatConversations();
+
+  const handleMessagesChange = useCallback(() => {
+    void loadConversations();
+  }, [loadConversations]);
 
   if (!isMobile) {
     return <Navigate to={`/messages?c=${conversationId ?? ""}`} replace />;
@@ -97,7 +101,7 @@ const MessageConversationPage = () => {
             otherPartyProfilePhoto={contactPhoto}
             active
             variant="mobileFull"
-            onMessagesChange={() => void loadConversations()}
+            onMessagesChange={handleMessagesChange}
           />
         </div>
       )}

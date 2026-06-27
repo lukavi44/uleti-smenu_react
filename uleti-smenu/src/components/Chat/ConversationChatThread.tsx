@@ -1,4 +1,4 @@
-import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { CheckIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
@@ -31,6 +31,24 @@ interface ConversationChatThreadProps {
   onMessagesChange?: () => void;
 }
 
+const MESSAGE_WINDOW_SIZE = 30;
+const NEAR_EDGE_THRESHOLD_PX = 80;
+
+const mergeMessages = (existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] => {
+  const seen = new Set(existing.map((message) => message.id));
+  const merged = [...existing];
+
+  incoming.forEach((message) => {
+    if (!seen.has(message.id)) {
+      merged.push(message);
+    }
+  });
+
+  return merged.sort(
+    (first, second) => new Date(first.sentAtUtc).getTime() - new Date(second.sentAtUtc).getTime()
+  );
+};
+
 const ConversationChatThread = ({
   conversationId,
   active = true,
@@ -44,9 +62,17 @@ const ConversationChatThread = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draftMessage, setDraftMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [hasMoreOlder, setHasMoreOlder] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const allMessagesRef = useRef<ChatMessage[]>([]);
+  const visibleStartIndexRef = useRef(0);
+  const isLoadingOlderRef = useRef(false);
+  const onMessagesChangeRef = useRef(onMessagesChange);
+
+  onMessagesChangeRef.current = onMessagesChange;
 
   const currentUserId = me && "id" in me ? me.id : "";
   const currentUserName =
@@ -57,45 +83,169 @@ const ConversationChatThread = ({
         : t("chat.you");
   const currentUserPhoto = me?.profilePhoto?.trim() || undefined;
   const isMobileFull = variant === "mobileFull";
+  const isFull = variant === "full";
+  const useScrollWindow = isFull || isMobileFull;
   const rootClassName = [
     styles.thread,
-    variant === "full" ? styles.threadFull : "",
+    isFull ? styles.threadFull : "",
     isMobileFull ? styles.threadMobileFull : "",
   ]
     .filter(Boolean)
     .join(" ");
 
-  const scrollToLatestMessage = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const isNearBottom = useCallback((container: HTMLDivElement) => {
+    return container.scrollHeight - container.scrollTop - container.clientHeight < NEAR_EDGE_THRESHOLD_PX;
+  }, []);
 
-  const loadMessages = async (shouldMarkRead: boolean) => {
-    setIsLoading(true);
-    setLoadError(false);
-
-    try {
-      const messagesResponse = await GetChatMessages(conversationId);
-      setMessages(messagesResponse.data);
-
-      if (shouldMarkRead) {
-        await MarkChatConversationRead(conversationId);
-        onMessagesChange?.();
-      }
-    } catch {
-      setLoadError(true);
-      setMessages([]);
-    } finally {
-      setIsLoading(false);
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
+    const container = messagesContainerRef.current;
+    if (!container) {
+      return;
     }
-  };
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior,
+    });
+  }, []);
+
+  const applyVisibleWindow = useCallback(
+    (startIndex: number, allMessages: ChatMessage[]) => {
+      visibleStartIndexRef.current = startIndex;
+      setHasMoreOlder(startIndex > 0);
+      setMessages(allMessages.slice(startIndex));
+    },
+    []
+  );
+
+  const showLatestWindow = useCallback(
+    (allMessages: ChatMessage[]) => {
+      const startIndex = useScrollWindow
+        ? Math.max(0, allMessages.length - MESSAGE_WINDOW_SIZE)
+        : 0;
+      applyVisibleWindow(startIndex, allMessages);
+    },
+    [applyVisibleWindow, useScrollWindow]
+  );
+
+  const loadOlderMessages = useCallback(() => {
+    if (isLoadingOlderRef.current || !hasMoreOlder || visibleStartIndexRef.current <= 0) {
+      return;
+    }
+
+    const container = messagesContainerRef.current;
+    if (!container || container.scrollHeight <= container.clientHeight) {
+      return;
+    }
+
+    const previousScrollHeight = container.scrollHeight;
+    const previousScrollTop = container.scrollTop;
+    const newStart = Math.max(0, visibleStartIndexRef.current - MESSAGE_WINDOW_SIZE);
+
+    isLoadingOlderRef.current = true;
+    setIsLoadingOlder(true);
+
+    applyVisibleWindow(newStart, allMessagesRef.current);
+
+    requestAnimationFrame(() => {
+      const nextContainer = messagesContainerRef.current;
+      if (nextContainer) {
+        const heightDelta = nextContainer.scrollHeight - previousScrollHeight;
+        nextContainer.scrollTop = previousScrollTop + heightDelta;
+      }
+
+      isLoadingOlderRef.current = false;
+      setIsLoadingOlder(false);
+    });
+  }, [applyVisibleWindow, hasMoreOlder]);
+
+  const handleMessagesScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container || !useScrollWindow) {
+      return;
+    }
+
+    if (
+      container.scrollTop < NEAR_EDGE_THRESHOLD_PX &&
+      container.scrollHeight > container.clientHeight
+    ) {
+      loadOlderMessages();
+    }
+  }, [loadOlderMessages, useScrollWindow]);
+
+  const appendIncomingMessages = useCallback(
+    (incoming: ChatMessage[], shouldScrollToBottom: boolean) => {
+      allMessagesRef.current = mergeMessages(allMessagesRef.current, incoming);
+
+      if (!useScrollWindow) {
+        setMessages(allMessagesRef.current);
+        if (shouldScrollToBottom) {
+          requestAnimationFrame(() => scrollToBottom("smooth"));
+        }
+        return;
+      }
+
+      if (shouldScrollToBottom) {
+        showLatestWindow(allMessagesRef.current);
+        requestAnimationFrame(() => scrollToBottom("smooth"));
+      }
+    },
+    [scrollToBottom, showLatestWindow, useScrollWindow]
+  );
 
   useEffect(() => {
     if (!active || !conversationId) {
       return;
     }
 
-    void loadMessages(true);
-  }, [active, conversationId]);
+    let cancelled = false;
+
+    allMessagesRef.current = [];
+    visibleStartIndexRef.current = 0;
+    setMessages([]);
+    setHasMoreOlder(false);
+    setLoadError(false);
+    setDraftMessage("");
+    setIsLoading(true);
+
+    const loadInitialMessages = async () => {
+      try {
+        const messagesResponse = await GetChatMessages(conversationId);
+        if (cancelled) {
+          return;
+        }
+
+        allMessagesRef.current = messagesResponse.data;
+        showLatestWindow(allMessagesRef.current);
+
+        await MarkChatConversationRead(conversationId);
+        if (cancelled) {
+          return;
+        }
+
+        onMessagesChangeRef.current?.();
+
+        requestAnimationFrame(() => scrollToBottom("auto"));
+      } catch {
+        if (!cancelled) {
+          setLoadError(true);
+          allMessagesRef.current = [];
+          setMessages([]);
+          setHasMoreOlder(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadInitialMessages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active, conversationId, scrollToBottom, showLatestWindow]);
 
   useEffect(() => {
     if (!active || !conversationId) {
@@ -109,26 +259,16 @@ const ConversationChatThread = ({
         return;
       }
 
-      setMessages((previous) => {
-        if (previous.some((item) => item.id === message.id)) {
-          return previous;
-        }
-
-        return [...previous, message];
-      });
+      const container = messagesContainerRef.current;
+      const shouldAutoScroll = container ? isNearBottom(container) : true;
+      appendIncomingMessages([message], shouldAutoScroll);
     });
 
     return () => {
       unsubscribe();
       void leaveConversation(conversationId);
     };
-  }, [active, conversationId]);
-
-  useEffect(() => {
-    if (active) {
-      scrollToLatestMessage();
-    }
-  }, [messages, active]);
+  }, [active, appendIncomingMessages, conversationId, isNearBottom]);
 
   const handleSend = async (event: FormEvent) => {
     event.preventDefault();
@@ -141,15 +281,9 @@ const ConversationChatThread = ({
     setIsSending(true);
     try {
       const response = await SendChatMessage(conversationId, trimmedMessage);
-      setMessages((previous) => {
-        if (previous.some((item) => item.id === response.data.id)) {
-          return previous;
-        }
-
-        return [...previous, response.data];
-      });
+      appendIncomingMessages([response.data], true);
       setDraftMessage("");
-      onMessagesChange?.();
+      onMessagesChangeRef.current?.();
     } catch {
       setLoadError(true);
     } finally {
@@ -216,19 +350,29 @@ const ConversationChatThread = ({
     );
   };
 
+  const showInitialLoading = isLoading && messages.length === 0;
+
   return (
     <div className={rootClassName}>
-      {isLoading && <p className={styles.mutedText}>{t("chat.loading")}</p>}
+      {showInitialLoading && <p className={styles.mutedText}>{t("chat.loading")}</p>}
       {loadError && !isLoading && <p className={styles.mutedText}>{t("chat.loadError")}</p>}
 
-      {!isLoading && !loadError && (
+      {!loadError && !showInitialLoading && (
         <>
-          <div className={styles.messages}>
-            {messages.length === 0 && (
+          <div
+            ref={messagesContainerRef}
+            className={styles.messages}
+            onScroll={handleMessagesScroll}
+          >
+            {isLoadingOlder ? (
+              <div className={styles.topLoader} role="status" aria-live="polite">
+                {t("chat.loadingOlder")}
+              </div>
+            ) : null}
+            {messages.length === 0 && !isLoading && (
               <p className={styles.emptyMessages}>{t("chat.noMessages")}</p>
             )}
             {messages.map((message, index) => renderMessage(message, index))}
-            <div ref={messagesEndRef} />
           </div>
 
           <form

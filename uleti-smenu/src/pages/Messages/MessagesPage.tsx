@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -73,6 +73,10 @@ const MessagesPage = () => {
     ? resolveContactPhoto(selectedConversation)
     : undefined;
 
+  const handleMessagesChange = useCallback(() => {
+    void loadConversations();
+  }, [loadConversations]);
+
   if (authStatus === "loading") {
     return <div className={styles.page}>{t("common.loading")}</div>;
   }
@@ -82,8 +86,8 @@ const MessagesPage = () => {
   }
 
   return (
-    <div className={`${styles.page} ${isMobile ? styles.pageMobile : ""}`}>
-      <div className={isMobile ? styles.pageHeader : undefined}>
+    <div className={`${styles.page} ${isMobile ? styles.pageMobile : styles.pageDesktop}`}>
+      <div className={styles.pageHeader}>
         {isCandidateShell ? (
           <CandidatePageHeader
             title={t("candidate.messagesTitle")}
@@ -152,11 +156,11 @@ const MessagesPage = () => {
                   otherPartyProfilePhoto={selectedContactPhoto}
                   active
                   variant="full"
-                  onMessagesChange={() => void loadConversations()}
+                  onMessagesChange={handleMessagesChange}
                 />
               </>
             ) : (
-              <p className={styles.mutedText}>{t("messages.selectConversation")}</p>
+              <p className={`${styles.mutedText} ${styles.emptyState}`}>{t("messages.selectConversation")}</p>
             )}
           </section>
         </div>

@@ -722,6 +722,7 @@ const en = {
     openChat: "Open chat",
     hideChat: "Hide chat",
     loading: "Loading chat...",
+    loadingOlder: "Loading older messages...",
     loadError: "Unable to load chat.",
     noMessages: "No messages yet. Start the conversation.",
     messagePlaceholder: "Write a message...",
