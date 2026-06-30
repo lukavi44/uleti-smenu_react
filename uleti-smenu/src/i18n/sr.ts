@@ -13,6 +13,7 @@ const sr = {
     sessionExpired: "Sesija je istekla, prijavite se ponovo.",
     unexpectedServerError: "Neočekivana greška na serveru.",
     close: "Zatvori",
+    ok: "U redu",
     loadingMore: "Učitavanje...",
     loadedOf: "Prikazano {{visible}} od {{total}}"
   },
@@ -134,7 +135,7 @@ const sr = {
       statusInactive: "Neaktivan",
       appliedForJob: "{{title}} – {{location}}",
       appliedToday: "danas u {{time}}",
-      mobilePostMeta: "{{count}} prijava • Objavljen: {{date}}.",
+      mobilePostMeta: "{{count}} prijava • Smena {{date}}.",
       managePost: "Upravljaj oglasom"
     },
     heroCtaEmployee: "Tražim smenu",
@@ -554,6 +555,7 @@ const sr = {
     tabOverview: "Pregled oglasa",
     tabCandidates: "Kandidati ({{count}})",
     publishedOn: "Objavljen {{date}}.",
+    shiftOn: "Smena {{date}}",
     backToPosts: "Nazad na oglase",
     postNotFound: "Oglas nije pronađen.",
     sortShiftSoonest: "Datum smene (najskoriji)",
@@ -789,6 +791,18 @@ const sr = {
     failedLoadPlatformShifts: "Istorija smena nije mogla da se učita.",
     loadError: "Profil zaposlenog nije mogao da se učita.",
     backToProfile: "Nazad na profil",
+    back: "Nazad",
+    backToCandidates: "Nazad na listu kandidata",
+    memberSince: "Član od {{date}}.",
+    statAge: "Godine",
+    statExperience: "Radno iskustvo",
+    statAverageRating: "Prosečna ocena",
+    statAcceptedShifts: "Prihvaćene smene",
+    experienceUnavailable: "—",
+    experienceOneYear: "1 godina",
+    experienceYearsPlus: "{{years}}+ godine",
+    experienceMonths: "{{count}} mes.",
+    showMoreItems: "Prikaži još",
     employer: "Poslodavac",
     location: "Lokacija",
     shiftDate: "Datum smene",
@@ -964,6 +978,175 @@ const sr = {
     salary: "Dnevnica",
     status: "Status",
     profile: "Profil"
+  },
+  admin: {
+    shell: {
+      panelLabel: "Admin panel",
+      sidebarNavigation: "Admin navigacija",
+      drawerNavigation: "Admin meni",
+      menuTitle: "Meni",
+      openMenu: "Otvori meni",
+      notifications: "Obaveštenja"
+    },
+    nav: {
+      dashboard: "Dashboard",
+      candidates: "Kandidati",
+      employers: "Poslodavci",
+      restaurants: "Restorani / filijale",
+      jobPosts: "Oglasi",
+      jobsShort: "Oglasi",
+      applications: "Prijave / smene",
+      billing: "Plaćanja / billing",
+      reports: "Izveštaji",
+      settings: "Podešavanja",
+      more: "Više"
+    },
+    pages: {
+      dashboard: "Dashboard",
+      candidates: "Kandidati",
+      employers: "Poslodavci",
+      employerDetail: "Detalji poslodavca",
+      restaurants: "Restorani / filijale",
+      jobPosts: "Oglasi",
+      applications: "Prijave / smene",
+      billing: "Plaćanja / billing",
+      reports: "Izveštaji",
+      settings: "Podešavanja"
+    },
+    dashboard: {
+      totalCandidates: "Ukupno kandidata",
+      totalEmployers: "Ukupno poslodavaca",
+      activeJobPosts: "Aktivni oglasi",
+      reports: "Prijave / prigovori",
+      walletTopUpsMonth: "Uplate u novčanike (mesec)",
+      acceptedAllTime: "Prihvaćeni kandidati",
+      acceptedAllTimeStat: "Prihvaćeni kandidati (all time)",
+      completedShiftsAllTime: "Završene smene (all time)",
+      applicationsChart: "Grafik prijava",
+      recentActivity: "Nedavne aktivnosti",
+      noActivity: "Nema nedavnih aktivnosti.",
+      dateFrom: "Datum od",
+      dateTo: "Datum do"
+    },
+    activity: {
+      employerRegistered: "Novi poslodavac registrovan",
+      jobPostCreated: "Novi oglas kreiran",
+      candidateAccepted: "Kandidat prihvaćen",
+      walletTopUp: "Uplata u novčanik",
+      reportSubmitted: "Novi prigovor"
+    },
+    status: {
+      active: "Aktivan",
+      suspended: "Suspendovan"
+    },
+    verification: {
+      verifiedBadge: "✔ Verifikovan poslodavac",
+      notVerified: "Nije verifikovan",
+      helperText: "Ovaj poslodavac je ručno verifikovan od strane UletiSmenu tima.",
+      modalTitle: "Verifikacija poslodavca",
+      modalText: "Da li želite da označite ovog poslodavca kao verifikovanog?",
+      modalTextNamed: "Da li želite da označite „{{name}}“ kao verifikovanog poslodavca?",
+      confirm: "Potvrdi",
+      successTitle: "Poslodavac verifikovan!",
+      toggleLabel: "Verifikovan poslodavac"
+    },
+    employers: {
+      searchPlaceholder: "Pretraga poslodavaca...",
+      allStatuses: "Svi statusi",
+      allCities: "Svi gradovi",
+      empty: "Nema poslodavaca za izabrane filtere.",
+      viewDetails: "Detalji",
+      columns: {
+        employer: "Poslodavac / restoran",
+        email: "Email",
+        pib: "PIB",
+        city: "Grad",
+        status: "Status",
+        verified: "Verifikovan",
+        created: "Datum kreiranja",
+        actions: "Akcije"
+      }
+    },
+    employerDetail: {
+      notFound: "Poslodavac nije pronađen.",
+      backToList: "Nazad na listu",
+      basicInfo: "Osnovne informacije",
+      verification: "Verifikacija",
+      statistics: "Statistika",
+      billing: "Bilans / pretplata",
+      address: "Adresa",
+      verifiedBy: "Verifikovao",
+      verifiedAt: "Datum verifikacije",
+      activePosts: "Aktivni oglasi",
+      totalPosts: "Ukupno objava",
+      completedShifts: "Završene smene",
+      acceptedCandidates: "Prihvaćeni kandidati (all time)",
+      averageRating: "Prosečna ocena",
+      subscription: "Pretplata",
+      subscriptionExpiry: "Ističe",
+      walletBalance: "Stanje novčanika",
+      tabs: {
+        overview: "Pregled",
+        jobPosts: "Oglasi",
+        branches: "Filijale",
+        statistics: "Statistika",
+        billing: "Uplate",
+        notes: "Napomene"
+      }
+    },
+    placeholder: {
+      comingSoon: "Sekcija „{{section}}“ uskoro dolazi u admin panelu."
+    },
+    candidates: {
+      searchPlaceholder: "Pretraga kandidata...",
+      empty: "Nema kandidata za izabrane filtere.",
+      columns: {
+        name: "Kandidat",
+        phone: "Telefon",
+        applications: "Prijave"
+      }
+    },
+    restaurants: {
+      searchPlaceholder: "Pretraga filijala...",
+      empty: "Nema filijala za izabrane filtere.",
+      columns: {
+        name: "Filijala",
+        employer: "Poslodavac"
+      }
+    },
+    jobPosts: {
+      searchPlaceholder: "Pretraga oglasa...",
+      empty: "Nema oglasa za izabrane filtere.",
+      allStatuses: "Svi statusi",
+      columns: {
+        title: "Oglas"
+      }
+    },
+    applications: {
+      searchPlaceholder: "Pretraga prijava...",
+      empty: "Nema prijava za izabrane filtere.",
+      allStatuses: "Svi statusi",
+      columns: {
+        candidate: "Kandidat",
+        applied: "Datum prijave"
+      }
+    },
+    billing: {
+      searchPlaceholder: "Pretraga po poslodavcu...",
+      empty: "Nema transakcija za izabrane filtere.",
+      columns: {
+        amount: "Iznos",
+        type: "Tip",
+        date: "Datum"
+      }
+    },
+    reports: {
+      empty: "Još nema prijavljenih prigovora. Ovaj modul će prikazati prijave kandidata i poslodavaca kada bude dostupan."
+    },
+    settings: {
+      title: "Podešavanja admin panela",
+      description: "Globalna podešavanja platforme biće dostupna u narednoj verziji."
+    }
   }
 };
 

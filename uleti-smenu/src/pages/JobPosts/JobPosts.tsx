@@ -1051,6 +1051,7 @@ const JobPosts = () => {
                 <JobPostItem
                   jobPost={jobPost}
                   disableCardHover={isMyPost}
+                  showShiftDate={isMyPost}
                   isSelected={
                     isMyPost &&
                     !isMobileEmployer &&

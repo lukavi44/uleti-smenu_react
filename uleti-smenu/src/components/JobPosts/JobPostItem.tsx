@@ -6,12 +6,14 @@ import { AuthContext } from "../../store/Auth-context";
 import { ApplyToJobPost } from "../../services/application-service";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 
 interface JobPostItemProps {
     jobPost: JobPost;
     disableCardHover?: boolean;
     isSelected?: boolean;
     imageOverlay?: ReactNode;
+    showShiftDate?: boolean;
   }
 
   const JobPostItem = ({
@@ -19,6 +21,7 @@ interface JobPostItemProps {
     disableCardHover = false,
     isSelected = false,
     imageOverlay,
+    showShiftDate = false,
   }: JobPostItemProps) => {
     const { t } = useTranslation();
     const { role, isLoggedIn } = useContext(AuthContext);
@@ -36,11 +39,16 @@ interface JobPostItemProps {
       }
     };
 
+    const shiftDateMeta = showShiftDate
+      ? t("jobPosts.shiftOn", { date: formatDisplayDate(String(jobPost.startingDate)) })
+      : undefined;
+
     return (
       <div>
         <Card
           title={jobPost.title}
           img={jobPost.employer?.profilePhoto}
+          meta={shiftDateMeta}
           description={`${jobPost.description}${jobPost.restaurantLocationName ? ` | ${t("jobPosts.location")}: ${jobPost.restaurantLocationName}${jobPost.restaurantLocationCity ? ` (${jobPost.restaurantLocationCity})` : ""}` : ""}`}
           orientation="horizontal"
           className={`${disableCardHover ? cardStyles.noHover : ""} ${isSelected ? cardStyles.selected : ""}`}

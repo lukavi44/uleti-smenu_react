@@ -73,6 +73,18 @@
   height: 100dvh;
 }
 
+.mainCandidateDetail {
+  max-width: none;
+  margin: 0;
+  padding: 0.75rem 0 calc(5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1024px) {
+  .mainCandidateDetail {
+    padding: 0 2rem 2.5rem;
+  }
+}
+
 @media (min-width: 1024px) {
   .mainJobPostsList {
     display: flex;

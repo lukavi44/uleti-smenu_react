@@ -13,6 +13,7 @@ const en = {
     sessionExpired: "Session expired, please login again.",
     unexpectedServerError: "Unexpected server error.",
     close: "Close",
+    ok: "OK",
     loadingMore: "Loading more...",
     loadedOf: "Showing {{visible}} of {{total}}"
   },
@@ -134,7 +135,7 @@ const en = {
       statusInactive: "Inactive",
       appliedForJob: "{{title}} – {{location}}",
       appliedToday: "today at {{time}}",
-      mobilePostMeta: "{{count}} applications • Published: {{date}}.",
+      mobilePostMeta: "{{count}} applications • Shift {{date}}.",
       managePost: "Manage job post"
     },
     heroCtaEmployee: "I need a shift",
@@ -553,6 +554,7 @@ const en = {
     tabOverview: "Job overview",
     tabCandidates: "Candidates ({{count}})",
     publishedOn: "Published {{date}}.",
+    shiftOn: "Shift {{date}}",
     backToPosts: "Back to job posts",
     postNotFound: "Job post not found.",
     sortShiftSoonest: "Shift date (soonest)",
@@ -787,6 +789,18 @@ const en = {
     failedLoadPlatformShifts: "Unable to load platform shift history.",
     loadError: "Unable to load employee profile.",
     backToProfile: "Back to profile",
+    back: "Back",
+    backToCandidates: "Back to candidate list",
+    memberSince: "Member since {{date}}.",
+    statAge: "Age",
+    statExperience: "Work experience",
+    statAverageRating: "Average rating",
+    statAcceptedShifts: "Accepted shifts",
+    experienceUnavailable: "—",
+    experienceOneYear: "1 year",
+    experienceYearsPlus: "{{years}}+ years",
+    experienceMonths: "{{count}} mo.",
+    showMoreItems: "Show more",
     employer: "Employer",
     location: "Location",
     shiftDate: "Shift date",
@@ -962,6 +976,175 @@ const en = {
     salary: "Salary",
     status: "Status",
     profile: "Profile"
+  },
+  admin: {
+    shell: {
+      panelLabel: "Admin panel",
+      sidebarNavigation: "Admin navigation",
+      drawerNavigation: "Admin menu",
+      menuTitle: "Menu",
+      openMenu: "Open menu",
+      notifications: "Notifications"
+    },
+    nav: {
+      dashboard: "Dashboard",
+      candidates: "Candidates",
+      employers: "Employers",
+      restaurants: "Restaurants / branches",
+      jobPosts: "Job posts",
+      jobsShort: "Jobs",
+      applications: "Applications / shifts",
+      billing: "Payments / billing",
+      reports: "Reports",
+      settings: "Settings",
+      more: "More"
+    },
+    pages: {
+      dashboard: "Dashboard",
+      candidates: "Candidates",
+      employers: "Employers",
+      employerDetail: "Employer details",
+      restaurants: "Restaurants / branches",
+      jobPosts: "Job posts",
+      applications: "Applications / shifts",
+      billing: "Payments / billing",
+      reports: "Reports",
+      settings: "Settings"
+    },
+    dashboard: {
+      totalCandidates: "Total candidates",
+      totalEmployers: "Total employers",
+      activeJobPosts: "Active job posts",
+      reports: "Reports / complaints",
+      walletTopUpsMonth: "Wallet top-ups (month)",
+      acceptedAllTime: "Accepted candidates",
+      acceptedAllTimeStat: "Accepted candidates (all time)",
+      completedShiftsAllTime: "Completed shifts (all time)",
+      applicationsChart: "Applications chart",
+      recentActivity: "Recent activity",
+      noActivity: "No recent activity.",
+      dateFrom: "From date",
+      dateTo: "To date"
+    },
+    activity: {
+      employerRegistered: "New employer registered",
+      jobPostCreated: "New job post created",
+      candidateAccepted: "Candidate accepted",
+      walletTopUp: "Wallet top-up received",
+      reportSubmitted: "New report submitted"
+    },
+    status: {
+      active: "Active",
+      suspended: "Suspended"
+    },
+    verification: {
+      verifiedBadge: "✔ Verified employer",
+      notVerified: "Not verified",
+      helperText: "This employer was manually verified by the UletiSmenu team.",
+      modalTitle: "Employer verification",
+      modalText: "Do you want to mark this employer as verified?",
+      modalTextNamed: "Do you want to mark \"{{name}}\" as a verified employer?",
+      confirm: "Confirm",
+      successTitle: "Employer verified!",
+      toggleLabel: "Verified employer"
+    },
+    employers: {
+      searchPlaceholder: "Search employers...",
+      allStatuses: "All statuses",
+      allCities: "All cities",
+      empty: "No employers match the selected filters.",
+      viewDetails: "Details",
+      columns: {
+        employer: "Employer / restaurant",
+        email: "Email",
+        pib: "PIB",
+        city: "City",
+        status: "Status",
+        verified: "Verified",
+        created: "Created date",
+        actions: "Actions"
+      }
+    },
+    employerDetail: {
+      notFound: "Employer not found.",
+      backToList: "Back to list",
+      basicInfo: "Basic information",
+      verification: "Verification",
+      statistics: "Statistics",
+      billing: "Billing / subscription",
+      address: "Address",
+      verifiedBy: "Verified by",
+      verifiedAt: "Verified on",
+      activePosts: "Active job posts",
+      totalPosts: "Total job posts",
+      completedShifts: "Completed shifts",
+      acceptedCandidates: "Accepted candidates (all time)",
+      averageRating: "Average rating",
+      subscription: "Subscription",
+      subscriptionExpiry: "Expires",
+      walletBalance: "Wallet balance",
+      tabs: {
+        overview: "Overview",
+        jobPosts: "Job posts",
+        branches: "Branches",
+        statistics: "Statistics",
+        billing: "Billing",
+        notes: "Notes"
+      }
+    },
+    placeholder: {
+      comingSoon: "The \"{{section}}\" section is coming soon to the admin panel."
+    },
+    candidates: {
+      searchPlaceholder: "Search candidates...",
+      empty: "No candidates match the selected filters.",
+      columns: {
+        name: "Candidate",
+        phone: "Phone",
+        applications: "Applications"
+      }
+    },
+    restaurants: {
+      searchPlaceholder: "Search branches...",
+      empty: "No branches match the selected filters.",
+      columns: {
+        name: "Branch",
+        employer: "Employer"
+      }
+    },
+    jobPosts: {
+      searchPlaceholder: "Search job posts...",
+      empty: "No job posts match the selected filters.",
+      allStatuses: "All statuses",
+      columns: {
+        title: "Job post"
+      }
+    },
+    applications: {
+      searchPlaceholder: "Search applications...",
+      empty: "No applications match the selected filters.",
+      allStatuses: "All statuses",
+      columns: {
+        candidate: "Candidate",
+        applied: "Applied date"
+      }
+    },
+    billing: {
+      searchPlaceholder: "Search by employer...",
+      empty: "No transactions match the selected filters.",
+      columns: {
+        amount: "Amount",
+        type: "Type",
+        date: "Date"
+      }
+    },
+    reports: {
+      empty: "No reports have been submitted yet. This module will list candidate and employer reports when available."
+    },
+    settings: {
+      title: "Admin panel settings",
+      description: "Global platform settings will be available in a future release."
+    }
   }
 };
 

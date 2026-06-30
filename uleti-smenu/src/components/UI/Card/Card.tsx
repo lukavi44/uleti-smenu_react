@@ -6,6 +6,7 @@ interface CardProps {
   title: string;
   img?: string | null;
   description: string;
+  meta?: string;
   orientation?: "vertical" | "horizontal";
   className?: string;
   imageOverlay?: React.ReactNode;
@@ -15,6 +16,7 @@ const Card: React.FC<CardProps> = ({
   title,
   img,
   description,
+  meta,
   orientation = "vertical",
   className = "",
   imageOverlay,
@@ -36,6 +38,7 @@ const Card: React.FC<CardProps> = ({
       </div>
       <div className={styles.content}>
         <h2>{title}</h2>
+        {meta ? <p className={styles.meta}>{meta}</p> : null}
         <p>{description}</p>
       </div>
     </div>

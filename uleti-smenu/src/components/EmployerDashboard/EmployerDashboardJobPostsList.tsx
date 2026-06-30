@@ -2,14 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@mui/material";
-import { EllipsisVerticalIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, MapPinIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import { JobPost } from "../../models/JobPost.model";
 import {
   EmployerDashboardJobTab,
   countEmployerDashboardJobPostsByTab,
   filterEmployerDashboardJobPosts,
   getEmployerDashboardJobStatusBadge,
-  getJobPostPublishedDate,
 } from "../../helpers/employerDashboardJobPosts";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./EmployerDashboardJobPostsList.module.scss";
@@ -102,7 +101,7 @@ const EmployerDashboardJobPostsList = ({ jobPosts, isLoading }: EmployerDashboar
           {filteredPosts.map((post) => {
             const statusBadge = getEmployerDashboardJobStatusBadge(post, t);
             const applicantCount = post.applicantCount ?? 0;
-            const publishedDate = formatDisplayDate(getJobPostPublishedDate(post));
+            const shiftDate = formatDisplayDate(String(post.startingDate));
 
             return (
               <article key={post.id} className={styles.row}>
@@ -126,14 +125,15 @@ const EmployerDashboardJobPostsList = ({ jobPosts, isLoading }: EmployerDashboar
                         {t("jobPosts.applicationsCount", { count: applicantCount })}
                       </span>
                       <span className={styles.date}>
-                        {t("jobPosts.publishedOn", { date: publishedDate })}
+                        <CalendarDaysIcon className={styles.dateIcon} aria-hidden />
+                        {t("jobPosts.shiftOn", { date: shiftDate })}
                       </span>
                     </div>
                   ) : (
                     <p className={styles.mobileMeta}>
                       {t("home.dashboard.mobilePostMeta", {
                         count: applicantCount,
-                        date: publishedDate,
+                        date: shiftDate,
                       })}
                     </p>
                   )}

@@ -1,3 +1,6 @@
+/** Default page size for candidate profile accordion sections. */
+export const CANDIDATE_SECTION_PAGE_SIZE = 5;
+
 /** Default page size for lists that can grow (job posts, applications, shifts, etc.). */
 export const LIST_PAGE_SIZE = 3;
 

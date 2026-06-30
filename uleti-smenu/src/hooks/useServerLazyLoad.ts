@@ -11,7 +11,8 @@ interface Identifiable {
 
 export function useServerLazyLoad<T extends Identifiable>(
   fetchPage: (page: number) => Promise<PagedFetchResult<T>>,
-  resetKey: string
+  resetKey: string,
+  enabled = true
 ) {
   const fetchPageRef = useRef(fetchPage);
   fetchPageRef.current = fetchPage;
@@ -35,6 +36,10 @@ export function useServerLazyLoad<T extends Identifiable>(
   }, [resetKey]);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     let active = true;
 
     const load = async () => {
@@ -76,7 +81,7 @@ export function useServerLazyLoad<T extends Identifiable>(
     return () => {
       active = false;
     };
-  }, [page, resetKey, reloadToken]);
+  }, [page, resetKey, reloadToken, enabled]);
 
   const hasMore = (items?.length ?? 0) < totalCount;
 

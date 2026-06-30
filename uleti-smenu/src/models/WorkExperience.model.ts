@@ -1,4 +1,4 @@
-import { Review, ReviewSummary } from "./Review.model";
+import { ReviewSummary } from "./Review.model";
 
 export interface WorkExperience {
   id: string;
@@ -29,10 +29,14 @@ export interface EmployeePublicProfile {
   email: string;
   phoneNumber: string;
   profilePhoto?: string;
-  workExperiences: WorkExperience[];
-  platformShifts: EmployeePlatformShift[];
+  city?: string;
+  country?: string;
+  memberSinceUtc?: string;
+  age?: number | null;
+  totalExperienceYears?: number | null;
   reviewSummary: ReviewSummary;
-  reviews: Review[];
+  workExperienceCount: number;
+  platformShiftCount: number;
 }
 
 export interface UpsertWorkExperiencePayload {

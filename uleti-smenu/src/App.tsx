@@ -29,6 +29,17 @@ import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePa
 import EmployerLegacyRedirect from "./pages/Employers/EmployerLegacyRedirect";
 import ReviewSubjectPage from "./pages/Reviews/ReviewSubjectPage";
 import UpgradePage from "./pages/Billing/UpgradePage";
+import RequireAdmin from "./router/RequireAdmin";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminEmployersPage from "./pages/Admin/AdminEmployersPage";
+import AdminEmployerDetailPage from "./pages/Admin/AdminEmployerDetailPage";
+import AdminCandidatesPage from "./pages/Admin/AdminCandidatesPage";
+import AdminRestaurantsPage from "./pages/Admin/AdminRestaurantsPage";
+import AdminJobPostsPage from "./pages/Admin/AdminJobPostsPage";
+import AdminApplicationsPage from "./pages/Admin/AdminApplicationsPage";
+import AdminBillingPage from "./pages/Admin/AdminBillingPage";
+import AdminReportsPage from "./pages/Admin/AdminReportsPage";
+import AdminSettingsPage from "./pages/Admin/AdminSettingsPage";
 
 function App() {
   return (
@@ -77,6 +88,18 @@ function App() {
               <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
               <Route path="billing/upgrade" element={<UpgradePage/>}/>
+            </Route>
+            <Route element={<RequireAdmin />}>
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="admin/candidates" element={<AdminCandidatesPage />} />
+              <Route path="admin/employers" element={<AdminEmployersPage />} />
+              <Route path="admin/employers/:employerId" element={<AdminEmployerDetailPage />} />
+              <Route path="admin/restaurants" element={<AdminRestaurantsPage />} />
+              <Route path="admin/job-posts" element={<AdminJobPostsPage />} />
+              <Route path="admin/applications" element={<AdminApplicationsPage />} />
+              <Route path="admin/billing" element={<AdminBillingPage />} />
+              <Route path="admin/reports" element={<AdminReportsPage />} />
+              <Route path="admin/settings" element={<AdminSettingsPage />} />
             </Route>
             </Route>
           </Routes>

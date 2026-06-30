@@ -1,0 +1,102 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.scrollArea {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.reviewSummary {
+  margin: 0 0 0.85rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.mutedText {
+  margin: 0;
+  color: #6b7280;
+}
+
+.experienceList,
+.shiftList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.experienceCard,
+.shiftCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.experienceCard h3,
+.shiftCard h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.shiftCard h4 {
+  margin-bottom: 0.5rem;
+}
+
+.company {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+  color: #374151;
+}
+
+.dates {
+  margin: 0.2rem 0 0.5rem;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.meta {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.meta span {
+  color: #6b7280;
+}
+
+.skeletonList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skeletonCard {
+  height: 5.5rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(90deg, #f8fafc 25%, #eef2f7 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .experienceCard,
+  .shiftCard {
+    padding: 0.8rem 0.85rem;
+  }
+}

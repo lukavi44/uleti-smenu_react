@@ -1,20 +1,20 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useMediaQuery } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Footer from "../../components/Footer/Footer";
-import PlatformShiftList from "../../components/Profile/PlatformShiftList";
-import RatingBadge from "../../components/Reviews/RatingBadge";
-import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
-import { getImageUrl } from "../../helpers/getHelperUrl";
-import { formatDisplayDate } from "../../helpers/formatDisplayDate";
+import CandidateDetailHeader from "../../components/Candidate/CandidateDetailHeader";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
 import { AuthContext } from "../../store/Auth-context";
+import EmployeePublicProfileSections from "./EmployeePublicProfileSections";
 import styles from "./EmployeePublicProfilePage.module.scss";
 
 const EmployeePublicProfilePage = () => {
   const { t } = useTranslation();
   const { employeeId } = useParams();
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:1023px)");
   const { authStatus, role } = useContext(AuthContext);
   const [profile, setProfile] = useState<EmployeePublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +45,15 @@ const EmployeePublicProfilePage = () => {
     }
   }, [authStatus, role, employeeId]);
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/oglasi-za-posao");
+  };
+
   if (authStatus === "loading") {
     return <div className={styles.page}>{t("common.loading")}</div>;
   }
@@ -54,76 +63,22 @@ const EmployeePublicProfilePage = () => {
   }
 
   return (
-    <>
-      <main className={styles.page}>
-        <Link className={styles.backLink} to="/profile">
-          {t("employeeProfile.backToProfile")}
-        </Link>
+    <main className={styles.page}>
+      <button type="button" className={styles.backButton} onClick={handleBack}>
+        <ArrowLeftIcon className={styles.backIcon} aria-hidden="true" />
+        {isMobile ? t("employeeProfile.back") : t("employeeProfile.backToCandidates")}
+      </button>
 
-        {isLoading && <p className={styles.mutedText}>{t("common.loading")}</p>}
-        {loadError && !isLoading && <p className={styles.mutedText}>{t("employeeProfile.loadError")}</p>}
+      {isLoading && <p className={styles.mutedText}>{t("common.loading")}</p>}
+      {loadError && !isLoading && <p className={styles.mutedText}>{t("employeeProfile.loadError")}</p>}
 
-        {!isLoading && !loadError && profile && (
-          <>
-            <header className={styles.header}>
-              <img
-                src={getImageUrl(profile.profilePhoto)}
-                alt={profile.firstName}
-                className={styles.photo}
-              />
-              <div>
-                <h1>
-                  {profile.firstName} {profile.lastName}
-                </h1>
-                <RatingBadge
-                  averageRating={profile.reviewSummary.averageRating}
-                  reviewCount={profile.reviewSummary.reviewCount}
-                  subjectType="employee"
-                  subjectId={employeeId}
-                />
-              </div>
-            </header>
-
-            <section className={styles.section}>
-              <h2>{t("reviews.receivedAboutEmployee")}</h2>
-              <ReceivedReviewsSection
-                reviews={profile.reviews}
-                reviewSummary={profile.reviewSummary}
-              />
-            </section>
-
-            <section className={styles.section}>
-              <h2>{t("employeeProfile.workExperience")}</h2>
-              {profile.workExperiences.length === 0 ? (
-                <p className={styles.mutedText}>{t("employeeProfile.noExperience")}</p>
-              ) : (
-                <div className={styles.experienceList}>
-                  {profile.workExperiences.map((experience) => (
-                    <article key={experience.id} className={styles.experienceCard}>
-                      <h3>{experience.position}</h3>
-                      <p className={styles.company}>{experience.companyName}</p>
-                      <p className={styles.dates}>
-                        {formatDisplayDate(experience.startDate)} –{" "}
-                        {experience.endDate
-                          ? formatDisplayDate(experience.endDate)
-                          : t("employeeProfile.present")}
-                      </p>
-                      {experience.description && <p>{experience.description}</p>}
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section className={styles.section}>
-              <h2>{t("employeeProfile.platformHistory")}</h2>
-              <PlatformShiftList shifts={profile.platformShifts} />
-            </section>
-          </>
-        )}
-      </main>
-      <Footer />
-    </>
+      {!isLoading && !loadError && profile && employeeId && (
+        <>
+          <CandidateDetailHeader profile={profile} />
+          <EmployeePublicProfileSections employeeId={employeeId} profile={profile} />
+        </>
+      )}
+    </main>
   );
 };
 

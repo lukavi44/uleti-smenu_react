@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../../store/Auth-context";
 import { GetMyUnreadChatCount } from "../../../services/chat-service";
 import { subscribeChatUnreadCount, startRealtimeConnection } from "../../../services/realtime-service";
+import { isEmployerCandidateDetailPath } from "../../../helpers/candidateRoutes";
 import { isChatDetailPath } from "../../../helpers/chatRoutes";
 import { isEmployerJobPostDetailPath } from "../../../helpers/jobPostRoutes";
 import EmployerSidebar from "./EmployerSidebar";
@@ -20,6 +21,7 @@ const EmployerLayout = ({ children }: EmployerLayoutProps) => {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const isDashboard = location.pathname === "/";
   const isChatDetail = isChatDetailPath(location.pathname);
+  const isCandidateDetail = isEmployerCandidateDetailPath(location.pathname);
   const isJobPostDetail = isEmployerJobPostDetailPath(location.pathname);
   const isMessagesList = location.pathname === "/messages";
   const isJobPostsList = location.pathname === "/oglasi-za-posao";
@@ -48,9 +50,9 @@ const EmployerLayout = ({ children }: EmployerLayoutProps) => {
       <EmployerSidebar unreadChatCount={unreadChatCount} onLogout={() => void logout()} />
       <div className={styles.contentColumn}>
         <main
-          className={`${styles.main} ${isChatDetail ? styles.mainChatDetail : ""} ${isJobPostDetail ? styles.mainJobPostDetail : ""} ${isMessagesList ? styles.mainMessagesList : ""} ${isJobPostsList ? styles.mainJobPostsList : ""}`}
+          className={`${styles.main} ${isChatDetail ? styles.mainChatDetail : ""} ${isJobPostDetail ? styles.mainJobPostDetail : ""} ${isCandidateDetail ? styles.mainCandidateDetail : ""} ${isMessagesList ? styles.mainMessagesList : ""} ${isJobPostsList ? styles.mainJobPostsList : ""}`}
         >
-          {!isChatDetail && !isJobPostDetail ? <EmployerMobileHeader /> : null}
+          {!isChatDetail && !isJobPostDetail && !isCandidateDetail ? <EmployerMobileHeader /> : null}
           {isDashboard ? <EmployerTopBar /> : null}
           {children}
         </main>

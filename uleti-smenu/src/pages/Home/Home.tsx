@@ -1,3 +1,4 @@
+import { Navigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/material";
 import { useContext } from "react";
 import Footer from "../../components/Footer/Footer";
@@ -25,6 +26,10 @@ const HomePage = () => {
 
   if (authStatus === "authenticated" && role === "Employer") {
     return <EmployerDashboard />;
+  }
+
+  if (authStatus === "authenticated" && role === "Admin") {
+    return <Navigate to="/admin" replace />;
   }
 
   if (authStatus === "unauthenticated") {

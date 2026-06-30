@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.suspended {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.verified {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.notVerified {
+  background: #f1f5f9;
+  color: #64748b;
+}
