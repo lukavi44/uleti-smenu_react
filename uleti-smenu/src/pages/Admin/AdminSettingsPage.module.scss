@@ -24,3 +24,57 @@
   color: #64748b;
   line-height: 1.5;
 }
+
+.list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.endpointList {
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.endpointRow {
+  display: grid;
+  gap: 0.2rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 10rem 1fr;
+    align-items: baseline;
+  }
+
+  dt {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    word-break: break-all;
+  }
+}
+
+.link {
+  color: #2563eb;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.hint {
+  margin: 0.85rem 0 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}

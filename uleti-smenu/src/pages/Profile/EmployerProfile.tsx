@@ -1,170 +1,344 @@
-import { getImageUrl } from "../../helpers/getHelperUrl";
-import { getJobPostDisplayStatusLabel } from "../../helpers/jobPostStatus";
-import { Employer } from "../../models/User.model";
-import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from "react";
-import { JobPost } from "../../models/JobPost.model";
-import { Applicant } from "../../models/Application.model";
-import { GetMyJobPostPositions, GetMyJobPosts, GetMyJobPostsPaged } from "../../services/jobPost-service";
-import { GetApplicantsForJobPost, UpdateApplicationStatus } from "../../services/application-service";
-import { UpdateMyEmployerProfile, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
-import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
-import { toast } from "react-toastify";
-import { RestaurantLocation } from "../../models/RestaurantLocation.model";
-import styles from "./Profile.module.scss";
-import JobPostForm from "../../components/JobPosts/JobPostForm";
-import ProfilePhotoUpload from "./ProfilePhotoUpload";
-import CollapsibleSection from "./CollapsibleSection";
-import ApplicationChatPanel from "../../components/Chat/ApplicationChatPanel";
-import PendingReviewsSection from "../../components/Reviews/PendingReviewsSection";
-import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
-import RatingBadge from "../../components/Reviews/RatingBadge";
-import { GetEmployerReviewPage } from "../../services/review-service";
-import { Review, ReviewSummary } from "../../models/Review.model";
-import SubscriptionBanner from "../../components/Billing/SubscriptionBanner";
+import { ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AuthContext } from "../../store/Auth-context";
-import Pagination from "../../components/Common/Pagination";
-import { LIST_PAGE_SIZE } from "../../constants/pagination";
-import { useClientPagination } from "../../hooks/useClientPagination";
-import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import {
-  canEmployerDecideOnApplication,
-  getApplicationStatusLabel,
-} from "../../helpers/applicationStatus";
+  ArrowLeftIcon,
+  BuildingStorefrontIcon,
+  CameraIcon,
+  CheckCircleIcon,
+  ChevronRightIcon,
+  Cog6ToothIcon,
+  EnvelopeIcon,
+  IdentificationIcon,
+  MapPinIcon,
+  PencilSquareIcon,
+  PhoneIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+  StarIcon,
+  WalletIcon,
+  EllipsisVerticalIcon,
+} from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
+import { getImageUrl } from "../../helpers/getHelperUrl";
+import { Employer } from "../../models/User.model";
+import { RestaurantLocation } from "../../models/RestaurantLocation.model";
+import { ReviewSummary } from "../../models/Review.model";
+import { UpdateMyEmployerProfile, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
+import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
+import { GetEmployerReviewPage } from "../../services/review-service";
+import { AuthContext } from "../../store/Auth-context";
+import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
+import styles from "./EmployerProfile.module.scss";
 
 interface EmployerProfileProps {
-    user: Employer;
+  user: Employer;
 }
 
+type MobilePanel = "branches" | "reviews" | "verification" | "subscription" | "wallet" | "settings" | null;
+
 const buildEmployerProfileForm = (user: Employer) => ({
-    name: user.name ?? "",
-    phoneNumber: user.phoneNumber ?? "",
-    streetName: user.address?.street?.name ?? "",
-    streetNumber: user.address?.street?.number ? String(user.address.street.number) : "",
-    city: user.address?.city?.name ?? "",
-    postalCode: user.address?.city?.postalCode ? String(user.address.city.postalCode) : "",
-    country: user.address?.city?.country ?? "",
-    region: user.address?.city?.region ?? "",
+  name: user.name ?? "",
+  phoneNumber: user.phoneNumber ?? "",
+  streetName: user.address?.street?.name ?? "",
+  streetNumber: user.address?.street?.number ? String(user.address.street.number) : "",
+  city: user.address?.city?.name ?? "",
+  postalCode: user.address?.city?.postalCode ? String(user.address.city.postalCode) : "",
+  country: user.address?.city?.country ?? "",
+  region: user.address?.city?.region ?? "",
 });
 
 const formatEmployerAddress = (user: Employer) => {
-    const form = buildEmployerProfileForm(user);
-    if (!form.streetName && !form.city) {
-        return "-";
-    }
-
-    return `${form.streetName} ${form.streetNumber}, ${form.city}`.trim();
+  const form = buildEmployerProfileForm(user);
+  if (!form.streetName && !form.city) {
+    return "—";
+  }
+  return `${form.streetName} ${form.streetNumber}, ${form.city}`.trim();
 };
 
-const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-        case "Accepted":
-            return { backgroundColor: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "12px" };
-        case "Denied":
-            return { backgroundColor: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: "12px" };
-        case "Cancelled":
-            return { backgroundColor: "#f3f4f6", color: "#374151", padding: "2px 8px", borderRadius: "12px" };
-        case "Expired":
-            return { backgroundColor: "#e5e7eb", color: "#374151", padding: "2px 8px", borderRadius: "12px" };
-        default:
-            return { backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "12px" };
+const SectionHeader = ({
+  icon,
+  title,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  action?: ReactNode;
+}) => (
+  <div className={styles.sectionHeader}>
+    <div className={styles.sectionHeaderLeft}>
+      <span className={styles.sectionIcon}>{icon}</span>
+      <h2 className={styles.sectionTitle}>{title}</h2>
+    </div>
+    {action}
+  </div>
+);
+
+const ProfileSectionRow = ({
+  icon,
+  title,
+  content,
+  action,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  content: ReactNode;
+  action?: ReactNode;
+  onClick?: () => void;
+}) => (
+  <div
+    className={`${styles.profileSectionRow} ${onClick ? styles.profileSectionRowInteractive : ""}`}
+    onClick={onClick}
+    onKeyDown={
+      onClick
+        ? (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onClick();
+            }
+          }
+        : undefined
     }
-};
+    role={onClick ? "button" : undefined}
+    tabIndex={onClick ? 0 : undefined}
+  >
+    <div className={styles.profileSectionHeader}>
+      <span className={styles.sectionIcon}>{icon}</span>
+      <h2 className={styles.profileSectionTitle}>{title}</h2>
+    </div>
+    <div className={styles.profileSectionDivider} aria-hidden />
+    <div className={styles.profileSectionContent}>{content}</div>
+    <div className={styles.profileSectionAction} onClick={(event) => event.stopPropagation()}>
+      {action}
+    </div>
+    <ChevronRightIcon className={styles.profileSectionChevron} aria-hidden />
+  </div>
+);
 
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
-    const { t } = useTranslation();
-    const { refreshMe } = useContext(AuthContext);
-    const isEmployerShell = useIsEmployerShell();
-    const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
-    const [allJobPosts, setAllJobPosts] = useState<JobPost[]>([]);
-    const [positionOptions, setPositionOptions] = useState<string[]>([]);
-    const [jobPostsPage, setJobPostsPage] = useState(1);
-    const [jobPostsTotalCount, setJobPostsTotalCount] = useState(0);
-    const [jobPostPositionFilter, setJobPostPositionFilter] = useState("");
-    const [jobPostStatusFilter, setJobPostStatusFilter] = useState("active");
-    const [jobPostSortValue, setJobPostSortValue] = useState("createdAt_desc");
-    const [selectedJobPostId, setSelectedJobPostId] = useState<string>("");
-    const [applicants, setApplicants] = useState<Applicant[]>([]);
-    const [statusFilter, setStatusFilter] = useState<string>("All");
-    const [applicantSearchQuery, setApplicantSearchQuery] = useState("");
-    const [applicantSortValue, setApplicantSortValue] = useState("appliedAt_desc");
-    const [actionInProgress, setActionInProgress] = useState<string | null>(null);
-    const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(getImageUrl(user.profilePhoto));
-    const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
-    const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState<boolean>(false);
-    const [isProfileSaving, setIsProfileSaving] = useState(false);
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
-    const [profileForm, setProfileForm] = useState(() => buildEmployerProfileForm(user));
-    const [receivedReviews, setReceivedReviews] = useState<Review[]>([]);
-    const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
+  const { t } = useTranslation();
+  const { refreshMe } = useContext(AuthContext);
+  const isEmployerShell = useIsEmployerShell();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const mobilePhotoInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        setProfileForm(buildEmployerProfileForm(user));
-    }, [
-        user.name,
-        user.phoneNumber,
-        user.address?.street?.name,
-        user.address?.street?.number,
-        user.address?.city?.name,
-        user.address?.city?.postalCode,
-        user.address?.city?.country,
-        user.address?.city?.region,
-    ]);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(getImageUrl(user.profilePhoto));
+  const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState(false);
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState(() => buildEmployerProfileForm(user));
+  const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+  const [isCreatingLocation, setIsCreatingLocation] = useState(false);
+  const [showBranchForm, setShowBranchForm] = useState(false);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
+  const [reviewerAvatars, setReviewerAvatars] = useState<string[]>([]);
+  const [detailPanel, setDetailPanel] = useState<MobilePanel>(null);
+  const [newBranch, setNewBranch] = useState({
+    name: "",
+    phoneNumber: "",
+    pib: user.pib ?? "",
+    mb: user.mb ?? "",
+    streetName: "",
+    streetNumber: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    region: "",
+  });
 
-    const resetProfileForm = () => {
-        setProfileForm(buildEmployerProfileForm(user));
-    };
+  const subscription = user.subscription;
+  const walletBalance = subscription?.walletBalance ?? 0;
+  const reviewsPath = user.publicSlug
+    ? `/restaurants/${user.publicSlug}/reviews`
+    : `/employers/${user.id}/reviews`;
 
-    const handleStartProfileEdit = () => {
-        resetProfileForm();
-        setIsEditingProfile(true);
-    };
+  const planLabel = subscription?.planTitle ?? t("profile.employerManage.noPlan");
+  const planExpiry =
+    subscription?.subscriptionStop && subscription.isActive
+      ? t("profile.employerManage.expiresOn", {
+          date: new Date(subscription.subscriptionStop).toLocaleDateString(),
+        })
+      : null;
+  const walletLabel = `${walletBalance.toLocaleString()} RSD`;
+  const branchNamesSummary = useMemo(() => {
+    if (locations.length === 0) {
+      return t("profile.noBranches");
+    }
+    return locations.map((location) => location.name).join(" • ");
+  }, [locations, t]);
+  const verificationInlineSummary = user.isVerifiedEmployer
+    ? t("profile.employerManage.verificationVerifiedHint")
+    : t("profile.employerManage.verificationNotVerifiedHint");
+  const subscriptionInlineSummary = planExpiry ? `${planLabel} · ${planExpiry}` : planLabel;
+  const walletInlineSummary = `${walletLabel} · ${t("profile.employerManage.availableBalance")}`;
+  const overflowReviewCount = Math.max(0, reviewSummary.reviewCount - reviewerAvatars.length);
 
-    const handleCancelProfileEdit = () => {
-        resetProfileForm();
-        setIsEditingProfile(false);
-    };
+  const ratingQualityLabel = useMemo(() => {
+    if (reviewSummary.reviewCount <= 0) {
+      return null;
+    }
+    if (reviewSummary.averageRating >= 4.5) {
+      return t("profile.employerManage.ratingExcellent");
+    }
+    if (reviewSummary.averageRating >= 4) {
+      return t("profile.employerManage.ratingVeryGood");
+    }
+    if (reviewSummary.averageRating >= 3) {
+      return t("profile.employerManage.ratingGood");
+    }
+    return null;
+  }, [reviewSummary.averageRating, reviewSummary.reviewCount, t]);
 
-    useEffect(() => {
-        const loadReceivedReviews = async () => {
-            try {
-                const response = await GetEmployerReviewPage(user.id);
-                setReceivedReviews(response.data.reviews);
-                setReviewSummary(response.data.summary);
-            } catch {
-                toast.error(t("reviews.loadError"));
-            }
-        };
+  const ratingDisplay =
+    reviewSummary.reviewCount > 0 ? (
+      <p className={styles.ratingLine}>
+        <strong>★ {reviewSummary.averageRating.toFixed(1)}</strong> ({reviewSummary.reviewCount})
+        {ratingQualityLabel ? <span className={styles.ratingWord}> {ratingQualityLabel}</span> : null}
+      </p>
+    ) : null;
 
-        void loadReceivedReviews();
-    }, [user.id, t]);
+  useEffect(() => {
+    setProfileForm(buildEmployerProfileForm(user));
+  }, [
+    user.name,
+    user.phoneNumber,
+    user.address?.street?.name,
+    user.address?.street?.number,
+    user.address?.city?.name,
+    user.address?.city?.postalCode,
+    user.address?.city?.country,
+    user.address?.city?.region,
+  ]);
 
-    useEffect(() => {
+  useEffect(() => {
+    setProfilePhotoUrl(getImageUrl(user.profilePhoto));
+  }, [user.profilePhoto]);
+
+  useEffect(() => {
+    const syncProfilePhoto = async () => {
+      try {
+        const response = await getCurrentUser();
+        const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
+        setProfilePhotoUrl(getImageUrl(photo));
+      } catch {
         setProfilePhotoUrl(getImageUrl(user.profilePhoto));
-    }, [user.profilePhoto]);
-
-    useEffect(() => {
-        const syncProfilePhoto = async () => {
-            try {
-                const response = await getCurrentUser();
-                const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
-                setProfilePhotoUrl(getImageUrl(photo));
-            } catch {
-                setProfilePhotoUrl(getImageUrl(user.profilePhoto));
-            }
-        };
-
-        void syncProfilePhoto();
-    }, [user.id, user.profilePhoto]);
-
-    const handleProfilePhotoError = () => {
-        setProfilePhotoUrl(getImageUrl(null));
+      }
     };
-    const [locations, setLocations] = useState<RestaurantLocation[]>([]);
-    const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
-    const [isCreatingLocation, setIsCreatingLocation] = useState(false);
-    const [newBranch, setNewBranch] = useState({
+
+    void syncProfilePhoto();
+  }, [user.id, user.profilePhoto]);
+
+  useEffect(() => {
+    setNewBranch((previous) => ({
+      ...previous,
+      pib: previous.pib || user.pib || "",
+      mb: previous.mb || user.mb || "",
+    }));
+  }, [user.pib, user.mb]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const response = await GetEmployerReviewPage(user.id);
+        setReviewSummary(response.data.summary);
+        setReviewerAvatars(
+          response.data.reviews
+            .map((review) => review.reviewerName?.trim())
+            .filter((name): name is string => Boolean(name))
+            .slice(0, 4)
+        );
+      } catch {
+        toast.error(t("reviews.loadError"));
+      }
+    };
+
+    void loadReviews();
+  }, [user.id, t]);
+
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const response = await GetMyRestaurantLocations();
+        setLocations(response.data);
+      } catch {
+        toast.error(t("profile.failedLoadBranches"));
+      }
+    };
+
+    void loadLocations();
+  }, [t]);
+
+  const uploadPhoto = async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+
+    setIsPhotoUploadInProgress(true);
+    try {
+      const response = await UpdateMyProfilePhoto(file);
+      setProfilePhotoUrl(getImageUrl(response.data.imagePath));
+      toast.success(t("profile.photoUpdated"));
+      void refreshMe();
+    } catch {
+      toast.error(t("profile.photoUpdateError"));
+    } finally {
+      setIsPhotoUploadInProgress(false);
+    }
+  };
+
+  const handlePhotoSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    await uploadPhoto(file);
+  };
+
+  const handleProfileSave = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!profileForm.name.trim()) {
+      toast.error(t("registration.companyRequired"));
+      return;
+    }
+
+    setIsProfileSaving(true);
+    try {
+      await UpdateMyEmployerProfile({
+        name: profileForm.name.trim(),
+        phoneNumber: profileForm.phoneNumber.trim(),
+        streetName: profileForm.streetName.trim(),
+        streetNumber: profileForm.streetNumber.trim(),
+        city: profileForm.city.trim(),
+        postalCode: profileForm.postalCode.trim(),
+        country: profileForm.country.trim(),
+        region: profileForm.region.trim(),
+      });
+      toast.success(t("profile.profileUpdated"));
+      setIsEditingProfile(false);
+      void refreshMe();
+    } catch {
+      toast.error(t("profile.profileUpdateError"));
+    } finally {
+      setIsProfileSaving(false);
+    }
+  };
+
+  const handleBranchFieldChange = (field: keyof typeof newBranch, value: string) => {
+    setNewBranch((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleCreateBranch = async () => {
+    const requiredValues = Object.values(newBranch).every((value) => value.trim() !== "");
+    if (!requiredValues) {
+      toast.info(t("profile.fillBranchFields"));
+      return;
+    }
+
+    setIsCreatingLocation(true);
+    try {
+      const response = await CreateMyRestaurantLocation(newBranch);
+      setLocations((previous) => [...previous, response.data]);
+      setNewBranch({
         name: "",
         phoneNumber: "",
         pib: user.pib ?? "",
@@ -174,889 +348,593 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         city: "",
         postalCode: "",
         country: "",
-        region: ""
-    });
+        region: "",
+      });
+      setShowBranchForm(false);
+      toast.success(t("profile.branchAdded"));
+    } catch {
+      toast.error(t("profile.branchAddError"));
+    } finally {
+      setIsCreatingLocation(false);
+    }
+  };
 
-    useEffect(() => {
-        setNewBranch((previous) => ({
-            ...previous,
-            pib: previous.pib || user.pib || "",
-            mb: previous.mb || user.mb || "",
-        }));
-    }, [user.pib, user.mb]);
-
-    const selectedJobPost = useMemo(
-        () => allJobPosts.find((post) => post.id === selectedJobPostId),
-        [allJobPosts, selectedJobPostId]
-    );
-    const editingJobPost = useMemo(
-        () => allJobPosts.find((post) => post.id === editingJobPostId),
-        [allJobPosts, editingJobPostId]
-    );
-
-    const totalJobPostPages = useMemo(
-        () => Math.max(1, Math.ceil(jobPostsTotalCount / LIST_PAGE_SIZE)),
-        [jobPostsTotalCount]
+  const renderAvatar = (className: string, fallbackClassName: string) =>
+    profilePhotoUrl ? (
+      <img
+        src={profilePhotoUrl}
+        alt=""
+        className={className}
+        onError={() => setProfilePhotoUrl(getImageUrl(null))}
+      />
+    ) : (
+      <span className={`${className} ${fallbackClassName}`}>{user.name.charAt(0).toUpperCase()}</span>
     );
 
-    const parseJobPostSort = (value: string) => {
-        switch (value) {
-            case "createdAt_asc":
-                return { sortBy: "createdAt" as const, sortDirection: "asc" as const };
-            case "startingDate_desc":
-                return { sortBy: "startingDate" as const, sortDirection: "desc" as const };
-            case "startingDate_asc":
-                return { sortBy: "startingDate" as const, sortDirection: "asc" as const };
-            case "position_asc":
-                return { sortBy: "position" as const, sortDirection: "asc" as const };
-            case "position_desc":
-                return { sortBy: "position" as const, sortDirection: "desc" as const };
-            default:
-                return { sortBy: "createdAt" as const, sortDirection: "desc" as const };
-        }
-    };
-
-    const resolveJobPostListFilters = (statusFilter: string) => {
-        if (statusFilter === "archived") {
-            return { lifecycle: "archived" as const };
-        }
-
-        if (statusFilter === "all") {
-            return { lifecycle: "all" as const };
-        }
-
-        if (statusFilter === "Cancelled") {
-            return { status: "Cancelled" as const, lifecycle: "all" as const };
-        }
-
-        return { lifecycle: "active" as const };
-    };
-
-    const loadAllJobPosts = async () => {
-        try {
-            const response = await GetMyJobPosts();
-            setAllJobPosts(response.data);
-            if (response.data.length > 0) {
-                setSelectedJobPostId((previousValue) => previousValue || response.data[0].id);
-            }
-        } catch {
-            toast.error(t("profile.failedLoadJobPosts"));
-        }
-    };
-
-    const loadPagedJobPosts = async () => {
-        const { sortBy, sortDirection } = parseJobPostSort(jobPostSortValue);
-        const listFilters = resolveJobPostListFilters(jobPostStatusFilter);
-
-        try {
-            const response = await GetMyJobPostsPaged({
-                page: jobPostsPage,
-                pageSize: LIST_PAGE_SIZE,
-                position: jobPostPositionFilter || undefined,
-                status: listFilters.status,
-                lifecycle: listFilters.lifecycle,
-                sortBy,
-                sortDirection,
-            });
-
-            setJobPosts(response.data.items);
-            setJobPostsTotalCount(response.data.totalCount);
-        } catch {
-            toast.error(t("profile.failedLoadJobPosts"));
-        }
-    };
-
-    const reloadJobPosts = async () => {
-        await Promise.all([loadAllJobPosts(), loadPagedJobPosts()]);
-    };
-
-    useEffect(() => {
-        loadAllJobPosts();
-        const loadPositions = async () => {
-            try {
-                const response = await GetMyJobPostPositions();
-                setPositionOptions(response.data);
-            } catch {
-                setPositionOptions([]);
-            }
-        };
-        loadPositions();
-    }, []);
-
-    useEffect(() => {
-        loadPagedJobPosts();
-    }, [jobPostsPage, jobPostPositionFilter, jobPostStatusFilter, jobPostSortValue]);
-
-    useEffect(() => {
-        const loadLocations = async () => {
-            try {
-                const response = await GetMyRestaurantLocations();
-                setLocations(response.data);
-            } catch {
-                toast.error(t("profile.failedLoadBranches"));
-            }
-        };
-
-        loadLocations();
-    }, []);
-
-    useEffect(() => {
-        setApplicantSearchQuery("");
-        setApplicantSortValue("appliedAt_desc");
-        setStatusFilter("All");
-    }, [selectedJobPostId]);
-
-    useEffect(() => {
-        if (!selectedJobPostId) {
-            setApplicants([]);
-            return;
-        }
-
-        const loadApplicants = async () => {
-            try {
-                const response = await GetApplicantsForJobPost(selectedJobPostId);
-                setApplicants(response.data);
-            } catch {
-                toast.error(t("profile.failedLoadApplicants"));
-            }
-        };
-
-        loadApplicants();
-    }, [selectedJobPostId]);
-
-    const visibleApplicants = useMemo(() => {
-        const normalizedSearch = applicantSearchQuery.trim().toLowerCase();
-
-        const filtered = applicants.filter((applicant) => {
-            if (statusFilter !== "All" && applicant.status !== statusFilter) {
-                return false;
-            }
-
-            if (!normalizedSearch) {
-                return true;
-            }
-
-            const fullName = `${applicant.firstName} ${applicant.lastName}`.toLowerCase();
-            return (
-                fullName.includes(normalizedSearch) ||
-                applicant.firstName.toLowerCase().includes(normalizedSearch) ||
-                applicant.lastName.toLowerCase().includes(normalizedSearch)
-            );
-        });
-
-        return [...filtered].sort((firstApplicant, secondApplicant) => {
-            switch (applicantSortValue) {
-                case "name_asc": {
-                    const firstName = `${firstApplicant.firstName} ${firstApplicant.lastName}`.toLowerCase();
-                    const secondName = `${secondApplicant.firstName} ${secondApplicant.lastName}`.toLowerCase();
-                    return firstName.localeCompare(secondName);
-                }
-                case "name_desc": {
-                    const firstName = `${firstApplicant.firstName} ${firstApplicant.lastName}`.toLowerCase();
-                    const secondName = `${secondApplicant.firstName} ${secondApplicant.lastName}`.toLowerCase();
-                    return secondName.localeCompare(firstName);
-                }
-                case "appliedAt_asc":
-                    return new Date(firstApplicant.appliedAt).getTime() - new Date(secondApplicant.appliedAt).getTime();
-                default:
-                    return new Date(secondApplicant.appliedAt).getTime() - new Date(firstApplicant.appliedAt).getTime();
-            }
-        });
-    }, [applicants, statusFilter, applicantSearchQuery, applicantSortValue]);
-
-    const applicantsResetKey = `${selectedJobPostId}|${statusFilter}|${applicantSearchQuery}|${applicantSortValue}`;
-    const {
-        page: applicantsPage,
-        setPage: setApplicantsPage,
-        totalPages: applicantsTotalPages,
-        totalCount: applicantsTotalCount,
-        pageSize: applicantsPageSize,
-        pagedItems: pagedApplicants,
-    } = useClientPagination(visibleApplicants, LIST_PAGE_SIZE, applicantsResetKey);
-
-    const {
-        page: branchesPage,
-        setPage: setBranchesPage,
-        totalPages: branchesTotalPages,
-        totalCount: branchesTotalCount,
-        pageSize: branchesPageSize,
-        pagedItems: pagedLocations,
-    } = useClientPagination(locations, LIST_PAGE_SIZE);
-
-    const handleStatusUpdate = async (applicationId: string, status: "Accepted" | "Denied") => {
-        setActionInProgress(`${applicationId}:${status}`);
-        try {
-            await UpdateApplicationStatus(applicationId, status);
-            setApplicants((prev) =>
-                prev.map((applicant) =>
-                    applicant.applicationId === applicationId ? { ...applicant, status } : applicant
-                )
-            );
-            toast.success(t("profile.applicationUpdated"));
-        } catch {
-            toast.error(t("profile.applicationUpdateError"));
-        } finally {
-            setActionInProgress(null);
-        }
-    };
-
-    const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0] ?? null;
-        setSelectedPhotoFile(file);
-    };
-
-    const handleProfilePhotoUpload = async () => {
-        if (!selectedPhotoFile) {
-            toast.info(t("profile.selectPhotoFirst"));
-            return;
-        }
-
-        setIsPhotoUploadInProgress(true);
-        try {
-            const response = await UpdateMyProfilePhoto(selectedPhotoFile);
-            setProfilePhotoUrl(getImageUrl(response.data.imagePath));
-            toast.success(t("profile.photoUpdated"));
-            setSelectedPhotoFile(null);
-            void refreshMe();
-        } catch {
-            toast.error(t("profile.photoUpdateError"));
-        } finally {
-            setIsPhotoUploadInProgress(false);
-        }
-    };
-
-    const handleProfileSave = async (event: FormEvent) => {
-        event.preventDefault();
-
-        if (!profileForm.name.trim()) {
-            toast.error(t("registration.companyRequired"));
-            return;
-        }
-
-        setIsProfileSaving(true);
-        try {
-            await UpdateMyEmployerProfile({
-                name: profileForm.name.trim(),
-                phoneNumber: profileForm.phoneNumber.trim(),
-                streetName: profileForm.streetName.trim(),
-                streetNumber: profileForm.streetNumber.trim(),
-                city: profileForm.city.trim(),
-                postalCode: profileForm.postalCode.trim(),
-                country: profileForm.country.trim(),
-                region: profileForm.region.trim(),
-            });
-            toast.success(t("profile.profileUpdated"));
+  const renderProfileForm = () => (
+    <form className={styles.profileFormGrid} onSubmit={handleProfileSave}>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.name}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, name: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("profile.phone")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.phoneNumber}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("profile.email")}</span>
+        <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.email} readOnly />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.pib")}</span>
+        <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.pib} readOnly />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.mb")}</span>
+        <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.mb} readOnly />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.streetName")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.streetName}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, streetName: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.streetNumber")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.streetNumber}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, streetNumber: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.city")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.city}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, city: event.target.value }))}
+        />
+      </label>
+      <div className={styles.profileEditActions}>
+        <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isProfileSaving}>
+          {isProfileSaving ? t("common.loading") : t("profile.saveChanges")}
+        </button>
+        <button
+          type="button"
+          className={`${styles.button} ${styles.buttonSecondary}`}
+          onClick={() => {
+            setProfileForm(buildEmployerProfileForm(user));
             setIsEditingProfile(false);
-            void refreshMe();
-        } catch {
-            toast.error(t("profile.profileUpdateError"));
-        } finally {
-            setIsProfileSaving(false);
-        }
-    };
+          }}
+          disabled={isProfileSaving}
+        >
+          {t("common.cancel")}
+        </button>
+      </div>
+    </form>
+  );
 
-    const handleBranchFieldChange = (field: keyof typeof newBranch, value: string) => {
-        setNewBranch((prev) => ({
-            ...prev,
-            [field]: value
-        }));
-    };
+  const renderInfoTable = () => (
+    <div className={styles.infoTable}>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
+        <span className={styles.infoValue}>{user.name}</span>
+      </div>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("profile.address")}</span>
+        <span className={styles.infoValue}>{formatEmployerAddress(user)}</span>
+      </div>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("profile.phone")}</span>
+        <span className={styles.infoValue}>{user.phoneNumber ?? "—"}</span>
+      </div>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("profile.email")}</span>
+        <span className={styles.infoValue}>{user.email}</span>
+      </div>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("registration.pib")}</span>
+        <span className={styles.infoValue}>{user.pib}</span>
+      </div>
+      <div className={styles.infoRow}>
+        <span className={styles.infoLabel}>{t("registration.mb")}</span>
+        <span className={styles.infoValue}>{user.mb}</span>
+      </div>
+    </div>
+  );
 
-    const handleCreateBranch = async () => {
-        const requiredValues = Object.values(newBranch).every((value) => value.trim() !== "");
-        if (!requiredValues) {
-            toast.info(t("profile.fillBranchFields"));
-            return;
-        }
+  const renderBranchesContent = () => (
+    <>
+      <p className={styles.legalNotice}>{t("profile.branchLegalEntityHint")}</p>
+      {locations.length === 0 ? <p className={styles.mutedText}>{t("profile.noBranches")}</p> : null}
+      <div className={styles.branchGrid}>
+        {locations.map((location) => (
+          <article key={location.id} className={styles.branchCard}>
+            <div className={styles.branchCardTop}>
+              <h3 className={styles.branchName}>{location.name}</h3>
+              <button type="button" className={styles.branchMenuButton} aria-label={t("admin.nav.more")}>
+                <EllipsisVerticalIcon width={18} height={18} />
+              </button>
+            </div>
+            <p className={styles.branchLine}>
+              {location.streetName} {location.streetNumber}, {location.city}
+            </p>
+            <p className={styles.branchLine}>{location.phoneNumber}</p>
+            <p className={styles.branchLine}>
+              {t("registration.pib")}: {location.pib} · {t("registration.mb")}: {location.mb}
+            </p>
+          </article>
+        ))}
+      </div>
+      {showBranchForm ? (
+        <div className={styles.branchForm}>
+          <input className={styles.input} placeholder={t("profile.restaurantName")} value={newBranch.name} onChange={(e) => handleBranchFieldChange("name", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.phoneNumber")} value={newBranch.phoneNumber} onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.pib")} value={newBranch.pib} onChange={(e) => handleBranchFieldChange("pib", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.mb")} value={newBranch.mb} onChange={(e) => handleBranchFieldChange("mb", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.streetName")} value={newBranch.streetName} onChange={(e) => handleBranchFieldChange("streetName", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.streetNumber")} value={newBranch.streetNumber} onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.city")} value={newBranch.city} onChange={(e) => handleBranchFieldChange("city", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.postalCode")} value={newBranch.postalCode} onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.country")} value={newBranch.country} onChange={(e) => handleBranchFieldChange("country", e.target.value)} />
+          <input className={styles.input} placeholder={t("registration.region")} value={newBranch.region} onChange={(e) => handleBranchFieldChange("region", e.target.value)} />
+          <button
+            type="button"
+            className={`${styles.button} ${styles.buttonPrimary}`}
+            disabled={isCreatingLocation}
+            onClick={() => void handleCreateBranch()}
+          >
+            {isCreatingLocation ? t("profile.addingBranch") : t("profile.addBranchAction")}
+          </button>
+        </div>
+      ) : null}
+    </>
+  );
 
-        setIsCreatingLocation(true);
-        try {
-            const response = await CreateMyRestaurantLocation(newBranch);
+  const renderReviewsMetrics = () => (
+    <>
+      <div className={styles.metric}>
+        <strong>{reviewSummary.reviewCount > 0 ? reviewSummary.averageRating.toFixed(1) : "—"}</strong>
+        <span>{t("profile.employerManage.totalRating")}</span>
+      </div>
+      <div className={styles.metric}>
+        <strong>{reviewSummary.reviewCount}</strong>
+        <span>{t("profile.employerManage.totalReviews")}</span>
+      </div>
+      {reviewerAvatars.length > 0 ? (
+        <div className={styles.avatarStack} aria-hidden>
+          {reviewerAvatars.map((name, index) => (
+            <span key={`${name}-${index}`} className={styles.stackAvatar}>
+              {name.charAt(0).toUpperCase()}
+            </span>
+          ))}
+          {overflowReviewCount > 0 ? (
+            <span className={styles.stackMore}>+{overflowReviewCount}</span>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
 
-            setLocations((prev) => [...prev, response.data]);
-            setNewBranch({
-                name: "",
-                phoneNumber: "",
-                pib: user.pib ?? "",
-                mb: user.mb ?? "",
-                streetName: "",
-                streetNumber: "",
-                city: "",
-                postalCode: "",
-                country: "",
-                region: ""
-            });
-            toast.success(t("profile.branchAdded"));
-        } catch {
-            toast.error(t("profile.branchAddError"));
-        } finally {
-            setIsCreatingLocation(false);
-        }
-    };
+  const renderManageSectionCards = () => (
+    <>
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<BuildingStorefrontIcon className={styles.sectionIconSvg} />}
+          title={t("profile.yourBranches")}
+          content={<p className={styles.profileContentText}>{branchNamesSummary}</p>}
+          action={
+            <button type="button" className={styles.outlineButton} onClick={() => setDetailPanel("branches")}>
+              {t("profile.employerManage.manageBranches")}
+            </button>
+          }
+          onClick={() => setDetailPanel("branches")}
+        />
+      </section>
 
-    const formatDate = (value: Date) => {
-        const parsedDate = new Date(value);
-        if (Number.isNaN(parsedDate.getTime())) {
-            return "-";
-        }
-        return parsedDate.toLocaleString();
-    };
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<StarIcon className={styles.sectionIconSvg} />}
+          title={t("profile.employerManage.reviewsAboutMe")}
+          content={
+            <div className={styles.reviewsSectionContent}>
+              <div className={styles.metric}>
+                <strong>{reviewSummary.reviewCount > 0 ? reviewSummary.averageRating.toFixed(1) : "—"}</strong>
+                <span>{t("profile.employerManage.totalRating")}</span>
+              </div>
+              <div className={styles.reviewsMetricDivider} aria-hidden />
+              <div className={styles.reviewsCountGroup}>
+                <div className={styles.metric}>
+                  <strong>{reviewSummary.reviewCount}</strong>
+                  <span>{t("profile.employerManage.totalReviews")}</span>
+                </div>
+                {reviewerAvatars.length > 0 ? (
+                  <div className={styles.avatarStack} aria-hidden>
+                    {reviewerAvatars.map((name, index) => (
+                      <span key={`${name}-${index}`} className={styles.stackAvatar}>
+                        {name.charAt(0).toUpperCase()}
+                      </span>
+                    ))}
+                    {overflowReviewCount > 0 ? (
+                      <span className={styles.stackMore}>+{overflowReviewCount}</span>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          }
+          action={
+            <Link to={reviewsPath} className={styles.outlineButton}>
+              {t("profile.employerManage.viewAllReviews")}
+            </Link>
+          }
+          onClick={() => setDetailPanel("reviews")}
+        />
+      </section>
+
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<ShieldCheckIcon className={styles.sectionIconSvg} />}
+          title={t("profile.employerManage.verification")}
+          content={
+            <div className={styles.profileContentInline}>
+              <span
+                className={`${styles.verifiedPill} ${user.isVerifiedEmployer ? "" : styles.notVerifiedPill}`}
+              >
+                {user.isVerifiedEmployer
+                  ? t("admin.verification.verifiedBadge")
+                  : t("admin.verification.notVerified")}
+              </span>
+              <span className={styles.profileContentTextMuted}>{verificationInlineSummary}</span>
+              {user.isVerifiedEmployer ? (
+                <CheckCircleIcon className={styles.verifiedCheck} aria-hidden />
+              ) : null}
+            </div>
+          }
+          onClick={() => setDetailPanel("verification")}
+        />
+      </section>
+
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<SparklesIcon className={styles.sectionIconSvg} />}
+          title={t("profile.employerManage.subscription")}
+          content={<p className={styles.profileContentText}>{subscriptionInlineSummary}</p>}
+          action={
+            <Link to="/billing/upgrade" className={styles.outlineButton}>
+              {t("profile.employerManage.manageSubscription")}
+            </Link>
+          }
+          onClick={() => setDetailPanel("subscription")}
+        />
+      </section>
+
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<WalletIcon className={styles.sectionIconSvg} />}
+          title={t("profile.employerManage.wallet")}
+          content={<p className={styles.profileContentText}>{walletInlineSummary}</p>}
+          action={
+            <Link to="/billing/upgrade" className={styles.outlineButton}>
+              {t("profile.employerManage.topUpWallet")}
+            </Link>
+          }
+          onClick={() => setDetailPanel("wallet")}
+        />
+      </section>
+
+      <section className={`${styles.card} ${styles.cardCompact}`}>
+        <ProfileSectionRow
+          icon={<Cog6ToothIcon className={styles.sectionIconSvg} />}
+          title={t("profile.employerManage.accountSettings")}
+          content={
+            <p className={styles.profileContentTextMuted}>{t("profile.employerManage.accountSettingsHint")}</p>
+          }
+          onClick={() => setDetailPanel("settings")}
+        />
+      </section>
+    </>
+  );
+
+  const detailPanelTitle: Record<Exclude<MobilePanel, null>, string> = {
+    branches: t("profile.yourBranches"),
+    reviews: t("profile.employerManage.reviewsAboutMe"),
+    verification: t("profile.employerManage.verification"),
+    subscription: t("profile.employerManage.subscription"),
+    wallet: t("profile.employerManage.wallet"),
+    settings: t("profile.employerManage.accountSettings"),
+  };
+
+  const renderDetailPanelIcon = (panel: Exclude<MobilePanel, null>) => {
+    switch (panel) {
+      case "branches":
+        return <BuildingStorefrontIcon className={styles.sectionIconSvg} />;
+      case "reviews":
+        return <StarIcon className={styles.sectionIconSvg} />;
+      case "verification":
+        return <ShieldCheckIcon className={styles.sectionIconSvg} />;
+      case "subscription":
+        return <SparklesIcon className={styles.sectionIconSvg} />;
+      case "wallet":
+        return <WalletIcon className={styles.sectionIconSvg} />;
+      default:
+        return <Cog6ToothIcon className={styles.sectionIconSvg} />;
+    }
+  };
+
+  const renderDetailPanelBody = (panel: Exclude<MobilePanel, null>) => {
+    switch (panel) {
+      case "branches":
+        return renderBranchesContent();
+      case "reviews":
+        return (
+          <div className={styles.reviewsLayout}>
+            <div className={styles.reviewsMetrics}>{renderReviewsMetrics()}</div>
+            <Link to={reviewsPath} className={styles.reviewsLink}>
+              {t("profile.employerManage.viewAllReviews")} →
+            </Link>
+          </div>
+        );
+      case "verification":
+        return (
+          <div className={styles.profileContentInline}>
+            <span
+              className={`${styles.verifiedPill} ${user.isVerifiedEmployer ? "" : styles.notVerifiedPill}`}
+            >
+              {user.isVerifiedEmployer
+                ? t("admin.verification.verifiedBadge")
+                : t("admin.verification.notVerified")}
+            </span>
+            <p className={styles.profileContentTextMuted}>
+              {user.isVerifiedEmployer
+                ? t("profile.employerManage.verificationVerifiedHint")
+                : t("profile.employerManage.verificationNotVerifiedHint")}
+            </p>
+          </div>
+        );
+      case "subscription":
+        return (
+          <div className={styles.detailPanelActions}>
+            <div>
+              <p className={styles.profileContentText}>{planLabel}</p>
+              {planExpiry ? <p className={styles.profileContentTextMuted}>{planExpiry}</p> : null}
+            </div>
+            <Link to="/billing/upgrade" className={styles.outlineButton}>
+              {t("profile.employerManage.manageSubscription")}
+            </Link>
+          </div>
+        );
+      case "wallet":
+        return (
+          <div className={styles.detailPanelActions}>
+            <div>
+              <p className={styles.profileContentText}>{walletLabel}</p>
+              <p className={styles.profileContentTextMuted}>{t("profile.employerManage.availableBalance")}</p>
+            </div>
+            <Link to="/billing/upgrade" className={styles.outlineButton}>
+              {t("profile.employerManage.topUpWallet")}
+            </Link>
+          </div>
+        );
+      case "settings":
+        return <p className={styles.profileContentTextMuted}>{t("profile.employerManage.accountSettingsHint")}</p>;
+      default:
+        return null;
+    }
+  };
+
+  const renderDetailPanel = () => {
+    if (!detailPanel) {
+      return null;
+    }
 
     return (
-        <div className={`${styles.profilePage} ${isEmployerShell ? styles.profilePageShell : ""}`}>
-            <SubscriptionBanner subscription={user.subscription} />
+      <div className={styles.detailPanel}>
+        <button type="button" className={styles.detailPanelBack} onClick={() => setDetailPanel(null)}>
+          <ArrowLeftIcon width={16} height={16} aria-hidden />
+          {t("employeeProfile.back")}
+        </button>
+        <section className={styles.card}>
+          <SectionHeader
+            icon={renderDetailPanelIcon(detailPanel)}
+            title={detailPanelTitle[detailPanel]}
+            action={
+              detailPanel === "branches" ? (
+                <button type="button" className={styles.linkAction} onClick={() => setShowBranchForm((open) => !open)}>
+                  + {t("profile.addBranchAction")}
+                </button>
+              ) : undefined
+            }
+          />
+          {renderDetailPanelBody(detailPanel)}
+        </section>
+      </div>
+    );
+  };
 
-            <section className={styles.panel}>
-                <div className={styles.profileHero}>
-                    <div className={styles.profilePhotoColumn}>
-                        <img
-                            src={profilePhotoUrl}
-                            alt="Profile"
-                            className={styles.profileImageLarge}
-                            onError={handleProfilePhotoError}
-                        />
-                        <ProfilePhotoUpload
-                            inputId="employerProfilePhotoInput"
-                            selectedFile={selectedPhotoFile}
-                            isUploading={isPhotoUploadInProgress}
-                            onFileChange={handleProfilePhotoChange}
-                            onUpload={handleProfilePhotoUpload}
-                        />
-                    </div>
-                    <div className={styles.profileInfoColumn}>
-                        <div className={styles.profileInfoHeader}>
-                            <h2 className={styles.profileInfoTitle}>{t("profile.employerInfo")}</h2>
-                            {!isEditingProfile && (
-                                <button
-                                    type="button"
-                                    className={styles.editIconButton}
-                                    aria-label={t("profile.editEmployerInfo")}
-                                    title={t("profile.edit")}
-                                    onClick={handleStartProfileEdit}
-                                >
-                                    ✎
-                                </button>
-                            )}
-                        </div>
-                        <RatingBadge
-                            averageRating={reviewSummary.averageRating}
-                            reviewCount={reviewSummary.reviewCount}
-                            subjectType="employer"
-                            subjectSlug={user.publicSlug}
-                            subjectId={user.id}
-                        />
-                        {isEditingProfile ? (
-                            <form className={styles.profileFormGrid} onSubmit={handleProfileSave}>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.name}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, name: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("profile.phone")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.phoneNumber}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("profile.email")}</span>
-                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.email} readOnly />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.pib")}</span>
-                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.pib} readOnly />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.mb")}</span>
-                                    <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.mb} readOnly />
-                                </label>
-                                <p className={styles.contactPrivacyNotice}>{t("profile.legalEntityReadOnlyNotice")}</p>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.streetName")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.streetName}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, streetName: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.streetNumber")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.streetNumber}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, streetNumber: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.city")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.city}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, city: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.postalCode")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.postalCode}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, postalCode: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.country")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.country}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, country: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <label className={styles.profileField}>
-                                    <span className={styles.infoLabel}>{t("registration.region")}</span>
-                                    <input
-                                        className={styles.input}
-                                        value={profileForm.region}
-                                        onChange={(event) =>
-                                            setProfileForm((previous) => ({ ...previous, region: event.target.value }))
-                                        }
-                                    />
-                                </label>
-                                <div className={styles.profileEditActions}>
-                                    <button
-                                        type="submit"
-                                        className={`${styles.button} ${styles.buttonPrimary}`}
-                                        disabled={isProfileSaving}
-                                    >
-                                        {isProfileSaving ? t("common.loading") : t("profile.saveChanges")}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`${styles.button} ${styles.buttonSecondary}`}
-                                        onClick={handleCancelProfileEdit}
-                                        disabled={isProfileSaving}
-                                    >
-                                        {t("common.cancel")}
-                                    </button>
-                                </div>
-                            </form>
-                        ) : (
-                        <div className={styles.infoGrid}>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
-                                <span className={styles.infoValue}>{user.name}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.address")}</span>
-                                <span className={styles.infoValue}>{formatEmployerAddress(user)}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.phone")}</span>
-                                <span className={styles.infoValue}>{user.phoneNumber ?? "-"}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("profile.email")}</span>
-                                <span className={styles.infoValue}>{user.email}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("registration.pib")}</span>
-                                <span className={styles.infoValue}>{user.pib}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>{t("registration.mb")}</span>
-                                <span className={styles.infoValue}>{user.mb}</span>
-                            </div>
-                            {user.subscription && user.subscription.status !== "None" && (
-                                <div className={styles.infoRow}>
-                                    <span className={styles.infoLabel}>{t("billing.planLabel")}</span>
-                                    <span className={styles.infoValue}>
-                                        {user.subscription.planTitle}
-                                        {user.subscription.isActive
-                                            ? ` · ${t("billing.until", { date: new Date(user.subscription.subscriptionStop ?? "").toLocaleDateString() })}`
-                                            : ` · ${t("billing.expiredShort")}`}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                        )}
-                    </div>
-                </div>
-            </section>
+  return (
+    <div className={`${styles.page} ${isEmployerShell ? styles.pageShell : ""}`}>
+      <div className={styles.mobileShell}>
+        {detailPanel ? (
+          renderDetailPanel()
+        ) : (
+          <>
+            <div className={styles.mobileTopBar}>
+              <h2 className={styles.mobilePageTitle}>{t("employerShell.profileTitle")}</h2>
+              <button
+                type="button"
+                className={styles.iconGhostButton}
+                aria-label={t("profile.employerManage.accountSettings")}
+                onClick={() => setDetailPanel("settings")}
+              >
+                <Cog6ToothIcon width={18} height={18} />
+              </button>
+            </div>
 
-            <CollapsibleSection title={t("profile.addBranch")}>
-                <p className={styles.contactPrivacyNotice}>{t("profile.branchLegalEntityHint")}</p>
-                <div className={styles.branchForm}>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("profile.restaurantName")}
-                        value={newBranch.name}
-                        onChange={(e) => handleBranchFieldChange("name", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.phoneNumber")}
-                        value={newBranch.phoneNumber}
-                        onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.pib")}
-                        value={newBranch.pib}
-                        onChange={(e) => handleBranchFieldChange("pib", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.mb")}
-                        value={newBranch.mb}
-                        onChange={(e) => handleBranchFieldChange("mb", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.streetName")}
-                        value={newBranch.streetName}
-                        onChange={(e) => handleBranchFieldChange("streetName", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.streetNumber")}
-                        value={newBranch.streetNumber}
-                        onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.city")}
-                        value={newBranch.city}
-                        onChange={(e) => handleBranchFieldChange("city", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.postalCode")}
-                        value={newBranch.postalCode}
-                        onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.country")}
-                        value={newBranch.country}
-                        onChange={(e) => handleBranchFieldChange("country", e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder={t("registration.region")}
-                        value={newBranch.region}
-                        onChange={(e) => handleBranchFieldChange("region", e.target.value)}
-                    />
-                </div>
-                <div className={styles.actionsRow}>
-                    <button className={`${styles.button} ${styles.buttonPrimary}`} disabled={isCreatingLocation} onClick={handleCreateBranch}>
-                        {isCreatingLocation ? t("profile.addingBranch") : t("profile.addBranchAction")}
-                    </button>
-                </div>
-            </CollapsibleSection>
-
-            <CollapsibleSection title={t("profile.yourBranches")} titleTag="h3">
-                {locations.length === 0 && <p className={styles.mutedText}>{t("profile.noBranches")}</p>}
-                <div className={styles.branchList}>
-                    {pagedLocations.map((location) => (
-                        <div key={location.id} className={styles.branchCard}>
-                            <strong>{location.name}</strong>
-                            <p>{location.city}, {location.streetName} {location.streetNumber}</p>
-                            <p>{location.phoneNumber}</p>
-                            <p>{t("registration.pib")}: {location.pib} · {t("registration.mb")}: {location.mb}</p>
-                        </div>
-                    ))}
-                </div>
-                <Pagination
-                    page={branchesPage}
-                    totalPages={branchesTotalPages}
-                    totalCount={branchesTotalCount}
-                    pageSize={branchesPageSize}
-                    onPrevious={() => setBranchesPage((previous) => Math.max(1, previous - 1))}
-                    onNext={() => setBranchesPage((previous) => Math.min(branchesTotalPages, previous + 1))}
+            <div className={styles.mobileProfileBlock}>
+              <div className={styles.mobileAvatarWrap}>
+                {renderAvatar(styles.mobileAvatar, styles.mobileAvatarFallback)}
+                <button
+                  type="button"
+                  className={styles.mobileCameraBadge}
+                  aria-label={t("profile.selectPhoto")}
+                  disabled={isPhotoUploadInProgress}
+                  onClick={() => mobilePhotoInputRef.current?.click()}
+                >
+                  <CameraIcon width={14} height={14} />
+                </button>
+                <input
+                  ref={mobilePhotoInputRef}
+                  className={styles.hiddenFileInput}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoSelect}
                 />
-            </CollapsibleSection>
+              </div>
+              <h3 className={styles.mobileCompanyName}>{user.name}</h3>
+              {reviewSummary.reviewCount > 0 ? (
+                <p className={styles.mobileRating}>
+                  <strong>★ {reviewSummary.averageRating.toFixed(1)}</strong> ({reviewSummary.reviewCount})
+                  {ratingQualityLabel ? ` ${ratingQualityLabel}` : ""}
+                </p>
+              ) : null}
+            </div>
 
-            <CollapsibleSection title={t("profile.myJobPosts")}>
-                <div className={styles.jobPostsToolbar}>
-                    <div className={styles.filterGroup}>
-                        <label htmlFor="jobPostPositionFilter">{t("profile.filterByPosition")}</label>
-                        <select
-                            id="jobPostPositionFilter"
-                            className={styles.select}
-                            value={jobPostPositionFilter}
-                            onChange={(event) => {
-                                setJobPostsPage(1);
-                                setJobPostPositionFilter(event.target.value);
-                            }}
-                        >
-                            <option value="">{t("profile.all")}</option>
-                            {positionOptions.map((position) => (
-                                <option key={position} value={position}>
-                                    {position}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={styles.filterGroup}>
-                        <label htmlFor="jobPostStatusFilter">{t("profile.filterByJobStatus")}</label>
-                        <select
-                            id="jobPostStatusFilter"
-                            className={styles.select}
-                            value={jobPostStatusFilter}
-                            onChange={(event) => {
-                                setJobPostsPage(1);
-                                setJobPostStatusFilter(event.target.value);
-                            }}
-                        >
-                            <option value="active">{t("jobPosts.activePosts")}</option>
-                            <option value="archived">{t("jobPosts.archivedPosts")}</option>
-                            <option value="all">{t("jobPosts.allPosts")}</option>
-                            <option value="Cancelled">{t("jobPostForm.statusCancelled")}</option>
-                        </select>
-                    </div>
-                    <div className={styles.filterGroup}>
-                        <label htmlFor="jobPostSortFilter">{t("profile.sortJobPosts")}</label>
-                        <select
-                            id="jobPostSortFilter"
-                            className={styles.select}
-                            value={jobPostSortValue}
-                            onChange={(event) => {
-                                setJobPostsPage(1);
-                                setJobPostSortValue(event.target.value);
-                            }}
-                        >
-                            <option value="createdAt_desc">{t("profile.sortCreatedNewest")}</option>
-                            <option value="createdAt_asc">{t("profile.sortCreatedOldest")}</option>
-                            <option value="startingDate_asc">{t("profile.sortDateOldest")}</option>
-                            <option value="startingDate_desc">{t("profile.sortDateNewest")}</option>
-                            <option value="position_asc">{t("profile.sortPositionAsc")}</option>
-                            <option value="position_desc">{t("profile.sortPositionDesc")}</option>
-                        </select>
-                    </div>
+            <div className={styles.groupCard}>
+              <div className={styles.groupRowStatic}>
+                <span className={styles.rowIconWrap}>
+                  <MapPinIcon className={styles.rowIcon} aria-hidden />
+                </span>
+                <span className={styles.rowBody}>
+                  <span className={styles.rowTitle}>{formatEmployerAddress(user)}</span>
+                  <span className={styles.rowSubtitle}>{t("profile.address")}</span>
+                </span>
+                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+              </div>
+              <div className={styles.groupRowStatic}>
+                <span className={styles.rowIconWrap}>
+                  <PhoneIcon className={styles.rowIcon} aria-hidden />
+                </span>
+                <span className={styles.rowBody}>
+                  <span className={styles.rowTitle}>{user.phoneNumber ?? "—"}</span>
+                  <span className={styles.rowSubtitle}>{t("profile.phone")}</span>
+                </span>
+                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+              </div>
+              <div className={styles.groupRowStatic}>
+                <span className={styles.rowIconWrap}>
+                  <EnvelopeIcon className={styles.rowIcon} aria-hidden />
+                </span>
+                <span className={styles.rowBody}>
+                  <span className={styles.rowTitle}>{user.email}</span>
+                  <span className={styles.rowSubtitle}>{t("profile.email")}</span>
+                </span>
+                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+              </div>
+              <div className={styles.groupRowStatic}>
+                <span className={styles.rowIconWrap}>
+                  <IdentificationIcon className={styles.rowIcon} aria-hidden />
+                </span>
+                <span className={styles.rowBody}>
+                  <span className={styles.rowTitle}>{user.pib}</span>
+                  <span className={styles.rowSubtitle}>{t("registration.pib")}</span>
+                </span>
+                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+              </div>
+              <div className={styles.groupRowStatic}>
+                <span className={styles.rowIconWrap}>
+                  <IdentificationIcon className={styles.rowIcon} aria-hidden />
+                </span>
+                <span className={styles.rowBody}>
+                  <span className={styles.rowTitle}>{user.mb}</span>
+                  <span className={styles.rowSubtitle}>{t("registration.mb")}</span>
+                </span>
+                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+              </div>
+            </div>
+
+            {renderManageSectionCards()}
+          </>
+        )}
+      </div>
+
+      <div className={styles.desktopShell}>
+        <section className={styles.card}>
+          <div className={styles.profileCardHeader}>
+            <h2 className={styles.sectionTitle}>{t("profile.employerInfo")}</h2>
+            {!isEditingProfile ? (
+              <button type="button" className={styles.editButton} onClick={() => setIsEditingProfile(true)}>
+                <PencilSquareIcon width={15} height={15} aria-hidden />
+                {t("profile.edit")}
+              </button>
+            ) : null}
+          </div>
+          <div className={styles.profileGrid}>
+            <div className={styles.photoColumn}>
+              {renderAvatar(styles.profileImage, styles.avatarFallback)}
+              <input
+                ref={photoInputRef}
+                className={styles.hiddenFileInput}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoSelect}
+              />
+              <button
+                type="button"
+                className={styles.photoPickerButton}
+                disabled={isPhotoUploadInProgress}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                {isPhotoUploadInProgress ? t("profile.uploading") : t("profile.selectPhoto")}
+              </button>
+              <p className={styles.photoHint}>{t("profile.employerManage.photoHint")}</p>
+            </div>
+            <div>
+              <div className={styles.companyHeader}>
+                <div>
+                  <h3 className={styles.companyName}>{user.name}</h3>
+                  {ratingDisplay}
                 </div>
+              </div>
+              {isEditingProfile ? renderProfileForm() : renderInfoTable()}
+            </div>
+          </div>
+        </section>
 
-                {jobPosts.length === 0 && (
-                    <p className={styles.mutedText}>
-                        {jobPostsTotalCount === 0 && jobPostPositionFilter === "" && jobPostStatusFilter === "active"
-                            ? t("profile.noJobPosts")
-                            : t("profile.noJobPostsFiltered")}
-                    </p>
-                )}
-                <div className={styles.jobPostsGrid}>
-                    {jobPosts.map((post) => (
-                        <article key={post.id} className={styles.jobPostCard}>
-                            <h4>
-                                {post.title}
-                                <span
-                                    className={`${styles.lifecycleBadge} ${post.isArchived ? styles.lifecycleArchived : styles.lifecycleActive}`}
-                                >
-                                    {post.isArchived ? t("jobPosts.lifecycleArchived") : t("jobPosts.lifecycleActive")}
-                                </span>
-                            </h4>
-                            <div className={styles.cardMeta}>
-                                <div><span>{t("profile.workerType")}:</span><strong>{post.position}</strong></div>
-                                <div><span>{t("profile.location")}:</span><strong>{post.restaurantLocationName ?? "-"}</strong></div>
-                                <div><span>{t("profile.startingDate")}:</span><strong>{formatDate(post.startingDate)}</strong></div>
-                                <div><span>{t("profile.payment")}:</span><strong>{post.salary} RSD</strong></div>
-                                <div>
-                                    <span>{t("profile.status")}:</span>
-                                    <strong>
-                                        {getJobPostDisplayStatusLabel(post, t)}
-                                    </strong>
-                                </div>
-                            </div>
-                            <div className={styles.actionsRow}>
-                                <button
-                                    className={`${styles.button} ${styles.buttonSecondary}`}
-                                    onClick={() => setEditingJobPostId(post.id)}
-                                >
-                                    {t("profile.edit")}
-                                </button>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-                {jobPostsTotalCount > LIST_PAGE_SIZE && (
-                    <Pagination
-                        page={jobPostsPage}
-                        totalPages={totalJobPostPages}
-                        totalCount={jobPostsTotalCount}
-                        pageSize={LIST_PAGE_SIZE}
-                        onPrevious={() => setJobPostsPage((previous) => Math.max(1, previous - 1))}
-                        onNext={() => setJobPostsPage((previous) => Math.min(totalJobPostPages, previous + 1))}
-                    />
-                )}
-                {editingJobPost && (
-                    <div className={styles.inlineForm}>
-                        <JobPostForm
-                            key={editingJobPost.id}
-                            initialData={editingJobPost}
-                            onClose={() => setEditingJobPostId(null)}
-                            onSubmit={async () => {
-                                const positionsResponse = await GetMyJobPostPositions().catch(() => null);
-                                if (positionsResponse) {
-                                    setPositionOptions(positionsResponse.data);
-                                }
-                                await reloadJobPosts();
-                                setEditingJobPostId(null);
-                            }}
-                        />
-                    </div>
-                )}
-            </CollapsibleSection>
-
-            <CollapsibleSection title={t("reviews.pendingTitle")}>
-                <PendingReviewsSection />
-            </CollapsibleSection>
-
-            <CollapsibleSection title={t("reviews.receivedTitle")}>
-                <ReceivedReviewsSection reviews={receivedReviews} reviewSummary={reviewSummary} />
-            </CollapsibleSection>
-
-            <CollapsibleSection title={t("profile.applicants")}>
-                {allJobPosts.length > 0 && (
-                    <div className={styles.applicantsFilters}>
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="jobPostSelect">{t("profile.chooseJobPost")}</label>
-                            <select
-                                className={styles.select}
-                                id="jobPostSelect"
-                                value={selectedJobPostId}
-                                onChange={(e) => setSelectedJobPostId(e.target.value)}
-                            >
-                                {allJobPosts.map((post) => (
-                                    <option key={post.id} value={post.id}>
-                                        {post.title}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="statusFilter">{t("profile.filterByStatus")}</label>
-                            <select
-                                className={styles.select}
-                                id="statusFilter"
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                            >
-                                <option value="All">{t("profile.all")}</option>
-                                <option value="Applied">{t("jobPosts.appliedShort")}</option>
-                                <option value="Accepted">{t("profile.accept")}</option>
-                                <option value="Denied">{t("profile.deny")}</option>
-                                <option value="Cancelled">{t("common.cancel")}</option>
-                            </select>
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="applicantSearch">{t("profile.searchApplicants")}</label>
-                            <input
-                                className={styles.input}
-                                id="applicantSearch"
-                                type="search"
-                                value={applicantSearchQuery}
-                                placeholder={t("profile.searchApplicantsPlaceholder")}
-                                onChange={(event) => setApplicantSearchQuery(event.target.value)}
-                            />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="applicantSort">{t("profile.sortApplicants")}</label>
-                            <select
-                                className={styles.select}
-                                id="applicantSort"
-                                value={applicantSortValue}
-                                onChange={(event) => setApplicantSortValue(event.target.value)}
-                            >
-                                <option value="appliedAt_desc">{t("profile.sortAppliedNewest")}</option>
-                                <option value="appliedAt_asc">{t("profile.sortAppliedOldest")}</option>
-                                <option value="name_asc">{t("profile.sortNameAsc")}</option>
-                                <option value="name_desc">{t("profile.sortNameDesc")}</option>
-                            </select>
-                        </div>
-                    </div>
-                )}
-                {allJobPosts.length > 0 && <p className={styles.selectedPost}>{t("profile.selectedPost")}: {selectedJobPost?.title ?? "-"}</p>}
-                {visibleApplicants.length === 0 && <p className={styles.mutedText}>{t("profile.noApplicantsForFilter")}</p>}
-                <div className={styles.applicantsList}>
-                    {pagedApplicants.map((applicant) => (
-                        <div key={applicant.applicationId} className={styles.applicantCard}>
-                            <p className={styles.applicantName}>
-                                <Link className={styles.applicantProfileLink} to={`/employees/${applicant.userId}`}>
-                                    {applicant.firstName} {applicant.lastName}
-                                </Link>{" "}
-                                <RatingBadge
-                                    averageRating={applicant.averageRating}
-                                    reviewCount={applicant.reviewCount}
-                                    compact
-                                    subjectType="employee"
-                                    subjectId={applicant.userId}
-                                />{" "}
-                                <span style={getStatusBadgeStyle(applicant.status)}>
-                                    {getApplicationStatusLabel(applicant.status, t)}
-                                </span>
-                            </p>
-                            {canEmployerDecideOnApplication(applicant.status) && (
-                                <div className={styles.actionsRow}>
-                                    <button
-                                        className={`${styles.button} ${styles.buttonPrimary}`}
-                                        disabled={actionInProgress !== null}
-                                        onClick={() => handleStatusUpdate(applicant.applicationId, "Accepted")}
-                                    >
-                                        {actionInProgress === `${applicant.applicationId}:Accepted` ? t("profile.accepting") : t("profile.accept")}
-                                    </button>
-                                    <button
-                                        className={`${styles.button} ${styles.buttonSecondary}`}
-                                        disabled={actionInProgress !== null}
-                                        onClick={() => handleStatusUpdate(applicant.applicationId, "Denied")}
-                                    >
-                                        {actionInProgress === `${applicant.applicationId}:Denied` ? t("profile.denying") : t("profile.deny")}
-                                    </button>
-                                </div>
-                            )}
-                            <ApplicationChatPanel
-                                applicationId={applicant.applicationId}
-                                enabled={applicant.status === "Accepted"}
-                            />
-                        </div>
-                    ))}
-                </div>
-                <Pagination
-                    page={applicantsPage}
-                    totalPages={applicantsTotalPages}
-                    totalCount={applicantsTotalCount}
-                    pageSize={applicantsPageSize}
-                    onPrevious={() => setApplicantsPage((previous) => Math.max(1, previous - 1))}
-                    onNext={() => setApplicantsPage((previous) => Math.min(applicantsTotalPages, previous + 1))}
-                />
-            </CollapsibleSection>
-        </div>
-    )
+        {detailPanel ? renderDetailPanel() : renderManageSectionCards()}
+      </div>
+    </div>
+  );
 };
 
 export default EmployerProfile;

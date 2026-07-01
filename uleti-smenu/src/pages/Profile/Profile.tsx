@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
+import styles from "./ProfilePageHeader.module.scss";
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -23,10 +24,12 @@ const ProfilePage = () => {
       return (
         <>
           {isEmployerShell ? (
-            <CandidatePageHeader
-              title={t("employerShell.profileTitle")}
-              subtitle={t("employerShell.profileSubtitle")}
-            />
+            <div className={styles.employerDesktopHeader}>
+              <CandidatePageHeader
+                title={t("employerShell.profileTitle")}
+                subtitle={t("employerShell.profileSubtitle")}
+              />
+            </div>
           ) : null}
           <EmployerProfile user={me as Employer} />
         </>
@@ -43,8 +46,6 @@ const ProfilePage = () => {
           <EmployeeProfile user={me as Employee} />
         </>
       );
-    // case "Admin":
-    //   return <AdminProfile user={user} />;
     default:
       return <div>{t("common.unknownRole")}</div>;
   }

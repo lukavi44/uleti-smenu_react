@@ -74,7 +74,7 @@ const en = {
     jobPostsTitle: "My job posts",
     jobPostsSubtitle: "Manage your listings and review applicants.",
     profileTitle: "My profile",
-    profileSubtitle: "Manage your company info, restaurants, and job posts.",
+    profileSubtitle: "Manage your company info, branches, and account settings.",
     messagesTitle: "Messages",
     messagesSubtitle: "Chat with candidates."
   },
@@ -1043,6 +1043,31 @@ const en = {
     applicationUpdateError: "Unable to update application status.",
     failedLoadJobPosts: "Failed to load your job posts.",
     failedLoadBranches: "Failed to load your restaurant branches.",
+    employerManage: {
+      photoHint: "PNG or JPG, max 2MB",
+      reviewsAboutMe: "Reviews about me",
+      totalRating: "Average rating",
+      totalReviews: "Total reviews",
+      viewAllReviews: "View all reviews",
+      verification: "Verification",
+      verificationVerifiedHint: "Your account has been verified by the UletiSmenu team.",
+      verificationNotVerifiedHint: "Verification helps candidates trust your business.",
+      subscription: "Subscription",
+      manageSubscription: "Manage subscription",
+      wallet: "Wallet",
+      availableBalance: "Available balance",
+      topUpWallet: "Top up wallet",
+      accountSettings: "Account settings",
+      accountSettingsHint: "Change password, manage account security, and other settings.",
+      manageBranches: "Manage branches",
+      branchesCount: "{{count}} branches",
+      branchesCount_one: "{{count}} branch",
+      expiresOn: "Expires: {{date}}.",
+      ratingExcellent: "Excellent",
+      ratingVeryGood: "Very good",
+      ratingGood: "Good",
+      noPlan: "No active plan"
+    },
     failedLoadApplicants: "Failed to load applicants.",
     failedLoadApplications: "Failed to load your applications.",
     failedLoadFavorites: "Failed to load favourite restaurants.",
@@ -1220,7 +1245,18 @@ const en = {
     },
     settings: {
       title: "Admin panel settings",
-      description: "Global platform settings will be available in a future release."
+      description: "Platform-wide toggles will land here in a future release. Use the sections below for day-to-day operations and monitoring.",
+      opsTitle: "Daily operations",
+      opsIntro: "Typical support tasks you can handle from this panel today:",
+      opsVerifyEmployer: "Verify employers under Employers → open detail → toggle verified badge.",
+      opsBilling: "Review wallet top-ups under Billing (read-only ledger; Stripe is off in current config).",
+      opsModeration: "Search job posts and applications when reviewing reports or abuse.",
+      opsSupport: "For incidents, note API traceId from error responses and check host logs (Render / Azure).",
+      monitoringTitle: "Health checks",
+      monitoringIntro: "Use these endpoints for uptime monitoring and database readiness:",
+      healthLiveness: "Liveness",
+      healthReadiness: "Readiness (DB)",
+      monitoringHint: "Configure an external monitor (e.g. UptimeRobot) on the liveness URL. Alert if readiness fails while liveness is OK — usually a database issue."
     }
   }
 };
