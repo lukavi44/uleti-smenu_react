@@ -492,8 +492,37 @@
     pointer-events: none;
   }
 
-  .employer-card-overlay .edit-icon-button {
+  .employer-card-overlay .edit-icon-button,
+  .employer-card-overlay .manage-icon-button {
     pointer-events: auto;
+  }
+
+  .manage-icon-button {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid #c7ddff;
+    background: #e8f1ff;
+    color: #1e88e5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(30, 136, 229, 0.22);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .manage-icon-button svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .manage-icon-button:hover {
+    background: #d8e9ff;
+    transform: translateY(-1px);
   }
 
   .edit-icon-button {
@@ -627,5 +656,9 @@
       transform: none;
     }
   }
+
+.preview-drawer-body {
+  padding: 0.75rem 1rem 1.25rem;
+}
   
   

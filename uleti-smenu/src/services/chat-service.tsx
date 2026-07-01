@@ -1,25 +1,53 @@
 import { AxiosResponse } from "axios";
-import { ChatConversation, ChatMessage } from "../models/Chat.model";
+import { ChatConversation, ChatConversationStatus, ChatMessage } from "../models/Chat.model";
 import axiosInstance from "./axiosConfig";
 
-const normalizeConversation = (data: Record<string, unknown>): ChatConversation => ({
-  conversationId: String(data.conversationId ?? data.ConversationId ?? ""),
-  applicationId: String(data.applicationId ?? data.ApplicationId ?? ""),
-  jobPostId: String(data.jobPostId ?? data.JobPostId ?? ""),
-  jobPostTitle: String(data.jobPostTitle ?? data.JobPostTitle ?? ""),
-  otherPartyName: String(data.otherPartyName ?? data.OtherPartyName ?? ""),
-  otherPartyId: String(data.otherPartyId ?? data.OtherPartyId ?? "") || undefined,
-  otherPartyProfilePhoto: (() => {
-    const value = String(data.otherPartyProfilePhoto ?? data.OtherPartyProfilePhoto ?? "").trim();
-    return value || undefined;
-  })(),
-  lastMessagePreview: (data.lastMessagePreview ?? data.LastMessagePreview) as string | undefined,
-  lastMessageAtUtc: (data.lastMessageAtUtc ?? data.LastMessageAtUtc) as string | undefined,
-  unreadCount: Number(data.unreadCount ?? data.UnreadCount ?? 0),
-});
+const normalizeStatus = (value: unknown): ChatConversationStatus => {
+  const normalized = String(value ?? "Active").toLowerCase();
+  return normalized === "archived" ? "Archived" : "Active";
+};
 
-export const GetMyChatConversations = async (): Promise<AxiosResponse<ChatConversation[]>> => {
-  const response = await axiosInstance.get("/api/v1/Chat/conversations");
+const normalizeConversation = (data: Record<string, unknown>): ChatConversation => {
+  const status = normalizeStatus(data.status ?? data.Status);
+  const isReadOnly = Boolean(data.isReadOnly ?? data.IsReadOnly ?? status === "Archived");
+  const canSendMessages = Boolean(
+    data.canSendMessages ?? data.CanSendMessages ?? (!isReadOnly && status === "Active")
+  );
+
+  return {
+    conversationId: String(data.conversationId ?? data.ConversationId ?? ""),
+    applicationId: String(data.applicationId ?? data.ApplicationId ?? ""),
+    jobPostId: String(data.jobPostId ?? data.JobPostId ?? ""),
+    jobPostTitle: String(data.jobPostTitle ?? data.JobPostTitle ?? ""),
+    restaurantLocationName: (data.restaurantLocationName ?? data.RestaurantLocationName) as
+      | string
+      | undefined,
+    restaurantLocationCity: (data.restaurantLocationCity ?? data.RestaurantLocationCity) as
+      | string
+      | undefined,
+    otherPartyName: String(data.otherPartyName ?? data.OtherPartyName ?? ""),
+    otherPartyId: String(data.otherPartyId ?? data.OtherPartyId ?? "") || undefined,
+    otherPartyProfilePhoto: (() => {
+      const value = String(data.otherPartyProfilePhoto ?? data.OtherPartyProfilePhoto ?? "").trim();
+      return value || undefined;
+    })(),
+    lastMessagePreview: (data.lastMessagePreview ?? data.LastMessagePreview) as string | undefined,
+    lastMessageAtUtc: (data.lastMessageAtUtc ?? data.LastMessageAtUtc) as string | undefined,
+    unreadCount: Number(data.unreadCount ?? data.UnreadCount ?? 0),
+    status,
+    isReadOnly,
+    canSendMessages,
+  };
+};
+
+export type ChatConversationFilter = "active" | "archived";
+
+export const GetMyChatConversations = async(
+  status: ChatConversationFilter = "active"
+): Promise<AxiosResponse<ChatConversation[]>> => {
+  const response = await axiosInstance.get("/api/v1/Chat/conversations", {
+    params: { status },
+  });
   return {
     ...response,
     data: (response.data as Record<string, unknown>[]).map((item) => normalizeConversation(item)),

@@ -144,6 +144,15 @@
   text-decoration: none;
 }
 
+.nameLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nameLink:hover strong {
+  color: #2563eb;
+}
+
 .chevronLink {
   display: inline-flex;
   align-items: flex-start;
@@ -154,6 +163,7 @@
 }
 
 .cardBody {
+  flex: 1;
   min-width: 0;
 }
 

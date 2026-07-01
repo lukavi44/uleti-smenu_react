@@ -12,6 +12,8 @@ import { GetMyJobPosts } from "../../services/jobPost-service";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { getEmployerJobPostStatusBadge } from "../../helpers/employerJobPostMobile";
 import EmployerJobPostCandidatesList from "../../components/JobPosts/EmployerJobPostCandidatesList";
+import JobPostManagePanel from "../../components/JobPosts/JobPostManagePanel";
+import { useJobPostManageHandlers } from "../../hooks/useJobPostManageHandlers";
 import styles from "./EmployerJobPostDetailPage.module.scss";
 
 type DetailTab = "overview" | "candidates";
@@ -26,11 +28,30 @@ const EmployerJobPostDetailPage = () => {
   const [jobPost, setJobPost] = useState<JobPost | null>(
     (location.state as { jobPost?: JobPost } | null)?.jobPost ?? null
   );
-  const [activeTab, setActiveTab] = useState<DetailTab>("candidates");
+  const [activeTab, setActiveTab] = useState<DetailTab>(
+    (location.state as { previewMode?: boolean } | null)?.previewMode ? "overview" : "candidates"
+  );
   const [isLoading, setIsLoading] = useState(!jobPost);
+  const [manageJobPost, setManageJobPost] = useState<JobPost | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const reloadJobPost = () => setReloadToken((token) => token + 1);
+
+  const manageHandlers = useJobPostManageHandlers({
+    onPostsChanged: () => {
+      reloadJobPost();
+      navigate("/oglasi-za-posao");
+    },
+    onEdit: (jobPostId) => navigate("/oglasi-za-posao", { state: { openEditForm: true, jobPostId } }),
+    onViewCandidates: (post) => {
+      setJobPost(post);
+      setActiveTab("candidates");
+    },
+    onPreview: () => setActiveTab("overview"),
+  });
 
   useEffect(() => {
-    if (jobPost || !jobPostId || authStatus !== "authenticated" || role !== "Employer") {
+    if (!jobPostId || authStatus !== "authenticated" || role !== "Employer") {
       return;
     }
 
@@ -46,7 +67,7 @@ const EmployerJobPostDetailPage = () => {
     };
 
     void loadJobPost();
-  }, [authStatus, jobPost, jobPostId, role]);
+  }, [authStatus, jobPostId, reloadToken, role]);
 
   const applicantCount = jobPost?.applicantCount ?? 0;
   const statusBadge = useMemo(
@@ -107,7 +128,12 @@ const EmployerJobPostDetailPage = () => {
             <span className={styles.backLabel}>{t("nav.jobPosts")}</span>
           </button>
 
-          <button type="button" className={styles.menuButton} aria-label={t("header.menu")}>
+          <button
+            type="button"
+            className={styles.menuButton}
+            aria-label={t("header.menu")}
+            onClick={() => setManageJobPost(jobPost)}
+          >
             <EllipsisVerticalIcon className={styles.menuIcon} aria-hidden />
           </button>
         </div>
@@ -177,6 +203,13 @@ const EmployerJobPostDetailPage = () => {
           <EmployerJobPostCandidatesList jobPostId={jobPost.id} />
         )}
       </div>
+
+      <JobPostManagePanel
+        jobPost={manageJobPost}
+        isOpen={Boolean(manageJobPost)}
+        onClose={() => setManageJobPost(null)}
+        {...manageHandlers}
+      />
     </div>
   );
 };

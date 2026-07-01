@@ -25,6 +25,7 @@ import styles from "./ConversationChatThread.module.scss";
 interface ConversationChatThreadProps {
   conversationId: string;
   active?: boolean;
+  readOnly?: boolean;
   variant?: "embedded" | "full" | "mobileFull";
   otherPartyName?: string;
   otherPartyProfilePhoto?: string;
@@ -52,6 +53,7 @@ const mergeMessages = (existing: ChatMessage[], incoming: ChatMessage[]): ChatMe
 const ConversationChatThread = ({
   conversationId,
   active = true,
+  readOnly = false,
   variant = "embedded",
   otherPartyName = "",
   otherPartyProfilePhoto,
@@ -274,7 +276,7 @@ const ConversationChatThread = ({
     event.preventDefault();
 
     const trimmedMessage = draftMessage.trim();
-    if (!trimmedMessage || isSending) {
+    if (!trimmedMessage || isSending || readOnly) {
       return;
     }
 
@@ -375,6 +377,9 @@ const ConversationChatThread = ({
             {messages.map((message, index) => renderMessage(message, index))}
           </div>
 
+          {readOnly && <p className={styles.readOnlyNotice}>{t("chat.readOnlyNotice")}</p>}
+
+          {!readOnly && (
           <form
             className={`${styles.composer} ${isMobileFull ? styles.composerMobile : ""}`}
             onSubmit={handleSend}
@@ -411,6 +416,7 @@ const ConversationChatThread = ({
               </button>
             )}
           </form>
+          )}
         </>
       )}
     </div>

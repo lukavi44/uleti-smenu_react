@@ -1,8 +1,8 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { ArrowLeftIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ConversationChatThread from "../../components/Chat/ConversationChatThread";
 import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import { useChatConversations } from "../../hooks/useChatConversations";
@@ -13,23 +13,62 @@ const MessageConversationPage = () => {
   const { t } = useTranslation();
   const { authStatus } = useContext(AuthContext);
   const { conversationId } = useParams<{ conversationId: string }>();
+  const [searchParams] = useSearchParams();
+  const tab = searchParams.get("tab");
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:1023px)");
 
-  const {
-    isLoading,
-    loadError,
-    loadConversations,
-    resolveContactPhoto,
-    getConversationById,
-  } = useChatConversations();
+  const activeConversations = useChatConversations("active");
+  const archivedConversations = useChatConversations("archived");
+
+  const conversation = useMemo(() => {
+    if (!conversationId) return undefined;
+
+    if (tab === "archived") {
+      return archivedConversations.conversations.find(
+        (item) => item.conversationId === conversationId
+      );
+    }
+
+    return (
+      activeConversations.conversations.find((item) => item.conversationId === conversationId) ??
+      archivedConversations.conversations.find((item) => item.conversationId === conversationId)
+    );
+  }, [
+    activeConversations.conversations,
+    archivedConversations.conversations,
+    conversationId,
+    tab,
+  ]);
+
+  const isLoading = activeConversations.isLoading || archivedConversations.isLoading;
+  const loadError = activeConversations.loadError && archivedConversations.loadError;
+
+  const loadConversations = useCallback(() => {
+    void activeConversations.loadConversations();
+    void archivedConversations.loadConversations();
+  }, [activeConversations, archivedConversations]);
 
   const handleMessagesChange = useCallback(() => {
-    void loadConversations();
+    loadConversations();
   }, [loadConversations]);
 
+  const resolveContactPhoto = useCallback(
+    (conv: NonNullable<typeof conversation>) => {
+      if (activeConversations.getConversationById(conv.conversationId)) {
+        return activeConversations.resolveContactPhoto(conv);
+      }
+      return archivedConversations.resolveContactPhoto(conv);
+    },
+    [activeConversations, archivedConversations]
+  );
+
   if (!isMobile) {
-    return <Navigate to={`/messages?c=${conversationId ?? ""}`} replace />;
+    const query = new URLSearchParams();
+    if (conversationId) query.set("c", conversationId);
+    if (tab) query.set("tab", tab);
+    const suffix = query.toString();
+    return <Navigate to={suffix ? `/messages?${suffix}` : "/messages"} replace />;
   }
 
   if (authStatus === "loading") {
@@ -40,8 +79,10 @@ const MessageConversationPage = () => {
     return <div className={styles.page}>{t("common.unauthorized")}</div>;
   }
 
-  const conversation = conversationId ? getConversationById(conversationId) : undefined;
   const contactPhoto = conversation ? resolveContactPhoto(conversation) : undefined;
+  const readOnly = conversation
+    ? conversation.isReadOnly || !conversation.canSendMessages
+    : false;
 
   return (
     <div className={styles.page}>
@@ -50,7 +91,7 @@ const MessageConversationPage = () => {
           type="button"
           className={styles.backButton}
           aria-label={t("messages.backToList")}
-          onClick={() => navigate("/messages")}
+          onClick={() => navigate(tab === "archived" ? "/messages?tab=archived" : "/messages")}
         >
           <ArrowLeftIcon className={styles.backIcon} aria-hidden />
         </button>
@@ -65,10 +106,21 @@ const MessageConversationPage = () => {
             <div className={styles.headerText}>
               <strong>{conversation.otherPartyName}</strong>
               <span>{conversation.jobPostTitle}</span>
-              <span className={styles.status}>
-                <span className={styles.statusDot} aria-hidden />
-                {t("messages.online")}
-              </span>
+              {(conversation.restaurantLocationName || conversation.restaurantLocationCity) && (
+                <span className={styles.locationLine}>
+                  {[conversation.restaurantLocationName, conversation.restaurantLocationCity]
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              )}
+              {conversation.status === "Archived" ? (
+                <span className={styles.archivedBadge}>{t("messages.archivedBadge")}</span>
+              ) : (
+                <span className={styles.status}>
+                  <span className={styles.statusDot} aria-hidden />
+                  {t("messages.online")}
+                </span>
+              )}
             </div>
           </div>
         ) : (
@@ -100,6 +152,7 @@ const MessageConversationPage = () => {
             otherPartyName={conversation.otherPartyName}
             otherPartyProfilePhoto={contactPhoto}
             active
+            readOnly={readOnly}
             variant="mobileFull"
             onMessagesChange={handleMessagesChange}
           />

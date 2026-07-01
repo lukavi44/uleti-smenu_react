@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { ChatConversation } from "../models/Chat.model";
-import { GetMyChatConversations } from "../services/chat-service";
+import { ChatConversationFilter, GetMyChatConversations } from "../services/chat-service";
 import { GetEmployeePublicProfile } from "../services/employee-profile-service";
 import { GetEmployersWithFavouriteStatus } from "../services/user-service";
 import { AuthContext } from "../store/Auth-context";
@@ -8,7 +8,7 @@ import { subscribeChatMessages, subscribeChatUnreadCount } from "../services/rea
 
 const FALLBACK_REFRESH_INTERVAL_MS = 60000;
 
-export const useChatConversations = () => {
+export const useChatConversations = (status: ChatConversationFilter = "active") => {
   const { authStatus, me, role } = useContext(AuthContext);
   const currentUserId = me && "id" in me ? me.id : "";
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
@@ -18,7 +18,7 @@ export const useChatConversations = () => {
 
   const loadConversations = useCallback(async () => {
     try {
-      const response = await GetMyChatConversations();
+      const response = await GetMyChatConversations(status);
       setConversations(response.data);
       setLoadError(false);
     } catch {
@@ -27,11 +27,12 @@ export const useChatConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [status]);
 
   useEffect(() => {
     if (authStatus !== "authenticated") return;
 
+    setIsLoading(true);
     void loadConversations();
 
     const intervalId = window.setInterval(() => {
@@ -42,7 +43,7 @@ export const useChatConversations = () => {
   }, [authStatus, loadConversations]);
 
   useEffect(() => {
-    if (authStatus !== "authenticated") return;
+    if (authStatus !== "authenticated" || status !== "active") return;
 
     const unsubscribeUnreadCount = subscribeChatUnreadCount(() => {
       void loadConversations();
@@ -75,7 +76,7 @@ export const useChatConversations = () => {
       unsubscribeUnreadCount();
       unsubscribeMessages();
     };
-  }, [authStatus, currentUserId, loadConversations]);
+  }, [authStatus, currentUserId, loadConversations, status]);
 
   useEffect(() => {
     if (conversations.length === 0) {

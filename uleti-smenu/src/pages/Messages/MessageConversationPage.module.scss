@@ -100,3 +100,23 @@
   color: #6b7280;
   font-size: 0.88rem;
 }
+
+.locationLine {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.archivedBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  width: fit-content;
+}

@@ -7,6 +7,7 @@ import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import ConversationListPanel from "../../components/Messages/ConversationListPanel";
 import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
 import { useChatConversations } from "../../hooks/useChatConversations";
+import { ChatConversationFilter } from "../../services/chat-service";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import { AuthContext } from "../../store/Auth-context";
@@ -21,6 +22,10 @@ const MessagesPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationQuery = searchParams.get("c");
+  const tabQuery = searchParams.get("tab");
+  const [conversationTab, setConversationTab] = useState<ChatConversationFilter>(
+    tabQuery === "archived" ? "archived" : "active"
+  );
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
   const {
@@ -29,7 +34,13 @@ const MessagesPage = () => {
     loadError,
     loadConversations,
     resolveContactPhoto,
-  } = useChatConversations();
+  } = useChatConversations(conversationTab);
+
+  useEffect(() => {
+    if (tabQuery === "archived" || tabQuery === "active") {
+      setConversationTab(tabQuery);
+    }
+  }, [tabQuery]);
 
   useEffect(() => {
     if (isMobile || conversations.length === 0) {
@@ -56,14 +67,20 @@ const MessagesPage = () => {
     });
   }, [conversationQuery, conversations, isMobile]);
 
+  const handleTabChange = (tab: ChatConversationFilter) => {
+    setConversationTab(tab);
+    setSelectedConversationId(null);
+    setSearchParams({ tab }, { replace: true });
+  };
+
   const handleSelectConversation = (conversationId: string) => {
     if (isMobile) {
-      navigate(`/messages/${conversationId}`);
+      navigate(`/messages/${conversationId}?tab=${conversationTab}`);
       return;
     }
 
     setSelectedConversationId(conversationId);
-    setSearchParams({ c: conversationId }, { replace: true });
+    setSearchParams({ c: conversationId, tab: conversationTab }, { replace: true });
   };
 
   const selectedConversation = conversations.find(
@@ -72,10 +89,18 @@ const MessagesPage = () => {
   const selectedContactPhoto = selectedConversation
     ? resolveContactPhoto(selectedConversation)
     : undefined;
+  const selectedReadOnly = selectedConversation
+    ? selectedConversation.isReadOnly || !selectedConversation.canSendMessages
+    : false;
 
   const handleMessagesChange = useCallback(() => {
     void loadConversations();
   }, [loadConversations]);
+
+  const emptyMessage =
+    conversationTab === "archived"
+      ? t("messages.noArchivedConversations")
+      : t("messages.noConversations");
 
   if (authStatus === "loading") {
     return <div className={styles.page}>{t("common.loading")}</div>;
@@ -105,11 +130,32 @@ const MessagesPage = () => {
         )}
       </div>
 
+      <div className={styles.tabBar} role="tablist" aria-label={t("messages.title")}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={conversationTab === "active"}
+          className={`${styles.tabButton} ${conversationTab === "active" ? styles.tabButtonActive : ""}`}
+          onClick={() => handleTabChange("active")}
+        >
+          {t("messages.tabActive")}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={conversationTab === "archived"}
+          className={`${styles.tabButton} ${conversationTab === "archived" ? styles.tabButtonActive : ""}`}
+          onClick={() => handleTabChange("archived")}
+        >
+          {t("messages.tabArchived")}
+        </button>
+      </div>
+
       {isLoading && <p className={styles.mutedText}>{t("messages.loading")}</p>}
       {loadError && !isLoading && <p className={styles.mutedText}>{t("messages.loadError")}</p>}
 
       {!isLoading && !loadError && conversations.length === 0 && (
-        <p className={styles.mutedText}>{t("messages.noConversations")}</p>
+        <p className={styles.mutedText}>{emptyMessage}</p>
       )}
 
       {!isLoading && !loadError && conversations.length > 0 && isMobile && (
@@ -146,6 +192,20 @@ const MessagesPage = () => {
                     <div>
                       <h2>{selectedConversation.otherPartyName}</h2>
                       <p>{selectedConversation.jobPostTitle}</p>
+                      {(selectedConversation.restaurantLocationName ||
+                        selectedConversation.restaurantLocationCity) && (
+                        <p className={styles.locationLine}>
+                          {[
+                            selectedConversation.restaurantLocationName,
+                            selectedConversation.restaurantLocationCity,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      )}
+                      {selectedConversation.status === "Archived" && (
+                        <span className={styles.archivedBadge}>{t("messages.archivedBadge")}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -155,6 +215,7 @@ const MessagesPage = () => {
                   otherPartyName={selectedConversation.otherPartyName}
                   otherPartyProfilePhoto={selectedContactPhoto}
                   active
+                  readOnly={selectedReadOnly}
                   variant="full"
                   onMessagesChange={handleMessagesChange}
                 />

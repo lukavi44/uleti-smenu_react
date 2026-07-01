@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   CalendarDaysIcon,
   ChevronRightIcon,
+  EllipsisVerticalIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
 import ImageWithFallback from "../Common/ImageWithFallback";
@@ -14,9 +15,10 @@ import styles from "./EmployerJobPostMobileCard.module.scss";
 type EmployerJobPostMobileCardProps = {
   jobPost: JobPost;
   onOpen: (jobPost: JobPost) => void;
+  onManage?: (jobPost: JobPost) => void;
 };
 
-const EmployerJobPostMobileCard = ({ jobPost, onOpen }: EmployerJobPostMobileCardProps) => {
+const EmployerJobPostMobileCard = ({ jobPost, onOpen, onManage }: EmployerJobPostMobileCardProps) => {
   const { t } = useTranslation();
   const statusBadge = getEmployerJobPostStatusBadge(jobPost, t);
   const applicantCount = jobPost.applicantCount ?? 0;
@@ -26,7 +28,8 @@ const EmployerJobPostMobileCard = ({ jobPost, onOpen }: EmployerJobPostMobileCar
   const locationLabel = jobPost.restaurantLocationCity || jobPost.restaurantLocationName || "-";
 
   return (
-    <button type="button" className={styles.card} onClick={() => onOpen(jobPost)}>
+    <div className={styles.cardWrap}>
+      <button type="button" className={styles.card} onClick={() => onOpen(jobPost)}>
       <ImageWithFallback
         src={jobPost.employer?.profilePhoto}
         alt=""
@@ -77,7 +80,19 @@ const EmployerJobPostMobileCard = ({ jobPost, onOpen }: EmployerJobPostMobileCar
           <ChevronRightIcon className={styles.chevron} aria-hidden />
         </div>
       </div>
-    </button>
+      </button>
+
+      {onManage ? (
+        <button
+          type="button"
+          className={styles.manageButton}
+          aria-label={t("jobPostManage.managePost")}
+          onClick={() => onManage(jobPost)}
+        >
+          <EllipsisVerticalIcon aria-hidden />
+        </button>
+      ) : null}
+    </div>
   );
 };
 

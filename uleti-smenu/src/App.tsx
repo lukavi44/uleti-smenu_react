@@ -27,7 +27,8 @@ import LegalPage from "./pages/Info/LegalPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
 import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
 import EmployerLegacyRedirect from "./pages/Employers/EmployerLegacyRedirect";
-import ReviewSubjectPage from "./pages/Reviews/ReviewSubjectPage";
+import RestaurantReviewsRouter from "./pages/Reviews/RestaurantReviewsRouter";
+import CandidateReviewsRouter from "./pages/Reviews/CandidateReviewsRouter";
 import UpgradePage from "./pages/Billing/UpgradePage";
 import RequireAdmin from "./router/RequireAdmin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -69,7 +70,7 @@ function App() {
             <Route path="cookies" element={<LegalPage type="cookies" />} />
             <Route path="restaurants" element={<RestaurantsPage />} />
             <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
-            <Route path="restaurants/:slug/reviews" element={<ReviewSubjectPage subjectType="employer" />} />
+            <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />
             <Route element={<LoggedOutRoute />}>
               <Route path="registration" element={<RegistrationChoicePage />} />
               <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
@@ -83,7 +84,7 @@ function App() {
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
-              <Route path="employees/:employeeId/reviews" element={<ReviewSubjectPage subjectType="employee"/>}/>
+              <Route path="employees/:employeeId/reviews" element={<CandidateReviewsRouter/>}/>
               <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
               <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>

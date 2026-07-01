@@ -23,6 +23,8 @@ import EmployerDashboardSummaryCards from "../../components/EmployerDashboard/Em
 import EmployerDashboardPendingCarousel from "../../components/EmployerDashboard/EmployerDashboardPendingCarousel";
 import EmployerDashboardJobPostsList from "../../components/EmployerDashboard/EmployerDashboardJobPostsList";
 import EmployerDashboardMobileGreeting from "../../components/EmployerDashboard/EmployerDashboardMobileGreeting";
+import JobPostManagePanel from "../../components/JobPosts/JobPostManagePanel";
+import { useJobPostManageHandlers } from "../../hooks/useJobPostManageHandlers";
 import styles from "./EmployerDashboard.module.scss";
 
 const EmployerDashboard = () => {
@@ -35,6 +37,8 @@ const EmployerDashboard = () => {
   const [isOverviewLoading, setIsOverviewLoading] = useState(true);
   const [isJobPostsLoading, setIsJobPostsLoading] = useState(true);
   const [isPendingLoading, setIsPendingLoading] = useState(true);
+  const [manageJobPost, setManageJobPost] = useState<JobPost | null>(null);
+  const [jobPostsReloadToken, setJobPostsReloadToken] = useState(0);
 
   const isEmployer = authStatus === "authenticated" && role === "Employer";
 
@@ -117,7 +121,15 @@ const EmployerDashboard = () => {
     };
 
     void loadJobPosts();
-  }, [isEmployer]);
+  }, [isEmployer, jobPostsReloadToken]);
+
+  const reloadJobPosts = () => {
+    setJobPostsReloadToken((token) => token + 1);
+  };
+
+  const manageHandlers = useJobPostManageHandlers({
+    onPostsChanged: reloadJobPosts,
+  });
 
   useEffect(() => {
     const loadPendingApplicants = async () => {
@@ -205,8 +217,19 @@ const EmployerDashboard = () => {
             {t("home.viewAllPosts")} →
           </Link>
         </div>
-        <EmployerDashboardJobPostsList jobPosts={jobPosts} isLoading={isJobPostsLoading} />
+        <EmployerDashboardJobPostsList
+          jobPosts={jobPosts}
+          isLoading={isJobPostsLoading}
+          onManagePost={setManageJobPost}
+        />
       </section>
+
+      <JobPostManagePanel
+        jobPost={manageJobPost}
+        isOpen={Boolean(manageJobPost)}
+        onClose={() => setManageJobPost(null)}
+        {...manageHandlers}
+      />
     </div>
   );
 };

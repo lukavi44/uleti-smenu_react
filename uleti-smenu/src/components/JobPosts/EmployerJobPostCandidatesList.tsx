@@ -224,42 +224,42 @@ const EmployerJobPostCandidatesList = ({
                   </div>
                 </Link>
 
-                <Link to={`/employees/${applicant.userId}`} className={styles.cardBodyLink}>
-                  <div className={styles.cardBody}>
-                    <div className={styles.cardTop}>
+                <div className={styles.cardBody}>
+                  <div className={styles.cardTop}>
+                    <Link to={`/employees/${applicant.userId}`} className={styles.nameLink}>
                       <strong>
                         {applicant.firstName} {applicant.lastName}
                       </strong>
-                      <span
-                        className={`${styles.statusBadge} ${styles[`statusBadge${statusVariant}`]}`}
-                      >
-                        {getStatusLabel(applicant.status)}
-                      </span>
-                    </div>
-
-                    <div className={styles.ratingRow}>
-                      <RatingBadge
-                        averageRating={applicant.averageRating}
-                        reviewCount={applicant.reviewCount}
-                        compact
-                        subjectType="employee"
-                        subjectId={applicant.userId}
-                      />
-                    </div>
-
-                    {applicant.city && <p className={styles.location}>{applicant.city}</p>}
-
-                    <p className={styles.meta}>
-                      {t("applicants.appliedAt")}: {formatAppliedAt(applicant.appliedAt)}
-                    </p>
-
-                    {messagePreview && (
-                      <p className={styles.messagePreview}>
-                        {t("jobPosts.messagePreview")}: {messagePreview}
-                      </p>
-                    )}
+                    </Link>
+                    <span
+                      className={`${styles.statusBadge} ${styles[`statusBadge${statusVariant}`]}`}
+                    >
+                      {getStatusLabel(applicant.status)}
+                    </span>
                   </div>
-                </Link>
+
+                  <div className={styles.ratingRow}>
+                    <RatingBadge
+                      averageRating={applicant.averageRating}
+                      reviewCount={applicant.reviewCount}
+                      compact
+                      subjectType="employee"
+                      subjectId={applicant.userId}
+                    />
+                  </div>
+
+                  {applicant.city && <p className={styles.location}>{applicant.city}</p>}
+
+                  <p className={styles.meta}>
+                    {t("applicants.appliedAt")}: {formatAppliedAt(applicant.appliedAt)}
+                  </p>
+
+                  {messagePreview && (
+                    <p className={styles.messagePreview}>
+                      {t("jobPosts.messagePreview")}: {messagePreview}
+                    </p>
+                  )}
+                </div>
 
                 <Link
                   to={`/employees/${applicant.userId}`}

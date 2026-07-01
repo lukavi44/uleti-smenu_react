@@ -1,5 +1,6 @@
 import { JobPostDTO } from "../DTOs/JobPost.dto";
 import { EmployerDashboardSummary } from "../models/EmployerDashboardSummary.model";
+import { JobPostApplicationStats } from "../models/JobPostApplicationStats.model";
 import { JobPost } from "../models/JobPost.model";
 import { PagedResult } from "../models/PagedResult.model";
 import axiosInstance from "./axiosConfig"
@@ -178,4 +179,32 @@ export const GetMyJobPostPositions = async(): Promise<AxiosResponse<string[]>> =
 
 export const UpdateMyJobPost = async(jobPostId: string, body: JobPostDTO): Promise<AxiosResponse<JobPostDTO>> => {
     return axiosInstance.put<JobPostDTO>(`/api/v1/JobPost/my/${jobPostId}`, body);
+}
+
+export const GetMyJobPostApplicationStats = async(
+    jobPostId: string
+): Promise<AxiosResponse<JobPostApplicationStats>> => {
+    const response = await axiosInstance.get(`/api/v1/JobPost/my/${jobPostId}/application-stats`);
+    const data = response.data as Record<string, unknown>;
+    return {
+        ...response,
+        data: {
+            totalApplications: Number(data.totalApplications ?? data.TotalApplications ?? 0),
+            accepted: Number(data.accepted ?? data.Accepted ?? 0),
+            pending: Number(data.pending ?? data.Pending ?? 0),
+            denied: Number(data.denied ?? data.Denied ?? 0),
+        },
+    };
+}
+
+export const DuplicateMyJobPost = async(jobPostId: string): Promise<AxiosResponse<JobPost>> => {
+    return axiosInstance.post<JobPost>(`/api/v1/JobPost/my/${jobPostId}/duplicate`);
+}
+
+export const ArchiveMyJobPost = async(jobPostId: string): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.post(`/api/v1/JobPost/my/${jobPostId}/archive`);
+}
+
+export const DeleteMyJobPost = async(jobPostId: string): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.delete(`/api/v1/JobPost/my/${jobPostId}`);
 }

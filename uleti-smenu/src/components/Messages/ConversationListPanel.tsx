@@ -33,6 +33,8 @@ const ConversationListPanel = ({
       const haystack = [
         conversation.otherPartyName,
         conversation.jobPostTitle,
+        conversation.restaurantLocationName ?? "",
+        conversation.restaurantLocationCity ?? "",
         conversation.lastMessagePreview ?? "",
       ]
         .join(" ")
@@ -93,19 +95,31 @@ const ConversationListPanel = ({
                   </span>
                 </div>
                 <p className={styles.jobTitle}>{conversation.jobPostTitle}</p>
+                {(conversation.restaurantLocationName || conversation.restaurantLocationCity) && (
+                  <p className={styles.location}>
+                    {[conversation.restaurantLocationName, conversation.restaurantLocationCity]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
                 <p className={styles.preview}>
                   {conversation.lastMessagePreview || t("messages.noPreview")}
                 </p>
               </div>
 
-              {conversation.unreadCount > 0 && (
-                <span
-                  className={styles.unreadBadge}
-                  aria-label={t("messages.unreadCount", { count: conversation.unreadCount })}
-                >
-                  {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
-                </span>
-              )}
+              <div className={styles.rowMeta}>
+                {conversation.status === "Archived" && (
+                  <span className={styles.archivedBadge}>{t("messages.archivedBadge")}</span>
+                )}
+                {conversation.unreadCount > 0 && (
+                  <span
+                    className={styles.unreadBadge}
+                    aria-label={t("messages.unreadCount", { count: conversation.unreadCount })}
+                  >
+                    {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}

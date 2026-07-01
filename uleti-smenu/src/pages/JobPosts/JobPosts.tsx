@@ -21,7 +21,7 @@ import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { UsersIcon } from "@heroicons/react/24/outline";
+import { UsersIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { Employer } from "../../models/User.model";
 import LazyLoadSentinel from "../../components/Common/LazyLoadSentinel";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
@@ -34,6 +34,9 @@ import JobPostsActiveFilterChips from "../../components/JobPosts/JobPostsActiveF
 import JobPostsFiltersDrawer from "../../components/JobPosts/JobPostsFiltersDrawer";
 import JobPostsEmployerFiltersDrawer from "../../components/JobPosts/JobPostsEmployerFiltersDrawer";
 import JobPostsEmployerFormDrawer from "../../components/JobPosts/JobPostsEmployerFormDrawer";
+import JobPostManagePanel from "../../components/JobPosts/JobPostManagePanel";
+import JobPostsSideDrawer from "../../components/JobPosts/JobPostsSideDrawer";
+import { useJobPostManageHandlers } from "../../hooks/useJobPostManageHandlers";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import {
@@ -102,6 +105,8 @@ const JobPosts = () => {
     const isMobileEmployer = useMediaQuery("(max-width:1023px)");
     const [jobPostCreateFormOpened, setJobPostCreatFormOpened] = useState(false);
     const [candidatesPanelJobPost, setCandidatesPanelJobPost] = useState<JobPost | null>(null);
+    const [manageJobPost, setManageJobPost] = useState<JobPost | null>(null);
+    const [previewJobPost, setPreviewJobPost] = useState<JobPost | null>(null);
     const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
     const [hideAppliedPosts, setHideAppliedPosts] = useState(false);
@@ -206,6 +211,34 @@ const JobPosts = () => {
         openJobPostForm();
         navigate(location.pathname, { replace: true, state: null });
     }, [isEmployerShellView, location.pathname, location.state, me, navigate, t]);
+
+    useEffect(() => {
+        const state = location.state as {
+            openEditForm?: boolean;
+            jobPostId?: string;
+            openCandidatesPanel?: boolean;
+            jobPost?: JobPost;
+            openPreview?: boolean;
+        } | null;
+
+        if (!state || !isEmployerShellView) {
+            return;
+        }
+
+        if (state.openEditForm && state.jobPostId) {
+            openJobPostForm(state.jobPostId);
+        }
+
+        if (state.openCandidatesPanel && state.jobPost) {
+            setCandidatesPanelJobPost(state.jobPost);
+        }
+
+        if (state.openPreview && state.jobPost) {
+            setPreviewJobPost(state.jobPost);
+        }
+
+        navigate(location.pathname, { replace: true, state: null });
+    }, [isEmployerShellView, location.pathname, location.state, navigate]);
 
     const employerJobPostsResetKey = `${role}|${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
     const fetchEmployerJobPostsPage = useCallback(
@@ -472,6 +505,15 @@ const JobPosts = () => {
             resetEmployeeJobPosts();
         }
     };
+
+    const manageHandlers = useJobPostManageHandlers({
+        onPostsChanged: () => {
+            void reloadJobPosts();
+        },
+        onEdit: (jobPostId) => openJobPostForm(jobPostId),
+        onViewCandidates: (jobPost) => setCandidatesPanelJobPost(jobPost),
+        onPreview: (jobPost) => setPreviewJobPost(jobPost),
+    });
 
     const selectedSortValue = `${sortBy}_${sortDirection}`;
     const selectedEmployerSortValue = `${employerSortBy}_${employerSortDirection}`;
@@ -916,6 +958,23 @@ const JobPosts = () => {
                         onClose={closeJobPostForm}
                         onSubmit={reloadJobPosts}
                     />
+                    <JobPostManagePanel
+                        jobPost={manageJobPost}
+                        isOpen={Boolean(manageJobPost)}
+                        onClose={() => setManageJobPost(null)}
+                        {...manageHandlers}
+                    />
+                    <JobPostsSideDrawer
+                        isOpen={Boolean(previewJobPost)}
+                        title={t("jobPostManage.actionPreview")}
+                        onClose={() => setPreviewJobPost(null)}
+                    >
+                        {previewJobPost ? (
+                            <div className={styles["preview-drawer-body"]}>
+                                <JobPostItem jobPost={previewJobPost} disableCardHover showShiftDate />
+                            </div>
+                        ) : null}
+                    </JobPostsSideDrawer>
                 </>
             ) : null}
             <div className={styles["left-panel"]}>
@@ -1018,7 +1077,11 @@ const JobPosts = () => {
               className={`${styles["jobpost-card-wrapper"]} ${isMyPost && isMobileEmployer ? styles["jobpost-card-wrapper-mobile"] : ""}`}
             >
               {isMyPost && isMobileEmployer ? (
-                <EmployerJobPostMobileCard jobPost={jobPost} onOpen={handleOpenEmployerJobPost} />
+                <EmployerJobPostMobileCard
+                  jobPost={jobPost}
+                  onOpen={handleOpenEmployerJobPost}
+                  onManage={setManageJobPost}
+                />
               ) : (
                 <>
               {isMyPost && (
@@ -1061,12 +1124,13 @@ const JobPosts = () => {
                     isMyPost ? (
                       <div className={styles["employer-card-overlay"]}>
                         <button
-                          className={styles["edit-icon-button"]}
-                          aria-label="Edit job post"
-                          title="Edit job post"
-                          onClick={() => openJobPostForm(jobPost.id)}
+                          type="button"
+                          className={styles["manage-icon-button"]}
+                          aria-label={t("jobPostManage.managePost")}
+                          title={t("jobPostManage.managePost")}
+                          onClick={() => setManageJobPost(jobPost)}
                         >
-                          ✎
+                          <EllipsisVerticalIcon aria-hidden />
                         </button>
                       </div>
                     ) : undefined

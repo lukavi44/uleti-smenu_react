@@ -60,6 +60,7 @@ const ApplicationChatPanel = ({ applicationId, enabled }: ApplicationChatPanelPr
               otherPartyName={conversation.otherPartyName}
               otherPartyProfilePhoto={conversation.otherPartyProfilePhoto}
               active={isOpen}
+              readOnly={conversation.isReadOnly || !conversation.canSendMessages}
               variant="embedded"
             />
           )}
