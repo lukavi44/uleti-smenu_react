@@ -13,7 +13,7 @@ import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
 import JobPosts from "./pages/JobPosts/JobPosts";
-import EmployerJobPostDetailPage from "./pages/JobPosts/EmployerJobPostDetailPage";
+import JobPostDetailRouter from "./pages/JobPosts/JobPostDetailRouter";
 import ProfilePage from "./pages/Profile/Profile";
 import RestaurantsPage from "./pages/Restaurants/Restaurants";
 import MessagesPage from "./pages/Messages/MessagesPage";
@@ -73,6 +73,8 @@ function App() {
             <Route path="restaurants" element={<RestaurantsPage />} />
             <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
             <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />
+            <Route path="oglasi-za-posao" element={<JobPosts />} />
+            <Route path="oglasi-za-posao/:jobPostId" element={<JobPostDetailRouter />} />
             <Route element={<LoggedOutRoute />}>
               <Route path="registration" element={<RegistrationChoicePage />} />
               <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
@@ -81,8 +83,6 @@ function App() {
               <Route path="login" element={<LoginPage />} />
             </Route>
             <Route element={<RequireAuth />}>
-              <Route path="oglasi-za-posao" element={<JobPosts />} />
-              <Route path="oglasi-za-posao/:jobPostId" element={<EmployerJobPostDetailPage />} />
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>

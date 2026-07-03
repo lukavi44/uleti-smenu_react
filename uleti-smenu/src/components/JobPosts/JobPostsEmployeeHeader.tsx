@@ -6,11 +6,13 @@ import styles from "./JobPostsEmployeeHeader.module.scss";
 type JobPostsEmployeeHeaderProps = {
   onOpenFilters: () => void;
   activeFilterCount: number;
+  showTopActions?: boolean;
 };
 
 const JobPostsEmployeeHeader = ({
   onOpenFilters,
   activeFilterCount,
+  showTopActions = true,
 }: JobPostsEmployeeHeaderProps) => {
   const { t } = useTranslation();
 
@@ -18,7 +20,7 @@ const JobPostsEmployeeHeader = ({
     <div className={styles.header}>
       <div className={styles.headlineRow}>
         <h1 className={styles.title}>{t("candidate.jobPostsTitle")}</h1>
-        <CandidateTopActions />
+        {showTopActions ? <CandidateTopActions /> : null}
       </div>
 
       <p className={styles.subtitle}>{t("candidate.jobPostsSubtitle")}</p>

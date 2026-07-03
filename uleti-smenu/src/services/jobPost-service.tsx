@@ -129,6 +129,12 @@ export const GetVisibleJobPostsPaged = async(
     };
 }
 
+export const GetVisibleJobPostById = async(
+    jobPostId: string
+): Promise<AxiosResponse<JobPost>> => {
+    return axiosInstance.get<JobPost>(`/api/v1/JobPost/${jobPostId}`);
+}
+
 export const GetVisibleJobPostFilterOptions = async(
     city?: string
 ): Promise<AxiosResponse<VisibleJobPostFilterOptions>> => {

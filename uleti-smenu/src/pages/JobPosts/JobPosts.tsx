@@ -18,6 +18,7 @@ import EmployerJobPostMobileCard from "../../components/JobPosts/EmployerJobPost
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -140,6 +141,7 @@ const JobPosts = () => {
         [employeeFilterOptions.minSalary, employeeFilterOptions.maxSalary]
     );
     const [isEmployeeFiltersOpen, setIsEmployeeFiltersOpen] = useState(false);
+    const [isGuestFiltersOpen, setIsGuestFiltersOpen] = useState(false);
     const [isEmployerFiltersOpen, setIsEmployerFiltersOpen] = useState(false);
     const [employeePositionFilters, setEmployeePositionFilters] = useState<string[]>([]);
     const [shiftDatePreset, setShiftDatePreset] = useState<ShiftDatePreset>("any");
@@ -360,12 +362,18 @@ const JobPosts = () => {
         reset: resetEmployeeJobPosts,
     } = useServerLazyLoad(fetchEmployeeJobPostsPage, employeeJobPostsResetKey);
 
-    const guestJobPostsResetKey = `${authStatus}|${cityFilter}|${restaurantFilter}|${positionFilter}|${sortBy}|${sortDirection}`;
+    const guestJobPostsResetKey = `${authStatus}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employeePositionFilters.join(",")}|${salarySliderMin}|${salarySliderMax}|${shiftDatePreset}|${shiftDateCustom}|${sortBy}|${sortDirection}`;
     const fetchGuestJobPostsPage = useCallback(
         async (page: number) => {
             if (!isGuestBrowse) {
                 return { items: [], totalCount: 0 };
             }
+
+            const shiftDateRange = resolveShiftDateRange(shiftDatePreset, shiftDateCustom);
+            const positions =
+                employeePositionFilters.length > 0 ? employeePositionFilters : undefined;
+            const salaryRangeActive =
+                salarySliderMin > salaryBounds.min || salarySliderMax < salaryBounds.max;
 
             const response = await GetVisibleJobPostsPaged({
                 page,
@@ -374,7 +382,11 @@ const JobPosts = () => {
                 sortDirection,
                 city: cityFilter || undefined,
                 restaurantLocationId: restaurantFilter || undefined,
-                positions: positionFilter ? [positionFilter] : undefined,
+                positions,
+                minSalary: salaryRangeActive ? salarySliderMin : undefined,
+                maxSalary: salaryRangeActive ? salarySliderMax : undefined,
+                shiftDateFrom: shiftDateRange.from?.toISOString(),
+                shiftDateTo: shiftDateRange.to?.toISOString(),
             });
 
             return {
@@ -382,7 +394,22 @@ const JobPosts = () => {
                 totalCount: response.data.totalCount,
             };
         },
-        [authStatus, cityFilter, isGuestBrowse, positionFilter, restaurantFilter, sortBy, sortDirection]
+        [
+            authStatus,
+            cityFilter,
+            employeePositionFilters,
+            isGuestBrowse,
+            positionFilter,
+            restaurantFilter,
+            salaryBounds.max,
+            salaryBounds.min,
+            salarySliderMax,
+            salarySliderMin,
+            shiftDateCustom,
+            shiftDatePreset,
+            sortBy,
+            sortDirection,
+        ]
     );
 
     const {
@@ -776,6 +803,51 @@ const JobPosts = () => {
         ]
     );
 
+    const guestActiveFilterChips = useMemo(
+        () =>
+            buildEmployeeActiveFilterChips(
+                {
+                    city: cityFilter,
+                    restaurant: restaurantFilter,
+                    selectedPositions: employeePositionFilters,
+                    salaryMin: salarySliderMin,
+                    salaryMax: salarySliderMax,
+                    salaryBounds,
+                    shiftDatePreset,
+                    shiftDateCustom,
+                    applicationFilter: "all",
+                    favouritesOnly: false,
+                    hideAppliedPosts: false,
+                    favouriteFilter: "all",
+                    sortBy,
+                    sortDirection,
+                    restaurantOptions: employeeRestaurantOptions,
+                    positionFilter,
+                    minSalaryInput,
+                    maxSalaryInput,
+                    useCandidateFilters: true,
+                },
+                t
+            ),
+        [
+            cityFilter,
+            restaurantFilter,
+            employeePositionFilters,
+            salarySliderMin,
+            salarySliderMax,
+            salaryBounds,
+            shiftDatePreset,
+            shiftDateCustom,
+            sortBy,
+            sortDirection,
+            employeeRestaurantOptions,
+            positionFilter,
+            minSalaryInput,
+            maxSalaryInput,
+            t,
+        ]
+    );
+
     const employeeFiltersBarProps = {
         showApplicationFilters: true as const,
         showSort: true as const,
@@ -821,6 +893,11 @@ const JobPosts = () => {
         onFavouritesOnlyChange: (enabled: boolean) =>
             setFavouriteFilter(enabled ? "favourites" : "all"),
         onHideAppliedPostsChange: setHideAppliedPosts,
+    };
+
+    const guestFiltersPanelProps = {
+        ...employeeFiltersPanelProps,
+        showApplicationToggles: false,
     };
 
     const handleRemoveEmployeeFilter = (chipId: string) => {
@@ -922,6 +999,10 @@ const JobPosts = () => {
         navigate(`/oglasi-za-posao/${jobPost.id}`, { state: { jobPost } });
     };
 
+    const handleOpenGuestJobPost = (jobPost: JobPost) => {
+        navigate(`/oglasi-za-posao/${jobPost.id}`, { state: { jobPost } });
+    };
+
     return (
         <div
             className={`${styles["posts-container"]} ${
@@ -941,6 +1022,15 @@ const JobPosts = () => {
                     onClose={() => setIsEmployeeFiltersOpen(false)}
                     onReset={clearEmployeeFilters}
                     filtersPanelProps={employeeFiltersPanelProps}
+                />
+            ) : null}
+            {isGuestBrowse ? (
+                <JobPostsFiltersDrawer
+                    isOpen={isGuestFiltersOpen}
+                    totalCount={guestTotalCount}
+                    onClose={() => setIsGuestFiltersOpen(false)}
+                    onReset={clearEmployeeFilters}
+                    filtersPanelProps={guestFiltersPanelProps}
                 />
             ) : null}
             {isEmployerShellView ? (
@@ -1026,7 +1116,7 @@ const JobPosts = () => {
               />
             )}
             {isGuestBrowse && (
-              <>
+              <div className={styles["employee-page-toolbar"]}>
                 <div className={styles.guestBanner}>
                   <p>{t("publicBrowse.guestJobPostsBanner")}</p>
                   <div className={styles.guestBannerActions}>
@@ -1038,22 +1128,20 @@ const JobPosts = () => {
                     </Link>
                   </div>
                 </div>
-                <JobPostsFiltersBar
-                  {...employeeFiltersBarProps}
-                  showApplicationFilters={false}
-                  showClearFilters={
-                    Boolean(cityFilter) ||
-                    Boolean(restaurantFilter) ||
-                    Boolean(positionFilter) ||
-                    sortBy !== "createdAt" ||
-                    sortDirection !== "desc"
-                  }
-                  onClearFilters={clearEmployeeFilters}
+                <JobPostsEmployeeHeader
+                  onOpenFilters={() => setIsGuestFiltersOpen(true)}
+                  activeFilterCount={guestActiveFilterChips.length}
+                  showTopActions={false}
+                />
+                <JobPostsActiveFilterChips
+                  chips={guestActiveFilterChips}
+                  onRemove={handleRemoveEmployeeFilter}
+                  onClearAll={clearEmployeeFilters}
                 />
                 <p className={styles["results-count"]}>
                   {t("jobPosts.shownPostsCount", { count: guestTotalCount })}
                 </p>
-              </>
+              </div>
             )}
             <div
               ref={leftPanelRef}
@@ -1110,7 +1198,7 @@ const JobPosts = () => {
                   <span>{t("jobPosts.applicationsCount", { count: jobPost.applicantCount ?? 0 })}</span>
                 </div>
               )}
-              {!isEmployee && (
+              {!isEmployee && !isGuest && (
                 <JobPostItem
                   jobPost={jobPost}
                   disableCardHover={isMyPost}
@@ -1138,11 +1226,60 @@ const JobPosts = () => {
                 />
               )}
               {isGuest && (
-                <div className={styles["guest-card-actions"]}>
-                  <Link className={styles["apply-button"]} to="/login">
-                    {t("publicBrowse.loginToApply")}
-                  </Link>
-                </div>
+                <article
+                  className={`${styles["employee-jobpost-card"]} ${styles["guest-jobpost-card"]}`}
+                  onClick={() => handleOpenGuestJobPost(jobPost)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleOpenGuestJobPost(jobPost);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className={styles["employee-card-header"]}>
+                    <img
+                      className={styles["employee-card-logo"]}
+                      src={getImageUrl(jobPost.employer?.profilePhoto)}
+                      alt={jobPost.employer?.name ? `${jobPost.employer.name} logo` : "Employer logo"}
+                    />
+                    <div className={styles["guest-card-heading"]}>
+                      <h4>{jobPost.title}</h4>
+                      <div className={styles["guest-employer-row"]}>
+                        <Link
+                          className={styles["guest-employer-link"]}
+                          to={getRestaurantProfilePath({
+                            id: jobPost.employer?.id ?? jobPost.employerId,
+                            publicSlug: jobPost.employer?.publicSlug,
+                          })}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {jobPost.employer?.name ?? "-"}
+                        </Link>
+                        {jobPost.employer?.isVerifiedEmployer ? (
+                          <span className={styles["guest-verified-badge"]}>
+                            {t("admin.verification.verifiedBadge")}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles["employee-card-meta"]}>
+                    <div><span>{t("jobPosts.position")}:</span><strong>{jobPost.position}</strong></div>
+                    <div>
+                      <span>{t("jobPosts.location")}:</span>
+                      <strong>
+                        {jobPost.restaurantLocationName
+                          ? `${jobPost.restaurantLocationName}${jobPost.restaurantLocationCity ? ` (${jobPost.restaurantLocationCity})` : ""}`
+                          : "-"}
+                      </strong>
+                    </div>
+                    <div><span>{t("jobPosts.startingDate")}:</span><strong>{formatDate(jobPost.startingDate)}</strong></div>
+                    <div><span>{t("jobPosts.salary")}:</span><strong>{jobPost.salary} RSD</strong></div>
+                  </div>
+                  <p className={styles["employee-description"]}>{jobPost.description}</p>
+                </article>
               )}
               {isMyPost && !isMobileEmployer && isEmployerShellView && (
                 <div className={styles["applicants-button-anchor"]}>

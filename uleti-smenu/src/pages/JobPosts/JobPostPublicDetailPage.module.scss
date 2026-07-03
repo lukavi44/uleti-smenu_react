@@ -1,0 +1,227 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: #f8fafc;
+  padding-bottom: 1.25rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0.25rem 0.35rem 0.25rem 0;
+  color: #0f172a;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.backLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.backIcon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.headerText h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.muted {
+  margin: 1rem;
+  color: #64748b;
+}
+
+.guestBanner {
+  margin: 0.75rem 1rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+
+  p {
+    margin: 0 0 0.75rem;
+    color: #1e3a8a;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+}
+
+.guestBannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.guestBannerPrimary,
+.guestBannerSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.guestBannerPrimary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.guestBannerSecondary {
+  background: #ffffff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+.employerCard {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.employerLogo {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.employerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.employerName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.employerName:hover {
+  color: #2563eb;
+}
+
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.overview {
+  margin: 0 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.overviewRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  font-size: 0.92rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+
+  span {
+    color: #6b7280;
+  }
+
+  strong {
+    text-align: right;
+  }
+}
+
+.overviewRow:last-of-type {
+  border-bottom: 0;
+}
+
+.description {
+  margin: 0.85rem 0 0;
+  color: #4b5563;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1rem;
+}
+
+.appliedBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.applyButton {
+  margin-left: auto;
+  border: 1px solid transparent;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.applyButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.applyButton:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}

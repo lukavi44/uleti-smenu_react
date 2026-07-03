@@ -22,7 +22,9 @@ const sr = {
     guestJobPostsBanner: "Pregledajte otvorene smene ispod. Prijavite se da biste se prijavili i pratili prijave.",
     signIn: "Prijava",
     register: "Registracija",
-    loginToApply: "Prijavite se da biste se prijavili"
+    loginToApply: "Prijavite se da biste se prijavili",
+    applyAuthRequired:
+      "Da biste aplicirali za smenu, potrebno je da se registrujete ili prijavite."
   },
   guest: {
     sidebarNavigation: "Navigacija za pregled"

@@ -22,7 +22,8 @@ const en = {
     guestJobPostsBanner: "Browse open shifts below. Sign in to apply and track your applications.",
     signIn: "Sign in",
     register: "Create account",
-    loginToApply: "Sign in to apply"
+    loginToApply: "Sign in to apply",
+    applyAuthRequired: "To apply for a shift, you need to register or sign in."
   },
   guest: {
     sidebarNavigation: "Browse navigation"

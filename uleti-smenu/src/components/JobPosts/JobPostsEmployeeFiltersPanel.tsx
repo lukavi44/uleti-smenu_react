@@ -26,6 +26,7 @@ export type JobPostsEmployeeFiltersPanelProps = {
   onShiftDateCustomChange: (value: string) => void;
   onFavouritesOnlyChange: (value: boolean) => void;
   onHideAppliedPostsChange: (value: boolean) => void;
+  showApplicationToggles?: boolean;
 };
 
 const formatSalary = (value: number) => `${value.toLocaleString("sr-RS")} RSD`;
@@ -49,6 +50,7 @@ const JobPostsEmployeeFiltersPanel = ({
   onShiftDateCustomChange,
   onFavouritesOnlyChange,
   onHideAppliedPostsChange,
+  showApplicationToggles = true,
 }: JobPostsEmployeeFiltersPanelProps) => {
   const { t } = useTranslation();
   const [positionsExpanded, setPositionsExpanded] = useState(true);
@@ -247,6 +249,7 @@ const JobPostsEmployeeFiltersPanel = ({
         </label>
       </section>
 
+      {showApplicationToggles ? (
       <section className={styles.section}>
         <div className={styles.toggleRow}>
           <label className={styles.toggle} htmlFor="employee-filter-favourites">
@@ -279,6 +282,7 @@ const JobPostsEmployeeFiltersPanel = ({
           </label>
         </div>
       </section>
+      ) : null}
     </div>
   );
 };
