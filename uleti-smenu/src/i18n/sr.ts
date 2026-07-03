@@ -252,11 +252,14 @@ const sr = {
       candidatesTitle: "Pregled kandidata",
       candidatesText: "Pregledajte kandidate sa kontrolne table ili stranice oglasa, filtrirajte po statusu i prihvatite najbolji match.",
       pricingTitle: "Pretplate i cene",
-      pricingIntro: "Svaki novi restoran počinje sa besplatnim probnim periodom. Posle toga, plaćene pretplate će održavati vaše smene vidljivim kandidatima.",
-      trialPlanTitle: "3 meseca besplatno",
-      trialPlanPrice: "Besplatno 90 dana",
-      trialPlanText: "Objavljujte smene, upravljajte kandidatima i koristite chat tokom prva 3 meseca bez troškova.",
-      pricingNote: "Plaćeni paketi posle probnog perioda stižu uskoro. Pišite na support@uletismenu.com za raniji pristup.",
+      pricingIntro:
+        "Svaki novi restoran dobija 5 besplatnih kredita za objave odmah po registraciji. Krediti ne ističu — svaka objava troši jedan. Posle toga možete dopuniti novčanik ili aktivirati pretplatu.",
+      trialPlanTitle: "5 besplatnih objava",
+      trialPlanPrice: "Besplatno pri registraciji",
+      trialPlanText:
+        "Objavite do 5 oglasa bez troškova odmah nakon registracije. Svaki kredit pokriva jednu objavu i ne ističe dok ga ne iskoristite.",
+      pricingNote:
+        "Dodatni oglasi su dostupni putem novčanika ili pretplate. Pogledajte naplatu nakon prijave na nalog.",
       ctaRegister: "Napravi nalog poslodavca",
       ctaHowItWorks: "Kako funkcioniše"
     },
@@ -264,6 +267,10 @@ const sr = {
       lastUpdated: "Poslednje ažuriranje: jun 2026 (nacrt).",
       lawyerDisclaimer:
         "Samo nacrt — nije pravni savet. Ove dokumente mora pregledati i odobriti kvalifikovani advokat pre produkcije, posebno u kontekstu GDPR-a i lokalnih propisa u Srbiji.",
+      legalHub: {
+        title: "Pravni dokumenti",
+        intro: "Uslovi korišćenja, politika privatnosti i politika kolačića na jednom mestu.",
+      },
       terms: {
         title: "Uslovi korišćenja",
         intro:
@@ -274,9 +281,9 @@ const sr = {
         section2Title: "Uloga platforme",
         section2Text:
           "UletiSmenu je platforma za povezivanje, a ne poslodavac. Uslovi smene (plata, sati, obaveze) dogovaraju se direktno između restorana i kandidata. Ne garantujemo zaposlenje, dostupnost kandidata niti ishod smene.",
-        section3Title: "Pretplata poslodavca i probni period",
+        section3Title: "Besplatni krediti i naplata objava",
         section3Text:
-          "Novi poslodavački nalozi dobijaju 90 dana besplatnog probnog perioda za objavu smena. Posle isteka, nove objave zahtevaju aktivnu plaćenu pretplatu, osim ako drugačije ne dogovorimo pisano. Postojeći oglasi i prijave ostaju vidljivi; ograničena je samo nova objava.",
+          "Novi poslodavački nalozi dobijaju 5 besplatnih kredita za objavu oglasa pri registraciji. Krediti ne ističu; svaka nova objava troši jedan kredit. Kada krediti budu iskorišćeni, potrebna su sredstva u novčaniku ili aktivna pretplata za dalje objavljivanje.",
         section4Title: "Dozvoljeno korišćenje",
         section4Text:
           "Zabranjeno je objavljivati lažne oglase, uznemiravati korisnike, prikupljati podatke automatski, zaobilaziti naplatu ili koristiti uslugu za nezakonitu diskriminaciju. Naloge možemo suspendovati pri kršenju pravila ili sigurnosnom riziku.",
@@ -894,7 +901,17 @@ const sr = {
     shiftDate: "Datum smene",
     salary: "Dnevnica",
     viewReviews: "Pogledaj recenzije",
-    city: "Grad"
+    viewAllReviews: "Pogledaj sve recenzije",
+    city: "Grad",
+    memberSince: "Član od {{date}}.",
+    statAverageRating: "Prosečna ocena",
+    statReviewCount: "Recenzije",
+    statActiveJobPosts: "Aktivni oglasi",
+    statLocations: "Lokacije",
+    reviewsAboutRestaurant: "Recenzije o restoranu",
+    aboutRestaurant: "O restoranu",
+    aboutDescription: "Prijavite se na aktivne oglase da biste stupili u kontakt sa ovim restoranom. Kontakt podaci se dele nakon što vaša prijava bude prihvaćena.",
+    contactPhone: "Telefon"
   },
   messages: {
     title: "Poruke",

@@ -26,15 +26,45 @@
   box-shadow: 0 0 0 1px #e8edf5;
 }
 
-.onlineDot {
+.favouriteDesktop {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 14px;
-  height: 14px;
+  top: -4px;
+  right: -4px;
+}
+
+.favouriteMobile {
+  display: none;
+  margin-left: auto;
+}
+
+.favouriteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e8edf5;
   border-radius: 999px;
-  background: #22c55e;
-  border: 2px solid #ffffff;
+  background: #ffffff;
+  color: #94a3b8;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.favouriteBtnActive {
+  color: #f59e0b;
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.favouriteIcon {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .identity {
@@ -72,6 +102,24 @@
   margin: 0.35rem 0 0;
   color: #64748b;
   font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.ratingLine:hover {
+  color: #2563eb;
+}
+
+.reviewsLink {
+  display: inline-block;
+  margin-top: 0.35rem;
+  color: #2563eb;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .ratingIcon {
@@ -182,6 +230,14 @@
 
   .name {
     font-size: 1.2rem;
+  }
+
+  .favouriteDesktop {
+    display: none;
+  }
+
+  .favouriteMobile {
+    display: inline-flex;
   }
 
   .statsGrid {

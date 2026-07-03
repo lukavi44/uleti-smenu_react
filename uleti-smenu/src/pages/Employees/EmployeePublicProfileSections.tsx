@@ -5,11 +5,13 @@ import {
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
-import CandidateProfileAccordion from "../../components/Candidate/CandidateProfileAccordion";
-import CandidateReviewList from "../../components/Candidate/CandidateReviewList";
+import ProfileAccordion from "../../components/Profile/ProfileAccordion";
+import SectionSkeleton from "../../components/Common/SectionSkeleton";
 import LoadMoreButton from "../../components/Common/LoadMoreButton";
+import RichReviewList from "../../components/Reviews/RichReviewList";
 import { CANDIDATE_SECTION_PAGE_SIZE } from "../../constants/pagination";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
+import { mapReviewToRichItem } from "../../helpers/mapReviewPageToRich";
 import { useServerLazyLoad } from "../../hooks/useServerLazyLoad";
 import { Review, ReviewSummary } from "../../models/Review.model";
 import {
@@ -28,14 +30,6 @@ interface EmployeePublicProfileSectionsProps {
   employeeId: string;
   profile: EmployeePublicProfile;
 }
-
-const SectionSkeleton = ({ rows = 3 }: { rows?: number }) => (
-  <div className={styles.skeletonList} aria-hidden="true">
-    {Array.from({ length: rows }).map((_, index) => (
-      <div key={index} className={styles.skeletonCard} />
-    ))}
-  </div>
-);
 
 const formatShiftDate = (value: string) => {
   const parsedDate = new Date(value);
@@ -77,7 +71,7 @@ const ReviewsAccordion = ({
   } = useServerLazyLoad<Review>(fetchReviews, `${employeeId}-reviews`, isOpen);
 
   return (
-    <CandidateProfileAccordion
+    <ProfileAccordion
       title={t("reviews.receivedAboutEmployee")}
       icon={<ChatBubbleLeftRightIcon />}
       itemCount={itemCount}
@@ -98,12 +92,15 @@ const ReviewsAccordion = ({
           <p className={styles.mutedText}>{t("reviews.noReviews")}</p>
         ) : (
           <>
-            <CandidateReviewList reviews={reviews} />
+            <RichReviewList
+              reviews={reviews.map(mapReviewToRichItem)}
+              verifiedBadgeMode="whenVerified"
+            />
             <LoadMoreButton hasMore={hasMore} isLoading={isLoadingMore} onLoadMore={loadMore} />
           </>
         )}
       </div>
-    </CandidateProfileAccordion>
+    </ProfileAccordion>
   );
 };
 
@@ -141,7 +138,7 @@ const WorkExperienceAccordion = ({
   } = useServerLazyLoad<WorkExperience>(fetchExperiences, `${employeeId}-experience`, isOpen);
 
   return (
-    <CandidateProfileAccordion
+    <ProfileAccordion
       title={t("employeeProfile.workExperience")}
       icon={<BriefcaseIcon />}
       itemCount={itemCount}
@@ -174,7 +171,7 @@ const WorkExperienceAccordion = ({
           </>
         )}
       </div>
-    </CandidateProfileAccordion>
+    </ProfileAccordion>
   );
 };
 
@@ -217,7 +214,7 @@ const PlatformShiftsAccordion = ({
   } = useServerLazyLoad<PlatformShiftWithId>(fetchShifts, `${employeeId}-shifts`, isOpen);
 
   return (
-    <CandidateProfileAccordion
+    <ProfileAccordion
       title={t("employeeProfile.platformHistory")}
       icon={<CalendarDaysIcon />}
       itemCount={itemCount}
@@ -262,7 +259,7 @@ const PlatformShiftsAccordion = ({
           </>
         )}
       </div>
-    </CandidateProfileAccordion>
+    </ProfileAccordion>
   );
 };
 

@@ -22,7 +22,7 @@ import {
   GetWalletTransactions,
 } from "../../services/billing-service";
 import { AuthContext } from "../../store/Auth-context";
-import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import ShellPageHeader from "../../components/Layout/ShellPageHeader";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import styles from "./UpgradePage.module.scss";
 
@@ -235,7 +235,7 @@ const UpgradePage = () => {
     <>
       <main className={`${styles.page} ${isEmployerShell ? styles.pageShell : ""}`}>
         {isEmployerShell ? (
-          <CandidatePageHeader
+          <ShellPageHeader
             title={t("billing.upgradeTitle")}
             subtitle={t("billing.upgradeIntro")}
           />

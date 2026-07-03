@@ -45,17 +45,17 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     {
       title: t("footer.forRestaurants"),
       links: [
-        { label: t("footer.postAd"), to: "/for-employers" },
-        { label: t("footer.candidateOverview"), to: "/for-employers" },
-        { label: t("footer.subscriptions"), to: "/for-employers#pricing" },
+        { label: t("footer.postAd"), to: "/za-restorane#objava" },
+        { label: t("footer.candidateOverview"), to: "/za-restorane#kandidati" },
+        { label: t("footer.subscriptions"), to: "/za-restorane#cene" },
       ],
     },
     {
       title: t("footer.legal"),
       links: [
-        { label: t("footer.terms"), to: "/terms" },
-        { label: t("footer.privacy"), to: "/privacy" },
-        { label: t("footer.cookies"), to: "/cookies" },
+        { label: t("footer.terms"), to: "/pravno#uslovi" },
+        { label: t("footer.privacy"), to: "/pravno#privatnost" },
+        { label: t("footer.cookies"), to: "/pravno#kolacici" },
       ],
     },
     {
@@ -93,7 +93,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
       <footer className={`${styles.mobileFooter} fixed bottom-0 left-0 w-full bg-blue-600 text-white text-center py-3 md:hidden flex justify-between p-5 gap-x-3`}>
         <NavLink to="/oglasi-za-posao">{t("header.posts")}</NavLink>
         <NavLink to="/for-candidates">{t("footer.candidates")}</NavLink>
-        <NavLink to="/for-employers">{t("footer.employers")}</NavLink>
+        <NavLink to="/za-restorane">{t("footer.employers")}</NavLink>
         <NavLink to="/profile">{t("header.profile")}</NavLink>
       </footer>
     );

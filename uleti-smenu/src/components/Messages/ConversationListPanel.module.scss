@@ -2,32 +2,34 @@
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
   background: #ffffff;
   padding: 0.65rem;
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
 .panelMobile {
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
   background: #ffffff;
   padding: 0.75rem 1rem 0;
   max-height: none;
   flex: 1;
   min-height: 0;
   gap: 0.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
 .panelMobile .searchField {
   position: relative;
   width: 100%;
   margin-bottom: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
   background: #ffffff;
   box-shadow: none;
 }

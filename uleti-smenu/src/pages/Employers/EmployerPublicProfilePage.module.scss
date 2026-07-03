@@ -1,138 +1,14 @@
+@use "../../styles/shellSurface" as shell;
+
 .page {
   width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
   padding: 0 0 1rem;
 }
 
 .backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.92rem;
-}
-
-.backLink:hover {
-  text-decoration: underline;
-}
-
-.header {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.headerTop {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-shrink: 0;
-}
-
-.photoWrapper {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.photo {
-  width: 96px;
-  height: 96px;
-  border-radius: 999px;
-  object-fit: cover;
-  border: 2px solid #e5e7eb;
-  display: block;
-}
-
-.headerContent {
-  flex: 1;
-  min-width: 0;
-}
-
-.header h1 {
-  margin: 0 0 0.35rem;
-  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-}
-
-.meta {
-  margin: 0.15rem 0;
-  color: #4b5563;
-}
-
-.favouriteBtn {
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  background: #fff;
-  color: #6b7280;
-  font-size: 1.1rem;
-  width: 42px;
-  height: 42px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  flex-shrink: 0;
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-}
-
-.favouriteBtnDesktop {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-}
-
-.favouriteBtnMobile {
-  display: none;
-}
-
-.isFavourite {
-  color: #f59e0b;
-}
-
-.section {
-  margin-bottom: 1.5rem;
-}
-
-.section h2 {
-  margin: 0 0 0.85rem;
-  font-size: 1.2rem;
-  color: #111827;
-}
-
-.locationList,
-.jobPostList {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.locationCard,
-.jobPostCard {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
-  background: #ffffff;
-}
-
-.locationCard h3,
-.jobPostCard h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.jobMeta {
-  margin: 0.25rem 0 0;
-  color: #64748b;
-  font-size: 0.88rem;
+  @include shell.shell-back-link;
 }
 
 .mutedText {
@@ -141,96 +17,39 @@
   font-size: 0.95rem;
 }
 
-.jobPostActions {
-  margin-top: 0.9rem;
+.previewStack {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
-.appliedBadge {
+.previewActionLink {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: #dcfce7;
-  color: #166534;
-}
-
-.applyButton {
-  margin-left: auto;
-  border: 1px solid transparent;
+  justify-content: center;
+  width: fit-content;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
   background: #2563eb;
   color: #ffffff;
-  border-radius: 10px;
-  padding: 0.52rem 0.95rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #1d4ed8;
-  }
-
-  &:disabled {
-    background: #93c5fd;
-    cursor: not-allowed;
-  }
-}
-
-.jobPostLink {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.previewCard {
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 1.25rem;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-}
-
-.previewLabel {
-  color: #374151;
-  font-weight: 600;
-}
-
-.reviewLinks {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.reviewsLink {
-  color: #2563eb;
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
 
   &:hover {
-    text-decoration: underline;
+    background: #1d4ed8;
   }
 }
 
 .guestBanner {
-  margin-bottom: 1.25rem;
   padding: 1rem 1.1rem;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  border: 1px solid #dbeafe;
 
   p {
     margin: 0 0 0.75rem;
-    color: #1e3a8a;
+    color: #1e40af;
     font-size: 0.95rem;
     line-height: 1.45;
   }
@@ -265,18 +84,15 @@
   border: 1px solid #93c5fd;
 }
 
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+@media (max-width: 1023px) {
+  .page {
+    max-width: none;
+    padding: 0 0 0.5rem;
   }
+}
 
-  .favouriteBtnDesktop {
-    display: none;
-  }
-
-  .favouriteBtnMobile {
-    display: flex;
+@media (min-width: 1024px) {
+  .page {
+    padding-top: 0.25rem;
   }
 }

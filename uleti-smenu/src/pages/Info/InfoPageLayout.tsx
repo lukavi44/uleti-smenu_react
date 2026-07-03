@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Footer from "../../components/Footer/Footer";
-import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import ShellPageHeader from "../../components/Layout/ShellPageHeader";
 import styles from "./InfoPageLayout.module.scss";
 
 interface InfoPageLayoutProps {
@@ -13,7 +13,7 @@ const InfoPageLayout = ({ title, intro, children }: InfoPageLayoutProps) => {
   return (
     <>
       <div className={styles.page}>
-        <CandidatePageHeader title={title} subtitle={intro} />
+        <ShellPageHeader title={title} subtitle={intro} />
         <div className={styles.content}>{children}</div>
       </div>
       <Footer variant="landing" />

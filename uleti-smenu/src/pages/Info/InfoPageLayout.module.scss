@@ -14,6 +14,7 @@
   background: #ffffff;
   padding: 1.25rem 1.35rem;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  scroll-margin-top: 1.5rem;
 }
 
 .section h2 {
@@ -229,4 +230,38 @@
   margin-bottom: 0.75rem;
   font-size: 0.92rem;
   line-height: 1.55;
+}
+
+.legalBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.legalBlock > h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.legalBlock > p {
+  margin: 0;
+}
+
+.legalSubsection {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.85rem;
+}
+
+.legalSubsection h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.legalSubsection p {
+  margin: 0;
 }

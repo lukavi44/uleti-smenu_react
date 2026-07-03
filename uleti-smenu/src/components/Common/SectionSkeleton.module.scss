@@ -1,0 +1,23 @@
+.list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.card {
+  height: 5.5rem;
+  border-radius: 14px;
+  border: 1px solid #e8edf5;
+  background: linear-gradient(90deg, #f8fafc 25%, #eef2f7 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

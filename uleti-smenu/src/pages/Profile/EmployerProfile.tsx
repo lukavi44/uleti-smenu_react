@@ -1,13 +1,12 @@
-import { ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useContext, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeftIcon,
   BuildingStorefrontIcon,
-  CameraIcon,
   CheckCircleIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
+  EllipsisVerticalIcon,
   EnvelopeIcon,
   IdentificationIcon,
   MapPinIcon,
@@ -17,25 +16,26 @@ import {
   SparklesIcon,
   StarIcon,
   WalletIcon,
-  EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
+import ProfileAccordion from "../../components/Profile/ProfileAccordion";
+import ProfileAvatarPicker from "../../components/Profile/ProfileAvatarPicker";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { getRatingQualityLabel } from "../../helpers/ratingQualityLabel";
+import { useProfilePhotoUpload } from "../../hooks/useProfilePhotoUpload";
+import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import { Employer } from "../../models/User.model";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { ReviewSummary } from "../../models/Review.model";
-import { UpdateMyEmployerProfile, UpdateMyProfilePhoto, getCurrentUser } from "../../services/user-service";
+import { UpdateMyEmployerProfile } from "../../services/user-service";
 import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
 import { GetEmployerReviewPage } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
-import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import styles from "./EmployerProfile.module.scss";
 
 interface EmployerProfileProps {
   user: Employer;
 }
-
-type MobilePanel = "branches" | "reviews" | "verification" | "subscription" | "wallet" | "settings" | null;
 
 const buildEmployerProfileForm = (user: Employer) => ({
   name: user.name ?? "",
@@ -56,75 +56,18 @@ const formatEmployerAddress = (user: Employer) => {
   return `${form.streetName} ${form.streetNumber}, ${form.city}`.trim();
 };
 
-const SectionHeader = ({
-  icon,
-  title,
-  action,
-}: {
-  icon: ReactNode;
-  title: string;
-  action?: ReactNode;
-}) => (
-  <div className={styles.sectionHeader}>
-    <div className={styles.sectionHeaderLeft}>
-      <span className={styles.sectionIcon}>{icon}</span>
-      <h2 className={styles.sectionTitle}>{title}</h2>
-    </div>
-    {action}
-  </div>
-);
-
-const ProfileSectionRow = ({
-  icon,
-  title,
-  content,
-  action,
-  onClick,
-}: {
-  icon: ReactNode;
-  title: string;
-  content: ReactNode;
-  action?: ReactNode;
-  onClick?: () => void;
-}) => (
-  <div
-    className={`${styles.profileSectionRow} ${onClick ? styles.profileSectionRowInteractive : ""}`}
-    onClick={onClick}
-    onKeyDown={
-      onClick
-        ? (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              onClick();
-            }
-          }
-        : undefined
-    }
-    role={onClick ? "button" : undefined}
-    tabIndex={onClick ? 0 : undefined}
-  >
-    <div className={styles.profileSectionHeader}>
-      <span className={styles.sectionIcon}>{icon}</span>
-      <h2 className={styles.profileSectionTitle}>{title}</h2>
-    </div>
-    <div className={styles.profileSectionDivider} aria-hidden />
-    <div className={styles.profileSectionContent}>{content}</div>
-    <div className={styles.profileSectionAction} onClick={(event) => event.stopPropagation()}>
-      {action}
-    </div>
-    <ChevronRightIcon className={styles.profileSectionChevron} aria-hidden />
-  </div>
-);
-
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const { t } = useTranslation();
   const { refreshMe } = useContext(AuthContext);
   const isEmployerShell = useIsEmployerShell();
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const mobilePhotoInputRef = useRef<HTMLInputElement>(null);
+  const {
+    profilePhotoUrl,
+    setProfilePhotoUrl,
+    isPhotoUploadInProgress,
+    photoInputRef,
+    handlePhotoSelect,
+  } = useProfilePhotoUpload(user.profilePhoto, user.id);
 
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(getImageUrl(user.profilePhoto));
-  const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState(() => buildEmployerProfileForm(user));
@@ -133,7 +76,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const [showBranchForm, setShowBranchForm] = useState(false);
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
   const [reviewerAvatars, setReviewerAvatars] = useState<string[]>([]);
-  const [detailPanel, setDetailPanel] = useState<MobilePanel>(null);
+  const [isBranchesOpen, setIsBranchesOpen] = useState(true);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newBranch, setNewBranch] = useState({
     name: "",
     phoneNumber: "",
@@ -161,42 +109,25 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         })
       : null;
   const walletLabel = `${walletBalance.toLocaleString()} RSD`;
-  const branchNamesSummary = useMemo(() => {
-    if (locations.length === 0) {
-      return t("profile.noBranches");
-    }
-    return locations.map((location) => location.name).join(" • ");
-  }, [locations, t]);
-  const verificationInlineSummary = user.isVerifiedEmployer
-    ? t("profile.employerManage.verificationVerifiedHint")
-    : t("profile.employerManage.verificationNotVerifiedHint");
-  const subscriptionInlineSummary = planExpiry ? `${planLabel} · ${planExpiry}` : planLabel;
-  const walletInlineSummary = `${walletLabel} · ${t("profile.employerManage.availableBalance")}`;
   const overflowReviewCount = Math.max(0, reviewSummary.reviewCount - reviewerAvatars.length);
 
-  const ratingQualityLabel = useMemo(() => {
+  const ratingQualityLabel = useMemo(
+    () => getRatingQualityLabel(reviewSummary.averageRating, reviewSummary.reviewCount, t),
+    [reviewSummary.averageRating, reviewSummary.reviewCount, t]
+  );
+
+  const renderRatingLink = (className: string) => {
     if (reviewSummary.reviewCount <= 0) {
       return null;
     }
-    if (reviewSummary.averageRating >= 4.5) {
-      return t("profile.employerManage.ratingExcellent");
-    }
-    if (reviewSummary.averageRating >= 4) {
-      return t("profile.employerManage.ratingVeryGood");
-    }
-    if (reviewSummary.averageRating >= 3) {
-      return t("profile.employerManage.ratingGood");
-    }
-    return null;
-  }, [reviewSummary.averageRating, reviewSummary.reviewCount, t]);
 
-  const ratingDisplay =
-    reviewSummary.reviewCount > 0 ? (
-      <p className={styles.ratingLine}>
+    return (
+      <Link to={reviewsPath} className={`${styles.ratingLink} ${className}`}>
         <strong>★ {reviewSummary.averageRating.toFixed(1)}</strong> ({reviewSummary.reviewCount})
         {ratingQualityLabel ? <span className={styles.ratingWord}> {ratingQualityLabel}</span> : null}
-      </p>
-    ) : null;
+      </Link>
+    );
+  };
 
   useEffect(() => {
     setProfileForm(buildEmployerProfileForm(user));
@@ -210,24 +141,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     user.address?.city?.country,
     user.address?.city?.region,
   ]);
-
-  useEffect(() => {
-    setProfilePhotoUrl(getImageUrl(user.profilePhoto));
-  }, [user.profilePhoto]);
-
-  useEffect(() => {
-    const syncProfilePhoto = async () => {
-      try {
-        const response = await getCurrentUser();
-        const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
-        setProfilePhotoUrl(getImageUrl(photo));
-      } catch {
-        setProfilePhotoUrl(getImageUrl(user.profilePhoto));
-      }
-    };
-
-    void syncProfilePhoto();
-  }, [user.id, user.profilePhoto]);
 
   useEffect(() => {
     setNewBranch((previous) => ({
@@ -268,30 +181,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
     void loadLocations();
   }, [t]);
-
-  const uploadPhoto = async (file: File | null) => {
-    if (!file) {
-      return;
-    }
-
-    setIsPhotoUploadInProgress(true);
-    try {
-      const response = await UpdateMyProfilePhoto(file);
-      setProfilePhotoUrl(getImageUrl(response.data.imagePath));
-      toast.success(t("profile.photoUpdated"));
-      void refreshMe();
-    } catch {
-      toast.error(t("profile.photoUpdateError"));
-    } finally {
-      setIsPhotoUploadInProgress(false);
-    }
-  };
-
-  const handlePhotoSelect = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-    event.target.value = "";
-    await uploadPhoto(file);
-  };
 
   const handleProfileSave = async (event: FormEvent) => {
     event.preventDefault();
@@ -358,18 +247,6 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       setIsCreatingLocation(false);
     }
   };
-
-  const renderAvatar = (className: string, fallbackClassName: string) =>
-    profilePhotoUrl ? (
-      <img
-        src={profilePhotoUrl}
-        alt=""
-        className={className}
-        onError={() => setProfilePhotoUrl(getImageUrl(null))}
-      />
-    ) : (
-      <span className={`${className} ${fallbackClassName}`}>{user.name.charAt(0).toUpperCase()}</span>
-    );
 
   const renderProfileForm = () => (
     <form className={styles.profileFormGrid} onSubmit={handleProfileSave}>
@@ -475,6 +352,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
   const renderBranchesContent = () => (
     <>
+      <div className={styles.branchToolbar}>
+        <button type="button" className={styles.linkAction} onClick={() => setShowBranchForm((open) => !open)}>
+          + {t("profile.addBranchAction")}
+        </button>
+      </div>
       <p className={styles.legalNotice}>{t("profile.branchLegalEntityHint")}</p>
       {locations.length === 0 ? <p className={styles.mutedText}>{t("profile.noBranches")}</p> : null}
       <div className={styles.branchGrid}>
@@ -522,370 +404,212 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   );
 
   const renderReviewsMetrics = () => (
-    <>
-      <div className={styles.metric}>
-        <strong>{reviewSummary.reviewCount > 0 ? reviewSummary.averageRating.toFixed(1) : "—"}</strong>
-        <span>{t("profile.employerManage.totalRating")}</span>
-      </div>
-      <div className={styles.metric}>
-        <strong>{reviewSummary.reviewCount}</strong>
-        <span>{t("profile.employerManage.totalReviews")}</span>
-      </div>
-      {reviewerAvatars.length > 0 ? (
-        <div className={styles.avatarStack} aria-hidden>
-          {reviewerAvatars.map((name, index) => (
-            <span key={`${name}-${index}`} className={styles.stackAvatar}>
-              {name.charAt(0).toUpperCase()}
-            </span>
-          ))}
-          {overflowReviewCount > 0 ? (
-            <span className={styles.stackMore}>+{overflowReviewCount}</span>
-          ) : null}
+    <div className={styles.reviewsLayout}>
+      <div className={styles.reviewsMetrics}>
+        <div className={styles.metric}>
+          <strong>{reviewSummary.reviewCount > 0 ? reviewSummary.averageRating.toFixed(1) : "—"}</strong>
+          <span>{t("profile.employerManage.totalRating")}</span>
         </div>
-      ) : null}
-    </>
-  );
-
-  const renderManageSectionCards = () => (
-    <>
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<BuildingStorefrontIcon className={styles.sectionIconSvg} />}
-          title={t("profile.yourBranches")}
-          content={<p className={styles.profileContentText}>{branchNamesSummary}</p>}
-          action={
-            <button type="button" className={styles.outlineButton} onClick={() => setDetailPanel("branches")}>
-              {t("profile.employerManage.manageBranches")}
-            </button>
-          }
-          onClick={() => setDetailPanel("branches")}
-        />
-      </section>
-
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<StarIcon className={styles.sectionIconSvg} />}
-          title={t("profile.employerManage.reviewsAboutMe")}
-          content={
-            <div className={styles.reviewsSectionContent}>
-              <div className={styles.metric}>
-                <strong>{reviewSummary.reviewCount > 0 ? reviewSummary.averageRating.toFixed(1) : "—"}</strong>
-                <span>{t("profile.employerManage.totalRating")}</span>
-              </div>
-              <div className={styles.reviewsMetricDivider} aria-hidden />
-              <div className={styles.reviewsCountGroup}>
-                <div className={styles.metric}>
-                  <strong>{reviewSummary.reviewCount}</strong>
-                  <span>{t("profile.employerManage.totalReviews")}</span>
-                </div>
-                {reviewerAvatars.length > 0 ? (
-                  <div className={styles.avatarStack} aria-hidden>
-                    {reviewerAvatars.map((name, index) => (
-                      <span key={`${name}-${index}`} className={styles.stackAvatar}>
-                        {name.charAt(0).toUpperCase()}
-                      </span>
-                    ))}
-                    {overflowReviewCount > 0 ? (
-                      <span className={styles.stackMore}>+{overflowReviewCount}</span>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          }
-          action={
-            <Link to={reviewsPath} className={styles.outlineButton}>
-              {t("profile.employerManage.viewAllReviews")}
-            </Link>
-          }
-          onClick={() => setDetailPanel("reviews")}
-        />
-      </section>
-
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<ShieldCheckIcon className={styles.sectionIconSvg} />}
-          title={t("profile.employerManage.verification")}
-          content={
-            <div className={styles.profileContentInline}>
-              <span
-                className={`${styles.verifiedPill} ${user.isVerifiedEmployer ? "" : styles.notVerifiedPill}`}
-              >
-                {user.isVerifiedEmployer
-                  ? t("admin.verification.verifiedBadge")
-                  : t("admin.verification.notVerified")}
+        <div className={styles.metric}>
+          <strong>{reviewSummary.reviewCount}</strong>
+          <span>{t("profile.employerManage.totalReviews")}</span>
+        </div>
+        {reviewerAvatars.length > 0 ? (
+          <div className={styles.avatarStack} aria-hidden>
+            {reviewerAvatars.map((name, index) => (
+              <span key={`${name}-${index}`} className={styles.stackAvatar}>
+                {name.charAt(0).toUpperCase()}
               </span>
-              <span className={styles.profileContentTextMuted}>{verificationInlineSummary}</span>
-              {user.isVerifiedEmployer ? (
-                <CheckCircleIcon className={styles.verifiedCheck} aria-hidden />
-              ) : null}
-            </div>
-          }
-          onClick={() => setDetailPanel("verification")}
-        />
-      </section>
-
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<SparklesIcon className={styles.sectionIconSvg} />}
-          title={t("profile.employerManage.subscription")}
-          content={<p className={styles.profileContentText}>{subscriptionInlineSummary}</p>}
-          action={
-            <Link to="/billing/upgrade" className={styles.outlineButton}>
-              {t("profile.employerManage.manageSubscription")}
-            </Link>
-          }
-          onClick={() => setDetailPanel("subscription")}
-        />
-      </section>
-
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<WalletIcon className={styles.sectionIconSvg} />}
-          title={t("profile.employerManage.wallet")}
-          content={<p className={styles.profileContentText}>{walletInlineSummary}</p>}
-          action={
-            <Link to="/billing/upgrade" className={styles.outlineButton}>
-              {t("profile.employerManage.topUpWallet")}
-            </Link>
-          }
-          onClick={() => setDetailPanel("wallet")}
-        />
-      </section>
-
-      <section className={`${styles.card} ${styles.cardCompact}`}>
-        <ProfileSectionRow
-          icon={<Cog6ToothIcon className={styles.sectionIconSvg} />}
-          title={t("profile.employerManage.accountSettings")}
-          content={
-            <p className={styles.profileContentTextMuted}>{t("profile.employerManage.accountSettingsHint")}</p>
-          }
-          onClick={() => setDetailPanel("settings")}
-        />
-      </section>
-    </>
+            ))}
+            {overflowReviewCount > 0 ? <span className={styles.stackMore}>+{overflowReviewCount}</span> : null}
+          </div>
+        ) : null}
+      </div>
+      {reviewSummary.reviewCount > 0 ? (
+        <Link to={reviewsPath} className={styles.outlineButton}>
+          {t("profile.employerManage.viewAllReviews")}
+        </Link>
+      ) : (
+        <p className={styles.mutedText}>{t("reviews.noReviews")}</p>
+      )}
+    </div>
   );
 
-  const detailPanelTitle: Record<Exclude<MobilePanel, null>, string> = {
-    branches: t("profile.yourBranches"),
-    reviews: t("profile.employerManage.reviewsAboutMe"),
-    verification: t("profile.employerManage.verification"),
-    subscription: t("profile.employerManage.subscription"),
-    wallet: t("profile.employerManage.wallet"),
-    settings: t("profile.employerManage.accountSettings"),
-  };
+  const renderSectionAccordions = () => (
+    <div className={styles.sections}>
+      <ProfileAccordion
+        title={t("profile.yourBranches")}
+        icon={<BuildingStorefrontIcon />}
+        itemCount={locations.length}
+        isOpen={isBranchesOpen}
+        onOpenChange={setIsBranchesOpen}
+      >
+        {renderBranchesContent()}
+      </ProfileAccordion>
 
-  const renderDetailPanelIcon = (panel: Exclude<MobilePanel, null>) => {
-    switch (panel) {
-      case "branches":
-        return <BuildingStorefrontIcon className={styles.sectionIconSvg} />;
-      case "reviews":
-        return <StarIcon className={styles.sectionIconSvg} />;
-      case "verification":
-        return <ShieldCheckIcon className={styles.sectionIconSvg} />;
-      case "subscription":
-        return <SparklesIcon className={styles.sectionIconSvg} />;
-      case "wallet":
-        return <WalletIcon className={styles.sectionIconSvg} />;
-      default:
-        return <Cog6ToothIcon className={styles.sectionIconSvg} />;
-    }
-  };
+      <ProfileAccordion
+        title={t("profile.employerManage.reviewsAboutMe")}
+        icon={<StarIcon />}
+        itemCount={reviewSummary.reviewCount}
+        isOpen={isReviewsOpen}
+        onOpenChange={setIsReviewsOpen}
+      >
+        {renderReviewsMetrics()}
+      </ProfileAccordion>
 
-  const renderDetailPanelBody = (panel: Exclude<MobilePanel, null>) => {
-    switch (panel) {
-      case "branches":
-        return renderBranchesContent();
-      case "reviews":
-        return (
-          <div className={styles.reviewsLayout}>
-            <div className={styles.reviewsMetrics}>{renderReviewsMetrics()}</div>
-            <Link to={reviewsPath} className={styles.reviewsLink}>
-              {t("profile.employerManage.viewAllReviews")} →
-            </Link>
-          </div>
-        );
-      case "verification":
-        return (
-          <div className={styles.profileContentInline}>
-            <span
-              className={`${styles.verifiedPill} ${user.isVerifiedEmployer ? "" : styles.notVerifiedPill}`}
-            >
-              {user.isVerifiedEmployer
-                ? t("admin.verification.verifiedBadge")
-                : t("admin.verification.notVerified")}
-            </span>
-            <p className={styles.profileContentTextMuted}>
-              {user.isVerifiedEmployer
-                ? t("profile.employerManage.verificationVerifiedHint")
-                : t("profile.employerManage.verificationNotVerifiedHint")}
-            </p>
-          </div>
-        );
-      case "subscription":
-        return (
-          <div className={styles.detailPanelActions}>
-            <div>
-              <p className={styles.profileContentText}>{planLabel}</p>
-              {planExpiry ? <p className={styles.profileContentTextMuted}>{planExpiry}</p> : null}
-            </div>
-            <Link to="/billing/upgrade" className={styles.outlineButton}>
-              {t("profile.employerManage.manageSubscription")}
-            </Link>
-          </div>
-        );
-      case "wallet":
-        return (
-          <div className={styles.detailPanelActions}>
-            <div>
-              <p className={styles.profileContentText}>{walletLabel}</p>
-              <p className={styles.profileContentTextMuted}>{t("profile.employerManage.availableBalance")}</p>
-            </div>
-            <Link to="/billing/upgrade" className={styles.outlineButton}>
-              {t("profile.employerManage.topUpWallet")}
-            </Link>
-          </div>
-        );
-      case "settings":
-        return <p className={styles.profileContentTextMuted}>{t("profile.employerManage.accountSettingsHint")}</p>;
-      default:
-        return null;
-    }
-  };
+      <ProfileAccordion
+        title={t("profile.employerManage.verification")}
+        icon={<ShieldCheckIcon />}
+        isOpen={isVerificationOpen}
+        onOpenChange={setIsVerificationOpen}
+      >
+        <div className={styles.profileContentInline}>
+          <span className={`${styles.verifiedPill} ${user.isVerifiedEmployer ? "" : styles.notVerifiedPill}`}>
+            {user.isVerifiedEmployer
+              ? t("admin.verification.verifiedBadge")
+              : t("admin.verification.notVerified")}
+          </span>
+          <span className={styles.mutedText}>
+            {user.isVerifiedEmployer
+              ? t("profile.employerManage.verificationVerifiedHint")
+              : t("profile.employerManage.verificationNotVerifiedHint")}
+          </span>
+          {user.isVerifiedEmployer ? <CheckCircleIcon className={styles.verifiedCheck} aria-hidden /> : null}
+        </div>
+      </ProfileAccordion>
 
-  const renderDetailPanel = () => {
-    if (!detailPanel) {
-      return null;
-    }
+      <ProfileAccordion
+        title={t("profile.employerManage.subscription")}
+        icon={<SparklesIcon />}
+        isOpen={isSubscriptionOpen}
+        onOpenChange={setIsSubscriptionOpen}
+      >
+        <div className={styles.detailPanelActions}>
+          <div>
+            <p className={styles.mutedText}>{planLabel}</p>
+            {planExpiry ? <p className={styles.mutedText}>{planExpiry}</p> : null}
+          </div>
+          <Link to="/billing/upgrade" className={styles.outlineButton}>
+            {t("profile.employerManage.manageSubscription")}
+          </Link>
+        </div>
+      </ProfileAccordion>
 
-    return (
-      <div className={styles.detailPanel}>
-        <button type="button" className={styles.detailPanelBack} onClick={() => setDetailPanel(null)}>
-          <ArrowLeftIcon width={16} height={16} aria-hidden />
-          {t("employeeProfile.back")}
-        </button>
-        <section className={styles.card}>
-          <SectionHeader
-            icon={renderDetailPanelIcon(detailPanel)}
-            title={detailPanelTitle[detailPanel]}
-            action={
-              detailPanel === "branches" ? (
-                <button type="button" className={styles.linkAction} onClick={() => setShowBranchForm((open) => !open)}>
-                  + {t("profile.addBranchAction")}
-                </button>
-              ) : undefined
-            }
-          />
-          {renderDetailPanelBody(detailPanel)}
-        </section>
-      </div>
-    );
-  };
+      <ProfileAccordion
+        title={t("profile.employerManage.wallet")}
+        icon={<WalletIcon />}
+        isOpen={isWalletOpen}
+        onOpenChange={setIsWalletOpen}
+      >
+        <div className={styles.detailPanelActions}>
+          <div>
+            <p className={styles.balanceBig}>{walletLabel}</p>
+            <p className={styles.mutedText}>{t("profile.employerManage.availableBalance")}</p>
+          </div>
+          <Link to="/billing/upgrade" className={styles.outlineButton}>
+            {t("profile.employerManage.topUpWallet")}
+          </Link>
+        </div>
+      </ProfileAccordion>
+
+      <ProfileAccordion
+        title={t("profile.employerManage.accountSettings")}
+        icon={<Cog6ToothIcon />}
+        isOpen={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+      >
+        <p className={styles.mutedText}>{t("profile.employerManage.accountSettingsHint")}</p>
+      </ProfileAccordion>
+    </div>
+  );
+
+  const avatarFallbackLabel = user.name?.trim() || "?";
 
   return (
     <div className={`${styles.page} ${isEmployerShell ? styles.pageShell : ""}`}>
       <div className={styles.mobileShell}>
-        {detailPanel ? (
-          renderDetailPanel()
-        ) : (
-          <>
-            <div className={styles.mobileTopBar}>
-              <h2 className={styles.mobilePageTitle}>{t("employerShell.profileTitle")}</h2>
-              <button
-                type="button"
-                className={styles.iconGhostButton}
-                aria-label={t("profile.employerManage.accountSettings")}
-                onClick={() => setDetailPanel("settings")}
-              >
-                <Cog6ToothIcon width={18} height={18} />
-              </button>
-            </div>
+        <div className={styles.mobileTopBar}>
+          <h2 className={styles.mobilePageTitle}>{t("employerShell.profileTitle")}</h2>
+        </div>
 
-            <div className={styles.mobileProfileBlock}>
-              <div className={styles.mobileAvatarWrap}>
-                {renderAvatar(styles.mobileAvatar, styles.mobileAvatarFallback)}
-                <button
-                  type="button"
-                  className={styles.mobileCameraBadge}
-                  aria-label={t("profile.selectPhoto")}
-                  disabled={isPhotoUploadInProgress}
-                  onClick={() => mobilePhotoInputRef.current?.click()}
-                >
-                  <CameraIcon width={14} height={14} />
-                </button>
-                <input
-                  ref={mobilePhotoInputRef}
-                  className={styles.hiddenFileInput}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoSelect}
-                />
-              </div>
-              <h3 className={styles.mobileCompanyName}>{user.name}</h3>
-              {reviewSummary.reviewCount > 0 ? (
-                <p className={styles.mobileRating}>
-                  <strong>★ {reviewSummary.averageRating.toFixed(1)}</strong> ({reviewSummary.reviewCount})
-                  {ratingQualityLabel ? ` ${ratingQualityLabel}` : ""}
-                </p>
-              ) : null}
-            </div>
+        <div className={styles.mobileProfileBlock}>
+          <div className={styles.mobileAvatarWrap}>
+            <ProfileAvatarPicker
+              photoUrl={profilePhotoUrl}
+              fallbackLabel={avatarFallbackLabel}
+              isUploading={isPhotoUploadInProgress}
+              inputRef={photoInputRef}
+              onSelect={handlePhotoSelect}
+              onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+              variant="mobile"
+              imageClassName={styles.mobileAvatar}
+              fallbackClassName={styles.mobileAvatarFallback}
+            />
+          </div>
+          <h3 className={styles.mobileCompanyName}>{user.name}</h3>
+          {renderRatingLink(styles.mobileRating)}
+        </div>
 
-            <div className={styles.groupCard}>
-              <div className={styles.groupRowStatic}>
-                <span className={styles.rowIconWrap}>
-                  <MapPinIcon className={styles.rowIcon} aria-hidden />
-                </span>
-                <span className={styles.rowBody}>
-                  <span className={styles.rowTitle}>{formatEmployerAddress(user)}</span>
-                  <span className={styles.rowSubtitle}>{t("profile.address")}</span>
-                </span>
-                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
-              </div>
-              <div className={styles.groupRowStatic}>
-                <span className={styles.rowIconWrap}>
-                  <PhoneIcon className={styles.rowIcon} aria-hidden />
-                </span>
-                <span className={styles.rowBody}>
-                  <span className={styles.rowTitle}>{user.phoneNumber ?? "—"}</span>
-                  <span className={styles.rowSubtitle}>{t("profile.phone")}</span>
-                </span>
-                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
-              </div>
-              <div className={styles.groupRowStatic}>
-                <span className={styles.rowIconWrap}>
-                  <EnvelopeIcon className={styles.rowIcon} aria-hidden />
-                </span>
-                <span className={styles.rowBody}>
-                  <span className={styles.rowTitle}>{user.email}</span>
-                  <span className={styles.rowSubtitle}>{t("profile.email")}</span>
-                </span>
-                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
-              </div>
-              <div className={styles.groupRowStatic}>
-                <span className={styles.rowIconWrap}>
-                  <IdentificationIcon className={styles.rowIcon} aria-hidden />
-                </span>
-                <span className={styles.rowBody}>
-                  <span className={styles.rowTitle}>{user.pib}</span>
-                  <span className={styles.rowSubtitle}>{t("registration.pib")}</span>
-                </span>
-                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
-              </div>
-              <div className={styles.groupRowStatic}>
-                <span className={styles.rowIconWrap}>
-                  <IdentificationIcon className={styles.rowIcon} aria-hidden />
-                </span>
-                <span className={styles.rowBody}>
-                  <span className={styles.rowTitle}>{user.mb}</span>
-                  <span className={styles.rowSubtitle}>{t("registration.mb")}</span>
-                </span>
-                <ChevronRightIcon className={styles.rowChevron} aria-hidden />
-              </div>
-            </div>
+        <div className={styles.groupCard}>
+          <div className={styles.groupRowStatic}>
+            <span className={styles.rowIconWrap}>
+              <MapPinIcon className={styles.rowIcon} aria-hidden />
+            </span>
+            <span className={styles.rowBody}>
+              <span className={styles.rowTitle}>{formatEmployerAddress(user)}</span>
+              <span className={styles.rowSubtitle}>{t("profile.address")}</span>
+            </span>
+            <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+          </div>
+          <div className={styles.groupRowStatic}>
+            <span className={styles.rowIconWrap}>
+              <PhoneIcon className={styles.rowIcon} aria-hidden />
+            </span>
+            <span className={styles.rowBody}>
+              <span className={styles.rowTitle}>{user.phoneNumber ?? "—"}</span>
+              <span className={styles.rowSubtitle}>{t("profile.phone")}</span>
+            </span>
+            <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+          </div>
+          <div className={styles.groupRowStatic}>
+            <span className={styles.rowIconWrap}>
+              <EnvelopeIcon className={styles.rowIcon} aria-hidden />
+            </span>
+            <span className={styles.rowBody}>
+              <span className={styles.rowTitle}>{user.email}</span>
+              <span className={styles.rowSubtitle}>{t("profile.email")}</span>
+            </span>
+            <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+          </div>
+          <div className={styles.groupRowStatic}>
+            <span className={styles.rowIconWrap}>
+              <IdentificationIcon className={styles.rowIcon} aria-hidden />
+            </span>
+            <span className={styles.rowBody}>
+              <span className={styles.rowTitle}>{user.pib}</span>
+              <span className={styles.rowSubtitle}>{t("registration.pib")}</span>
+            </span>
+            <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+          </div>
+          <div className={styles.groupRowStatic}>
+            <span className={styles.rowIconWrap}>
+              <IdentificationIcon className={styles.rowIcon} aria-hidden />
+            </span>
+            <span className={styles.rowBody}>
+              <span className={styles.rowTitle}>{user.mb}</span>
+              <span className={styles.rowSubtitle}>{t("registration.mb")}</span>
+            </span>
+            <ChevronRightIcon className={styles.rowChevron} aria-hidden />
+          </div>
+        </div>
 
-            {renderManageSectionCards()}
-          </>
-        )}
+        {isEditingProfile ? (
+          <section className={styles.card}>
+            {renderProfileForm()}
+          </section>
+        ) : null}
+
+        {renderSectionAccordions()}
       </div>
 
       <div className={styles.desktopShell}>
@@ -901,29 +625,23 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           </div>
           <div className={styles.profileGrid}>
             <div className={styles.photoColumn}>
-              {renderAvatar(styles.profileImage, styles.avatarFallback)}
-              <input
-                ref={photoInputRef}
-                className={styles.hiddenFileInput}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoSelect}
+              <ProfileAvatarPicker
+                photoUrl={profilePhotoUrl}
+                fallbackLabel={avatarFallbackLabel}
+                isUploading={isPhotoUploadInProgress}
+                inputRef={photoInputRef}
+                onSelect={handlePhotoSelect}
+                onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+                variant="desktop"
+                imageClassName={styles.profileImage}
+                fallbackClassName={styles.avatarFallback}
               />
-              <button
-                type="button"
-                className={styles.photoPickerButton}
-                disabled={isPhotoUploadInProgress}
-                onClick={() => photoInputRef.current?.click()}
-              >
-                {isPhotoUploadInProgress ? t("profile.uploading") : t("profile.selectPhoto")}
-              </button>
-              <p className={styles.photoHint}>{t("profile.employerManage.photoHint")}</p>
             </div>
             <div>
               <div className={styles.companyHeader}>
                 <div>
                   <h3 className={styles.companyName}>{user.name}</h3>
-                  {ratingDisplay}
+                  {renderRatingLink(styles.ratingLine)}
                 </div>
               </div>
               {isEditingProfile ? renderProfileForm() : renderInfoTable()}
@@ -931,7 +649,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           </div>
         </section>
 
-        {detailPanel ? renderDetailPanel() : renderManageSectionCards()}
+        {renderSectionAccordions()}
       </div>
     </div>
   );

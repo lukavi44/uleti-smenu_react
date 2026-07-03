@@ -252,11 +252,14 @@ const en = {
       candidatesTitle: "Candidate overview",
       candidatesText: "Review applicants from your dashboard or job post page, filter by status, and accept the best match.",
       pricingTitle: "Subscriptions and pricing",
-      pricingIntro: "Every new restaurant account starts with a free trial. After that, paid plans will keep your shifts visible to candidates.",
-      trialPlanTitle: "3-month free trial",
-      trialPlanPrice: "Free for 90 days",
-      trialPlanText: "Post shifts, manage applicants, and use messaging during your first 3 months at no cost.",
-      pricingNote: "Paid plans after the trial are coming soon. Contact support@uletismenu.com for early access.",
+      pricingIntro:
+        "Every new restaurant receives 5 free job-posting credits when they register. Credits never expire — each post uses one. After that, you can top up your wallet or activate a subscription.",
+      trialPlanTitle: "5 free job posts",
+      trialPlanPrice: "Free on registration",
+      trialPlanText:
+        "Publish up to 5 job posts at no cost right after signing up. Each credit covers one post and does not expire until you use it.",
+      pricingNote:
+        "Additional posts are available via wallet top-up or subscription. Visit billing after you sign in.",
       ctaRegister: "Create employer account",
       ctaHowItWorks: "How it works"
     },
@@ -264,6 +267,10 @@ const en = {
       lastUpdated: "Last updated: June 2026 (draft).",
       lawyerDisclaimer:
         "Draft only — not legal advice. These documents must be reviewed and approved by a qualified lawyer before production launch, especially for Serbia/EU GDPR and local consumer rules.",
+      legalHub: {
+        title: "Legal",
+        intro: "Terms of use, privacy policy, and cookie policy in one place.",
+      },
       terms: {
         title: "Terms of use",
         intro:
@@ -274,9 +281,9 @@ const en = {
         section2Title: "Platform role",
         section2Text:
           "UletiSmenu is a matching platform, not an employer. Shift terms (pay, hours, duties) are agreed directly between restaurant and candidate. We do not guarantee placement, candidate availability, or shift outcomes.",
-        section3Title: "Employer subscriptions and trial",
+        section3Title: "Free credits and posting charges",
         section3Text:
-          "New employer accounts receive a 90-day free trial for posting shifts. After trial expiry, new posts require an active paid plan unless we agree otherwise in writing. Existing posts and applications remain readable; only new publishing is restricted.",
+          "New employer accounts receive 5 free job-posting credits on registration. Credits do not expire; each new post uses one credit. Once credits are used, wallet funds or an active subscription are required to publish further posts.",
         section4Title: "Acceptable use",
         section4Text:
           "You may not post misleading jobs, harass users, scrape data, bypass billing controls, or use the service for unlawful discrimination. We may suspend accounts that violate these rules or pose a security risk.",
@@ -892,7 +899,17 @@ const en = {
     shiftDate: "Shift date",
     salary: "Salary",
     viewReviews: "View reviews",
-    city: "City"
+    viewAllReviews: "View all reviews",
+    city: "City",
+    memberSince: "Member since {{date}}.",
+    statAverageRating: "Average rating",
+    statReviewCount: "Reviews",
+    statActiveJobPosts: "Active posts",
+    statLocations: "Locations",
+    reviewsAboutRestaurant: "Reviews about restaurant",
+    aboutRestaurant: "About restaurant",
+    aboutDescription: "Apply to active job posts to connect with this restaurant. Contact details are shared after your application is accepted.",
+    contactPhone: "Phone"
   },
   messages: {
     title: "Messages",

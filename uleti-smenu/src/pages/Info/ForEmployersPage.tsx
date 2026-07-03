@@ -8,17 +8,17 @@ const ForEmployersPage = () => {
 
   return (
     <InfoPageLayout title={t("info.forEmployers.title")} intro={t("info.forEmployers.intro")}>
-      <section className={styles.section}>
+      <section className={styles.section} id="objava">
         <h2>{t("info.forEmployers.postTitle")}</h2>
         <p>{t("info.forEmployers.postText")}</p>
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} id="kandidati">
         <h2>{t("info.forEmployers.candidatesTitle")}</h2>
         <p>{t("info.forEmployers.candidatesText")}</p>
       </section>
 
-      <section className={styles.section} id="pricing">
+      <section className={styles.section} id="cene">
         <h2>{t("info.forEmployers.pricingTitle")}</h2>
         <p>{t("info.forEmployers.pricingIntro")}</p>
         <div className={styles.pricingCard}>

@@ -1,0 +1,120 @@
+@use "../../styles/shellSurface" as shell;
+
+.page {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.pageDesktop {
+  padding-top: 0.25rem;
+}
+
+.pageMobile {
+  max-width: none;
+  padding-bottom: 5.5rem;
+}
+
+.backLink {
+  @include shell.shell-back-link;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.ratingPill {
+  @include shell.shell-rating-pill;
+}
+
+.muted {
+  margin: 0.75rem 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.retryButton {
+  @include shell.shell-outline-button;
+}
+
+.listSection {
+  @include shell.shell-card;
+  margin-top: 1.1rem;
+  padding: 1.25rem;
+}
+
+.listHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.listHeader h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.listCount {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.sortField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 180px;
+}
+
+.sortLabel {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sortSelect {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+}
+
+.empty {
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.loadMore {
+  margin-top: 1rem;
+}
+
+@media (max-width: 1023px) {
+  .listHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sortField {
+    min-width: 0;
+  }
+}

@@ -1,0 +1,167 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.scrollArea {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.reviewSummary {
+  margin: 0 0 0.85rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.mutedText {
+  margin: 0;
+  color: #64748b;
+}
+
+.locationList,
+.jobPostList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.locationCard,
+.jobPostCard {
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.locationCard h3,
+.jobPostCard h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.meta {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.jobMeta {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.jobPostActions {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.appliedBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.applyButton {
+  margin-left: auto;
+  border: 1px solid transparent;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.52rem 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  &:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+  }
+}
+
+.jobPostLink,
+.viewAllReviewsLink {
+  display: inline-block;
+  margin-top: 0.85rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.aboutContent {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.aboutRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  font-size: 0.92rem;
+  color: #64748b;
+}
+
+.aboutRow strong {
+  color: #0f172a;
+}
+
+.aboutDescription {
+  margin: 0;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.skeletonList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skeletonCard {
+  height: 5.5rem;
+  border-radius: 14px;
+  border: 1px solid #e8edf5;
+  background: linear-gradient(90deg, #f8fafc 25%, #eef2f7 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .locationCard,
+  .jobPostCard {
+    padding: 0.8rem 0.85rem;
+  }
+}

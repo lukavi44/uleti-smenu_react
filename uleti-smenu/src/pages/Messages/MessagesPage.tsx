@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ConversationChatThread from "../../components/Chat/ConversationChatThread";
 import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import ConversationListPanel from "../../components/Messages/ConversationListPanel";
-import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import ShellPageHeader from "../../components/Layout/ShellPageHeader";
 import { useChatConversations } from "../../hooks/useChatConversations";
 import { ChatConversationFilter } from "../../services/chat-service";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
@@ -114,13 +114,13 @@ const MessagesPage = () => {
     <div className={`${styles.page} ${isMobile ? styles.pageMobile : styles.pageDesktop}`}>
       <div className={styles.pageHeader}>
         {isCandidateShell ? (
-          <CandidatePageHeader
+          <ShellPageHeader
             title={t("candidate.messagesTitle")}
             subtitle={t("candidate.messagesSubtitle")}
             dense={isMobile}
           />
         ) : isEmployerShell ? (
-          <CandidatePageHeader
+          <ShellPageHeader
             title={t("employerShell.messagesTitle")}
             subtitle={t("employerShell.messagesSubtitle")}
             dense={isMobile}

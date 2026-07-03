@@ -4,7 +4,7 @@ import EmployerProfile from "./EmployerProfile";
 import { Employee, Employer } from "../../models/User.model";
 import EmployeeProfile from "./EmployeeProfile";
 import { useTranslation } from "react-i18next";
-import CandidatePageHeader from "../../components/Candidate/CandidatePageHeader";
+import ShellPageHeader from "../../components/Layout/ShellPageHeader";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import styles from "./ProfilePageHeader.module.scss";
@@ -25,7 +25,7 @@ const ProfilePage = () => {
         <>
           {isEmployerShell ? (
             <div className={styles.employerDesktopHeader}>
-              <CandidatePageHeader
+              <ShellPageHeader
                 title={t("employerShell.profileTitle")}
                 subtitle={t("employerShell.profileSubtitle")}
               />
@@ -38,7 +38,7 @@ const ProfilePage = () => {
       return (
         <>
           {isCandidateShell ? (
-            <CandidatePageHeader
+            <ShellPageHeader
               title={t("candidate.profileTitle")}
               subtitle={t("candidate.profileSubtitle")}
             />

@@ -10,7 +10,9 @@ export const isPublicAuthPath = (pathname: string) =>
   pathname === "/how-it-works" ||
   pathname === "/faq" ||
   pathname === "/for-candidates" ||
+  pathname === "/za-restorane" ||
   pathname === "/for-employers" ||
+  pathname === "/pravno" ||
   pathname.startsWith("/terms") ||
   pathname.startsWith("/privacy") ||
   pathname.startsWith("/cookies");

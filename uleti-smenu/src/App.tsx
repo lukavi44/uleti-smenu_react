@@ -23,7 +23,7 @@ import HowItWorksPage from "./pages/Info/HowItWorksPage";
 import FaqPage from "./pages/Info/FaqPage";
 import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
-import LegalPage from "./pages/Info/LegalPage";
+import LegalHubPage from "./pages/Info/LegalHubPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
 import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
 import EmployerLegacyRedirect from "./pages/Employers/EmployerLegacyRedirect";
@@ -64,10 +64,12 @@ function App() {
             <Route path="how-it-works" element={<HowItWorksPage />} />
             <Route path="faq" element={<FaqPage />} />
             <Route path="for-candidates" element={<ForCandidatesPage />} />
-            <Route path="for-employers" element={<ForEmployersPage />} />
-            <Route path="terms" element={<LegalPage type="terms" />} />
-            <Route path="privacy" element={<LegalPage type="privacy" />} />
-            <Route path="cookies" element={<LegalPage type="cookies" />} />
+            <Route path="za-restorane" element={<ForEmployersPage />} />
+            <Route path="for-employers" element={<Navigate to="/za-restorane" replace />} />
+            <Route path="pravno" element={<LegalHubPage />} />
+            <Route path="terms" element={<Navigate to="/pravno#uslovi" replace />} />
+            <Route path="privacy" element={<Navigate to="/pravno#privatnost" replace />} />
+            <Route path="cookies" element={<Navigate to="/pravno#kolacici" replace />} />
             <Route path="restaurants" element={<RestaurantsPage />} />
             <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
             <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />

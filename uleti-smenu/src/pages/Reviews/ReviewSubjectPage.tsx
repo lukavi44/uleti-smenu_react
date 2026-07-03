@@ -1,9 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import Footer from "../../components/Footer/Footer";
-import ReviewList from "../../components/Reviews/ReviewList";
+import RichReviewList from "../../components/Reviews/RichReviewList";
+import RestaurantReviewsSummary from "../../components/Reviews/RestaurantReviewsSummary";
+import {
+  mapReviewPageToRichSummary,
+  mapReviewToRichItem,
+  sortRichReviews,
+} from "../../helpers/mapReviewPageToRich";
 import { ReviewPage } from "../../models/Review.model";
+import { ReviewSort } from "../../models/RichReview.model";
 import { GetEmployeePublicProfile } from "../../services/employee-profile-service";
 import { ResolveEmployerFromSlug } from "../../services/employer-profile-service";
 import { GetEmployeeReviewPage, GetEmployerReviewPage } from "../../services/review-service";
@@ -18,11 +25,13 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
   const { t } = useTranslation();
   const { employeeId, slug } = useParams();
   const { authStatus, role, me } = useContext(AuthContext);
+  const isMobile = useMediaQuery("(max-width:1023px)");
   const [employerId, setEmployerId] = useState<string | null>(null);
   const [employerName, setEmployerName] = useState<string | null>(null);
   const [page, setPage] = useState<ReviewPage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [sort, setSort] = useState<ReviewSort>("newest");
 
   useEffect(() => {
     const resolveEmployer = async () => {
@@ -80,8 +89,7 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
 
       setIsLoading(true);
 
-      const resolvedSubjectId =
-        subjectType === "employee" ? employeeId! : employerId!;
+      const resolvedSubjectId = subjectType === "employee" ? employeeId! : employerId!;
 
       try {
         const response =
@@ -125,6 +133,46 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
     }
   }, [authStatus, employeeId, employerId, employerName, slug, subjectType, t]);
 
+  const isOwnEmployeeProfile =
+    subjectType === "employee" &&
+    authStatus === "authenticated" &&
+    role === "Employee" &&
+    me &&
+    "id" in me &&
+    employeeId &&
+    String(me.id) === employeeId;
+
+  const backTo = useMemo(() => {
+    if (isOwnEmployeeProfile) {
+      return "/profile";
+    }
+
+    if (subjectType === "employee" && employeeId) {
+      return `/employees/${employeeId}`;
+    }
+
+    if (
+      slug &&
+      me &&
+      "publicSlug" in me &&
+      slug.trim().toLowerCase() === String(me.publicSlug ?? "").trim().toLowerCase()
+    ) {
+      return "/profile";
+    }
+
+    return slug ? `/restaurants/${slug}` : "/restaurants";
+  }, [employeeId, isOwnEmployeeProfile, me, slug, subjectType]);
+
+  const richSummary = useMemo(() => (page ? mapReviewPageToRichSummary(page) : null), [page]);
+
+  const sortedReviews = useMemo(() => {
+    if (!page) {
+      return [];
+    }
+
+    return sortRichReviews(page.reviews.map(mapReviewToRichItem), sort);
+  }, [page, sort]);
+
   if (authStatus === "loading") {
     return <div className={styles.page}>{t("common.loading")}</div>;
   }
@@ -133,50 +181,81 @@ const ReviewSubjectPage = ({ subjectType }: ReviewSubjectPageProps) => {
     return <div className={styles.page}>{t("common.unauthorized")}</div>;
   }
 
-  const backTo =
-    subjectType === "employee" && employeeId
-      ? `/employees/${employeeId}`
-      : slug &&
-          me &&
-          "publicSlug" in me &&
-          slug.trim().toLowerCase() === String(me.publicSlug ?? "").trim().toLowerCase()
-        ? "/profile"
-        : slug
-          ? `/restaurants/${slug}`
-          : "/restaurants";
+  const reviewCountLabel = page?.summary.reviewCount ?? 0;
+  const pageTitle =
+    subjectType === "employee"
+      ? t("reviews.employeeReviewsTitle", { name: page?.subjectName ?? "" })
+      : t("reviews.restaurantReviewsTitle", { name: page?.subjectName ?? "" });
 
   return (
-    <>
-      <main className={styles.page}>
-        <Link className={styles.backLink} to={backTo}>
-          {subjectType === "employee" ? t("reviews.backToProfile") : t("reviews.backToEmployerProfile")}
-        </Link>
+    <div className={`${styles.page} ${isMobile ? styles.pageMobile : styles.pageDesktop}`}>
+      <Link className={styles.backLink} to={backTo}>
+        {isOwnEmployeeProfile
+          ? t("reviews.backToProfile")
+          : subjectType === "employee"
+            ? t("reviews.backToProfile")
+            : isMobile
+              ? t("restaurantReviews.backMobile")
+              : t("restaurantReviews.backDesktop")}
+      </Link>
 
-        {isLoading && <p className={styles.mutedText}>{t("common.loading")}</p>}
-        {loadError && !isLoading && <p className={styles.mutedText}>{t("reviews.loadError")}</p>}
+      {isLoading && <p className={styles.muted}>{t("common.loading")}</p>}
+      {loadError && !isLoading && <p className={styles.muted}>{t("reviews.loadError")}</p>}
 
-        {!isLoading && !loadError && page && (
-          <>
-            <header className={styles.header}>
-              <h1>
-                {subjectType === "employee"
-                  ? t("reviews.employeeReviewsTitle", { name: page.subjectName })
-                  : t("reviews.restaurantReviewsTitle", { name: page.subjectName })}
-              </h1>
-              {page.summary.reviewCount > 0 && (
-                <p className={styles.summary}>
-                  ★ {page.summary.averageRating.toFixed(1)} · {page.summary.reviewCount}{" "}
-                  {t("reviews.reviewCountLabel")}
+      {!isLoading && !loadError && page && (
+        <>
+          <header className={styles.header}>
+            <h1>{pageTitle}</h1>
+            {reviewCountLabel > 0 && (
+              <p className={styles.ratingPill}>
+                ★ {page.summary.averageRating.toFixed(1)} · {reviewCountLabel}{" "}
+                {t("restaurantReviews.reviewCountLabel")}
+              </p>
+            )}
+          </header>
+
+          {richSummary && (
+            <RestaurantReviewsSummary summary={richSummary} variant={isMobile ? "mobile" : "desktop"} />
+          )}
+
+          <section className={styles.listSection}>
+            <div className={styles.listHeader}>
+              <div>
+                <h2>{t("restaurantReviews.allReviews")}</h2>
+                <p className={styles.listCount}>
+                  {t("restaurantReviews.listCount", { count: reviewCountLabel })}
                 </p>
-              )}
-            </header>
+              </div>
 
-            <ReviewList reviews={page.reviews} />
-          </>
-        )}
-      </main>
-      <Footer />
-    </>
+              <label className={styles.sortField}>
+                <span className={styles.sortLabel}>{t("restaurantReviews.sortLabel")}</span>
+                <select
+                  className={styles.sortSelect}
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value as ReviewSort)}
+                >
+                  <option value="newest">{t("restaurantReviews.sortNewest")}</option>
+                  <option value="highest">{t("restaurantReviews.sortHighest")}</option>
+                  <option value="lowest">{t("restaurantReviews.sortLowest")}</option>
+                </select>
+              </label>
+            </div>
+
+            {reviewCountLabel === 0 && <p className={styles.empty}>{t("reviews.noReviews")}</p>}
+
+            {sortedReviews.length > 0 && (
+              <RichReviewList
+                reviews={sortedReviews}
+                recommendsLabelKey={
+                  subjectType === "employee" ? "candidateReviews.recommends" : "restaurantReviews.recommends"
+                }
+                verifiedBadgeMode="whenVerified"
+              />
+            )}
+          </section>
+        </>
+      )}
+    </div>
   );
 };
 

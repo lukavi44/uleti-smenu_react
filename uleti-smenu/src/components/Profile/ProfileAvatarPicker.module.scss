@@ -1,0 +1,102 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.button {
+  position: relative;
+  display: inline-flex;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 999px;
+  line-height: 0;
+
+  &:disabled {
+    cursor: wait;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+  }
+}
+
+.hoverOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.48);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.button:hover .hoverOverlay,
+.button:focus-visible .hoverOverlay {
+  opacity: 1;
+}
+
+.mobileBadge {
+  position: absolute;
+  right: 0.1rem;
+  bottom: 0.1rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: #2563eb;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 999px;
+  animation: profileAvatarSpin 0.7s linear infinite;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+@keyframes profileAvatarSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1023px) {
+  .hoverOverlay {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobileBadge {
+    display: none;
+  }
+}

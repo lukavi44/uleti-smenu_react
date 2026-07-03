@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Review, ReviewSummary } from "../../models/Review.model";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
+import { mapReviewToRichItem } from "../../helpers/mapReviewPageToRich";
 import { useClientPagination } from "../../hooks/useClientPagination";
 import Pagination from "../Common/Pagination";
-import ReviewList from "./ReviewList";
+import RichReviewList from "./RichReviewList";
 import styles from "./ReceivedReviewsSection.module.scss";
 
 interface ReceivedReviewsSectionProps {
@@ -22,6 +24,8 @@ const ReceivedReviewsSection = ({ reviews, reviewSummary }: ReceivedReviewsSecti
     pagedItems,
   } = useClientPagination(reviews, LIST_PAGE_SIZE);
 
+  const richReviews = useMemo(() => pagedItems.map(mapReviewToRichItem), [pagedItems]);
+
   return (
     <div className={styles.section}>
       {reviewSummary.reviewCount > 0 && (
@@ -30,7 +34,11 @@ const ReceivedReviewsSection = ({ reviews, reviewSummary }: ReceivedReviewsSecti
           {t("reviews.reviewCountLabel")}
         </p>
       )}
-      <ReviewList reviews={pagedItems} />
+      {richReviews.length === 0 ? (
+        <p className={styles.mutedText}>{t("reviews.noReviews")}</p>
+      ) : (
+        <RichReviewList reviews={richReviews} verifiedBadgeMode="whenVerified" />
+      )}
       {totalCount > LIST_PAGE_SIZE && (
         <Pagination
           page={page}
