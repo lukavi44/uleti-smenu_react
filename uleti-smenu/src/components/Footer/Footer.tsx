@@ -37,9 +37,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     {
       title: t("footer.forCandidates"),
       links: [
-        { label: t("footer.findShift"), to: "/for-candidates" },
-        { label: t("footer.howToApply"), to: "/how-it-works#candidates" },
-        { label: t("footer.profileTips"), to: "/for-candidates" },
+        { label: t("footer.findShift"), to: "/za-kandidate#pronalazak-smene" },
+        { label: t("footer.howToApply"), to: "/za-kandidate#kako-aplicirati" },
+        { label: t("footer.profileTips"), to: "/za-kandidate#saveti" },
       ],
     },
     {
@@ -92,7 +92,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     return (
       <footer className={`${styles.mobileFooter} fixed bottom-0 left-0 w-full bg-blue-600 text-white text-center py-3 md:hidden flex justify-between p-5 gap-x-3`}>
         <NavLink to="/oglasi-za-posao">{t("header.posts")}</NavLink>
-        <NavLink to="/for-candidates">{t("footer.candidates")}</NavLink>
+        <NavLink to="/za-kandidate">{t("footer.candidates")}</NavLink>
         <NavLink to="/za-restorane">{t("footer.employers")}</NavLink>
         <NavLink to="/profile">{t("header.profile")}</NavLink>
       </footer>

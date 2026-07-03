@@ -3,6 +3,7 @@ import {
   ArrowRightOnRectangleIcon,
   BuildingStorefrontIcon,
   ChatBubbleLeftRightIcon,
+  CalendarDaysIcon,
   HomeIcon,
   NewspaperIcon,
   UserIcon,
@@ -10,6 +11,7 @@ import {
 import {
   BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
+  CalendarDaysIcon as CalendarDaysIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
   UserIcon as UserIconSolid,
@@ -29,6 +31,7 @@ const CandidateSidebar = ({ unreadChatCount, onLogout }: CandidateSidebarProps) 
   const navItems = [
     { to: "/", label: t("nav.home"), Icon: HomeIcon, ActiveIcon: HomeIconSolid, end: true },
     { to: "/oglasi-za-posao", label: t("nav.jobPosts"), Icon: NewspaperIcon, ActiveIcon: NewspaperIconSolid },
+    { to: "/moje-smene", label: t("nav.myShifts"), Icon: CalendarDaysIcon, ActiveIcon: CalendarDaysIconSolid },
     { to: "/restaurants", label: t("header.restaurants"), Icon: BuildingStorefrontIcon, ActiveIcon: BuildingStorefrontIconSolid },
     {
       to: "/messages",

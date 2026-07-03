@@ -7,6 +7,8 @@ import HomePage from './pages/Home/Home'
 import RegistrationPage from "./pages/Registration/Registration";
 import RegistrationChoicePage from "./pages/Registration/RegistrationChoice";
 import LoginPage from "./pages/Login/Login";
+import ForgotPasswordPage from "./pages/Login/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/Login/ResetPasswordPage";
 import AuthContextProvider from "./store/Auth-context";
 import RequireAuth from "./router/RequireAuth";
 import LoggedOutRoute from "./router/LoggedOutRoute";
@@ -25,6 +27,7 @@ import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
 import LegalHubPage from "./pages/Info/LegalHubPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
+import CandidateShiftsPage from "./pages/CandidateShifts/CandidateShiftsPage";
 import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
 import EmployerLegacyRedirect from "./pages/Employers/EmployerLegacyRedirect";
 import RestaurantReviewsRouter from "./pages/Reviews/RestaurantReviewsRouter";
@@ -63,7 +66,8 @@ function App() {
             <Route path="about" element={<AboutPage />} />
             <Route path="how-it-works" element={<HowItWorksPage />} />
             <Route path="faq" element={<FaqPage />} />
-            <Route path="for-candidates" element={<ForCandidatesPage />} />
+            <Route path="za-kandidate" element={<ForCandidatesPage />} />
+            <Route path="for-candidates" element={<Navigate to="/za-kandidate" replace />} />
             <Route path="za-restorane" element={<ForEmployersPage />} />
             <Route path="for-employers" element={<Navigate to="/za-restorane" replace />} />
             <Route path="pravno" element={<LegalHubPage />} />
@@ -75,18 +79,22 @@ function App() {
             <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />
             <Route path="oglasi-za-posao" element={<JobPosts />} />
             <Route path="oglasi-za-posao/:jobPostId" element={<JobPostDetailRouter />} />
+            <Route path="jobs" element={<Navigate to="/oglasi-za-posao" replace />} />
             <Route element={<LoggedOutRoute />}>
               <Route path="registration" element={<RegistrationChoicePage />} />
               <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
               <Route path="registration/employer" element={<RegistrationPage userType="employer" />} />
               <Route path="registration-user" element={<Navigate to="/registration/candidate" replace />} />
               <Route path="login" element={<LoginPage />} />
+              <Route path="forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
             </Route>
             <Route element={<RequireAuth />}>
               <Route path="messages" element={<MessagesPage/>}/>
               <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
               <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
               <Route path="employees/:employeeId/reviews" element={<CandidateReviewsRouter/>}/>
+              <Route path="moje-smene" element={<CandidateShiftsPage/>}/>
               <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
               <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>

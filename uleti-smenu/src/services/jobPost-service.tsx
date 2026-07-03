@@ -135,6 +135,14 @@ export const GetVisibleJobPostById = async(
     return axiosInstance.get<JobPost>(`/api/v1/JobPost/${jobPostId}`);
 }
 
+export const GetCandidateRecommendedJobs = async(
+    pageSize = 3
+): Promise<AxiosResponse<JobPost[]>> => {
+    return axiosInstance.get<JobPost[]>("/api/v1/JobPost/candidate/recommended-jobs", {
+        params: { pageSize },
+    });
+}
+
 export const GetVisibleJobPostFilterOptions = async(
     city?: string
 ): Promise<AxiosResponse<VisibleJobPostFilterOptions>> => {

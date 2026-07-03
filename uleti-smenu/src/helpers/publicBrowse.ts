@@ -1,4 +1,4 @@
-const PUBLIC_AUTH_PATH_PREFIXES = ["/login", "/registration"];
+const PUBLIC_AUTH_PATH_PREFIXES = ["/login", "/registration", "/forgot-password", "/reset-password"];
 
 export const isPublicAuthPath = (pathname: string) =>
   PUBLIC_AUTH_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -13,6 +13,7 @@ export const isPublicBrowsePath = (pathname: string) =>
   pathname === "/how-it-works" ||
   pathname === "/faq" ||
   pathname === "/for-candidates" ||
+  pathname === "/za-kandidate" ||
   pathname === "/za-restorane" ||
   pathname === "/for-employers" ||
   pathname === "/pravno" ||

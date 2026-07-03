@@ -63,7 +63,7 @@ const HowItWorksPage = () => {
             <Link className={styles.ctaPrimary} to="/registration/candidate">
               {t("info.howItWorks.ctaRegisterCandidate")}
             </Link>
-            <Link className={styles.ctaSecondary} to="/for-candidates">
+            <Link className={styles.ctaSecondary} to="/za-kandidate#kako-funkcionise">
               {t("info.howItWorks.ctaCandidateGuide")}
             </Link>
           </>

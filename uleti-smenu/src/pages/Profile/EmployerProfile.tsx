@@ -40,6 +40,8 @@ interface EmployerProfileProps {
 const buildEmployerProfileForm = (user: Employer) => ({
   name: user.name ?? "",
   phoneNumber: user.phoneNumber ?? "",
+  pib: user.pib ?? "",
+  mb: user.mb ?? "",
   streetName: user.address?.street?.name ?? "",
   streetNumber: user.address?.street?.number ? String(user.address.street.number) : "",
   city: user.address?.city?.name ?? "",
@@ -134,6 +136,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   }, [
     user.name,
     user.phoneNumber,
+    user.pib,
+    user.mb,
     user.address?.street?.name,
     user.address?.street?.number,
     user.address?.city?.name,
@@ -195,6 +199,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       await UpdateMyEmployerProfile({
         name: profileForm.name.trim(),
         phoneNumber: profileForm.phoneNumber.trim(),
+        pib: profileForm.pib.trim(),
+        mb: profileForm.mb.trim(),
         streetName: profileForm.streetName.trim(),
         streetNumber: profileForm.streetNumber.trim(),
         city: profileForm.city.trim(),
@@ -272,11 +278,19 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       </label>
       <label className={styles.profileField}>
         <span className={styles.infoLabel}>{t("registration.pib")}</span>
-        <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.pib} readOnly />
+        <input
+          className={styles.input}
+          value={profileForm.pib}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, pib: event.target.value }))}
+        />
       </label>
       <label className={styles.profileField}>
         <span className={styles.infoLabel}>{t("registration.mb")}</span>
-        <input className={`${styles.input} ${styles.readOnlyInput}`} value={user.mb} readOnly />
+        <input
+          className={styles.input}
+          value={profileForm.mb}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, mb: event.target.value }))}
+        />
       </label>
       <label className={styles.profileField}>
         <span className={styles.infoLabel}>{t("registration.streetName")}</span>

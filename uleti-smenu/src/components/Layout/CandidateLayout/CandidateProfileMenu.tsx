@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRightOnRectangleIcon,
+  CalendarDaysIcon,
   ChevronRightIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
@@ -63,6 +64,12 @@ const CandidateProfileMenu = () => {
           <button type="button" className={styles.menuItem} onClick={() => handleNavigate("/profile")}>
             <UserIcon className={styles.menuIcon} aria-hidden />
             <span>{t("nav.profile")}</span>
+            <ChevronRightIcon className={styles.menuChevron} aria-hidden />
+          </button>
+
+          <button type="button" className={styles.menuItem} onClick={() => handleNavigate("/moje-smene")}>
+            <CalendarDaysIcon className={styles.menuIcon} aria-hidden />
+            <span>{t("nav.myShifts")}</span>
             <ChevronRightIcon className={styles.menuChevron} aria-hidden />
           </button>
 

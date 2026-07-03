@@ -134,7 +134,12 @@
   font-size: 0.85rem;
   color: #2563eb;
   font-weight: 600;
-  cursor: default;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgotPassword:hover {
+  text-decoration: underline;
 }
 
 .submitButton {

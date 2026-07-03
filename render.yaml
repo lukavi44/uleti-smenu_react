@@ -12,8 +12,8 @@ services:
     staticPublishPath: ./dist
     routes:
       - type: rewrite
-        source: /*
-        destination: /index.html
+        source: "/*"
+        destination: "/index.html"
     envVars:
       - key: VITE_API_BASE_URL
         value: https://uletismenu-api-staging.onrender.com

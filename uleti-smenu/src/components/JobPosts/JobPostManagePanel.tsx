@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import {
   ArchiveBoxArrowDownIcon,
   CalendarDaysIcon,
+  CheckCircleIcon,
   DocumentDuplicateIcon,
   EyeIcon,
   MapPinIcon,
@@ -18,6 +19,7 @@ import {
   DeleteMyJobPost,
   DuplicateMyJobPost,
   GetMyJobPostApplicationStats,
+  UpdateMyJobPost,
 } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { JobPostApplicationStats } from "../../models/JobPostApplicationStats.model";
@@ -153,6 +155,35 @@ const JobPostManagePanel = ({
       }
     });
 
+  const handleActivate = () =>
+    runAction("activate", async () => {
+      try {
+        await UpdateMyJobPost(jobPost.id, {
+          title: jobPost.title,
+          description: jobPost.description,
+          position: jobPost.position,
+          status: "Active",
+          salary: jobPost.salary,
+          startingDate: new Date(jobPost.startingDate),
+          visibleUntil: jobPost.visibleUntil ? new Date(jobPost.visibleUntil) : undefined,
+          restaurantLocationId: jobPost.restaurantLocationId ?? "",
+        });
+        toast.success(t("jobPostManage.activateSuccess"));
+        onPostsChanged();
+        onClose();
+      } catch (error: unknown) {
+        const responseMessage =
+          (error as { response?: { data?: unknown } })?.response?.data;
+        if (typeof responseMessage === "string" && responseMessage.trim()) {
+          toast.error(responseMessage);
+        } else {
+          toast.error(t("jobPostManage.activateError"));
+        }
+        onClose();
+        onEdit(jobPost.id);
+      }
+    });
+
   const handleDelete = () =>
     runAction("delete", async () => {
       setIsDeleting(true);
@@ -177,6 +208,15 @@ const JobPostManagePanel = ({
   ];
 
   const actions = [
+    {
+      id: "activate",
+      label: t("jobPostManage.actionActivate"),
+      description: t("jobPostManage.actionActivateDesc"),
+      icon: CheckCircleIcon,
+      tone: "default" as const,
+      onClick: () => void handleActivate(),
+      hidden: jobPost.status !== "Draft",
+    },
     {
       id: "edit",
       label: t("jobPostManage.actionEdit"),
@@ -234,7 +274,8 @@ const JobPostManagePanel = ({
       icon: TrashIcon,
       tone: "danger" as const,
       onClick: () => setShowDeleteConfirm(true),
-      hidden: !canDelete,
+      disabled: !canDelete,
+      descriptionOverride: !canDelete ? t("jobPostManage.actionDeleteDisabledDesc") : undefined,
     },
   ].filter((action) => !action.hidden);
 
@@ -306,14 +347,14 @@ const JobPostManagePanel = ({
                     type="button"
                     className={`${styles.actionButton} ${styles[`actionButton${action.tone}`]}`}
                     onClick={action.onClick}
-                    disabled={isPending || isDeleting}
+                    disabled={isPending || isDeleting || action.disabled}
                   >
                     <span className={styles.actionIconWrap}>
                       <Icon aria-hidden />
                     </span>
                     <span className={styles.actionText}>
                       <strong>{isPending ? t("common.loading") : action.label}</strong>
-                      <span>{action.description}</span>
+                      <span>{action.descriptionOverride ?? action.description}</span>
                     </span>
                   </button>
                 );

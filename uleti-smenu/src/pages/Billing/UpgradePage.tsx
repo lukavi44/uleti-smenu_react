@@ -260,6 +260,127 @@ const UpgradePage = () => {
           </div>
         )}
 
+        <section className={styles.paymentIntro}>
+          <h2>{t("billing.paymentChoiceTitle")}</h2>
+          <p>{t("billing.paymentChoiceIntro")}</p>
+        </section>
+
+        <div className={styles.mainGrid}>
+          <section className={`${styles.panel} ${styles.paymentPathCard}`}>
+            <header className={styles.panelHeader}>
+              <h2>{t("billing.payPerPostTitle")}</h2>
+              <p>{t("billing.payPerPostIntro")}</p>
+            </header>
+            <p className={styles.walletBalanceLarge}>{formatMoney(walletBalance)}</p>
+            <div className={styles.topUpGrid}>
+              {topUpAmounts.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  className={styles.topUpChip}
+                  disabled={!billing?.paymentsEnabled || busyTopUpAmount === amount}
+                  onClick={() => void handleTopUp(amount)}
+                >
+                  {busyTopUpAmount === amount
+                    ? t("common.loading")
+                    : `+ ${formatMoney(amount, true)}`}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`${styles.topUpChip} ${styles.topUpChipCustom}`}
+                disabled={!billing?.paymentsEnabled}
+                onClick={() => setShowCustomTopUp((value) => !value)}
+              >
+                <PencilSquareIcon className={styles.topUpChipIcon} aria-hidden />
+                {t("billing.customAmount")}
+              </button>
+            </div>
+            {showCustomTopUp && (
+              <div className={styles.customTopUpRow}>
+                <input
+                  type="number"
+                  min={1}
+                  className={styles.customTopUpInput}
+                  placeholder={t("billing.customAmountPlaceholder")}
+                  value={customAmount}
+                  onChange={(event) => setCustomAmount(event.target.value)}
+                />
+                <button
+                  type="button"
+                  className={styles.customTopUpSubmit}
+                  disabled={!billing?.paymentsEnabled}
+                  onClick={handleCustomTopUp}
+                >
+                  {t("billing.topUpWalletShort")}
+                </button>
+              </div>
+            )}
+            <footer className={styles.stripeNote}>
+              <LockClosedIcon className={styles.stripeLock} aria-hidden />
+              <span>{t("billing.secureStripe")}</span>
+            </footer>
+          </section>
+
+          <section className={`${styles.panel} ${styles.paymentPathCard}`}>
+            <header className={styles.panelHeader}>
+              <h2>{t("billing.subscriptionPathTitle")}</h2>
+              <p>{t("billing.subscriptionPathIntro")}</p>
+            </header>
+            <div className={styles.planStack}>
+              {(billing?.plans ?? []).map((plan) => {
+                const isCurrent = isActivePlan(plan);
+                const features = getPlanFeatures(plan.planKind);
+                return (
+                  <article
+                    key={plan.id}
+                    className={`${styles.planOption} ${isCurrent ? styles.planOptionActive : ""}`}
+                  >
+                    <div className={styles.planOptionHead}>
+                      <div className={styles.planRadio} aria-hidden>
+                        <span className={isCurrent ? styles.planRadioChecked : ""} />
+                      </div>
+                      <div>
+                        <h3>{plan.title}</h3>
+                        <p className={styles.planPrice}>
+                          {plan.cost.toLocaleString("sr-RS")} {plan.currency}
+                          <span> / {t("billing.perMonth")}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <ul className={styles.planFeatures}>
+                      {features.map((feature) => (
+                        <li key={feature}>
+                          <CheckCircleIcon className={styles.featureIcon} aria-hidden />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      className={isCurrent ? styles.planBtnCurrent : styles.planBtnSelect}
+                      disabled={
+                        isCurrent || !billing?.paymentsEnabled || busyPlanId === plan.id
+                      }
+                      onClick={() => void handleSubscribe(plan)}
+                    >
+                      {isCurrent
+                        ? t("billing.currentPlan")
+                        : busyPlanId === plan.id
+                          ? t("common.loading")
+                          : t("billing.selectPlan")}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+            {(billing?.plans.length ?? 0) === 0 && (
+              <p className={styles.mutedText}>{t("billing.noPlans")}</p>
+            )}
+            <p className={styles.planDisclaimer}>{t("billing.planDisclaimer")}</p>
+          </section>
+        </div>
+
         <section className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
             <div className={styles.summaryCardHead}>
@@ -348,122 +469,6 @@ const UpgradePage = () => {
             )}
           </article>
         </section>
-
-        <div className={styles.mainGrid}>
-          <section className={styles.panel}>
-            <header className={styles.panelHeader}>
-              <h2>{t("billing.walletTitle")}</h2>
-              <p>{t("billing.walletPanelIntro")}</p>
-            </header>
-            <p className={styles.walletBalanceLarge}>{formatMoney(walletBalance)}</p>
-            <div className={styles.topUpGrid}>
-              {topUpAmounts.map((amount) => (
-                <button
-                  key={amount}
-                  type="button"
-                  className={styles.topUpChip}
-                  disabled={!billing?.paymentsEnabled || busyTopUpAmount === amount}
-                  onClick={() => void handleTopUp(amount)}
-                >
-                  {busyTopUpAmount === amount
-                    ? t("common.loading")
-                    : `+ ${formatMoney(amount, true)}`}
-                </button>
-              ))}
-              <button
-                type="button"
-                className={`${styles.topUpChip} ${styles.topUpChipCustom}`}
-                disabled={!billing?.paymentsEnabled}
-                onClick={() => setShowCustomTopUp((value) => !value)}
-              >
-                <PencilSquareIcon className={styles.topUpChipIcon} aria-hidden />
-                {t("billing.customAmount")}
-              </button>
-            </div>
-            {showCustomTopUp && (
-              <div className={styles.customTopUpRow}>
-                <input
-                  type="number"
-                  min={1}
-                  className={styles.customTopUpInput}
-                  placeholder={t("billing.customAmountPlaceholder")}
-                  value={customAmount}
-                  onChange={(event) => setCustomAmount(event.target.value)}
-                />
-                <button
-                  type="button"
-                  className={styles.customTopUpSubmit}
-                  disabled={!billing?.paymentsEnabled}
-                  onClick={handleCustomTopUp}
-                >
-                  {t("billing.topUpWalletShort")}
-                </button>
-              </div>
-            )}
-            <footer className={styles.stripeNote}>
-              <LockClosedIcon className={styles.stripeLock} aria-hidden />
-              <span>{t("billing.secureStripe")}</span>
-            </footer>
-          </section>
-
-          <section className={styles.panel}>
-            <header className={styles.panelHeader}>
-              <h2>{t("billing.plansTitle")}</h2>
-              <p>{t("billing.plansPanelIntro")}</p>
-            </header>
-            <div className={styles.planStack}>
-              {(billing?.plans ?? []).map((plan) => {
-                const isCurrent = isActivePlan(plan);
-                const features = getPlanFeatures(plan.planKind);
-                return (
-                  <article
-                    key={plan.id}
-                    className={`${styles.planOption} ${isCurrent ? styles.planOptionActive : ""}`}
-                  >
-                    <div className={styles.planOptionHead}>
-                      <div className={styles.planRadio} aria-hidden>
-                        <span className={isCurrent ? styles.planRadioChecked : ""} />
-                      </div>
-                      <div>
-                        <h3>{plan.title}</h3>
-                        <p className={styles.planPrice}>
-                          {plan.cost.toLocaleString("sr-RS")} {plan.currency}
-                          <span> / {t("billing.perMonth")}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <ul className={styles.planFeatures}>
-                      {features.map((feature) => (
-                        <li key={feature}>
-                          <CheckCircleIcon className={styles.featureIcon} aria-hidden />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      type="button"
-                      className={isCurrent ? styles.planBtnCurrent : styles.planBtnSelect}
-                      disabled={
-                        isCurrent || !billing?.paymentsEnabled || busyPlanId === plan.id
-                      }
-                      onClick={() => void handleSubscribe(plan)}
-                    >
-                      {isCurrent
-                        ? t("billing.currentPlan")
-                        : busyPlanId === plan.id
-                          ? t("common.loading")
-                          : t("billing.selectPlan")}
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-            {(billing?.plans.length ?? 0) === 0 && (
-              <p className={styles.mutedText}>{t("billing.noPlans")}</p>
-            )}
-            <p className={styles.planDisclaimer}>{t("billing.planDisclaimer")}</p>
-          </section>
-        </div>
 
         <section className={styles.transactionsPanel}>
           <header className={styles.transactionsHeader}>

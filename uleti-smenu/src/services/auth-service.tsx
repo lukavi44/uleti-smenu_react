@@ -11,12 +11,7 @@ export interface LoginResponseData {
 export const RegistrationEmployerRequest = async (
     body: RegisterEmployerDTO
   ): Promise<AxiosResponse<RegisterEmployerDTO>> => {
-    const updatedBody = {
-        ...body,
-        name: body.name,
-        username: body.email
-    }
-    return axiosInstance.post<RegisterEmployerDTO>("/api/v1/User/register/employer", updatedBody);
+    return axiosInstance.post<RegisterEmployerDTO>("/api/v1/User/register/employer", body);
   };
 
   export const RegistrationEmployeeRequest = async (
@@ -33,4 +28,18 @@ export const RegistrationEmployerRequest = async (
 
   export const LogoutUserRequest = async (): Promise<AxiosResponse> => {
     return axiosInstance.post("/api/v1/User/logout");
+  };
+
+  export const ForgotPasswordRequest = async (
+    email: string
+  ): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.post("/api/v1/User/forgot-password", { email });
+  };
+
+  export const ResetPasswordRequest = async (
+    email: string,
+    token: string,
+    password: string
+  ): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.post("/api/v1/User/reset-password", { email, token, password });
   };

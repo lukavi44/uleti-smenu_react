@@ -13,6 +13,8 @@ export interface UpdateEmployeeProfilePayload {
 export interface UpdateEmployerProfilePayload {
   name: string;
   phoneNumber: string;
+  pib: string;
+  mb: string;
   streetName: string;
   streetNumber: string;
   city: string;

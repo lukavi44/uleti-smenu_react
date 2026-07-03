@@ -117,7 +117,9 @@ const LoginPage = () => {
             <input type="checkbox" />
             <span>{t("login.rememberMe")}</span>
           </label>
-          <span className={layoutStyles.forgotPassword}>{t("login.forgotPassword")}</span>
+          <Link className={layoutStyles.forgotPassword} to="/forgot-password">
+            {t("login.forgotPassword")}
+          </Link>
         </div>
 
         <button type="submit" className={layoutStyles.submitButton} disabled={loading}>
