@@ -164,7 +164,6 @@ const en = {
     audienceEmployersCta: "Register as employer",
     audienceEmployersPostCta: "Manage job posts",
     marketingHowItWorksCta: "See how it works",
-    marketingAboutCta: "UletiSmenu",
     trustBannerPrefix: "UletiSmenu connects ",
     trustBannerRestaurants: "restaurants",
     trustBannerMiddle: " that urgently need staff with ",

@@ -8,6 +8,18 @@
   padding: 3rem 1.5rem 0;
 }
 
+.sectionLanding .inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionLanding .header {
+  margin-bottom: 0;
+}
+
+.sectionLanding .valueGrid,
+.sectionLanding .audienceGrid,
 .sectionLanding .footerCta {
   margin-bottom: 0;
 }

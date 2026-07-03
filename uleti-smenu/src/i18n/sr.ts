@@ -165,7 +165,6 @@ const sr = {
     audienceEmployersCta: "Registruj se kao poslodavac",
     audienceEmployersPostCta: "Upravljaj oglasima",
     marketingHowItWorksCta: "Pogledaj kako funkcioniše",
-    marketingAboutCta: "UletiSmenu",
     trustBannerPrefix: "UletiSmenu povezuje ",
     trustBannerRestaurants: "restorane",
     trustBannerMiddle: " kojima hitno treba podrška sa ",

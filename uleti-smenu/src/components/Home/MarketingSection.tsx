@@ -100,7 +100,7 @@ const MarketingSection = ({ variant = "default" }: MarketingSectionProps) => {
                 {t("home.marketingHowItWorksCta")}
               </Link>
               <Link className={styles.ctaSecondary} to="/about">
-                {t("home.marketingAboutCta")}
+                {t("footer.about")}
               </Link>
             </div>
 
@@ -121,7 +121,7 @@ const MarketingSection = ({ variant = "default" }: MarketingSectionProps) => {
               {t("home.marketingHowItWorksCta")}
             </Link>
             <Link className={styles.ctaSecondary} to="/about">
-              {t("home.marketingAboutCta")}
+              {t("footer.about")}
             </Link>
           </div>
         )}
