@@ -79,11 +79,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
   const [reviewerAvatars, setReviewerAvatars] = useState<string[]>([]);
   const [isBranchesOpen, setIsBranchesOpen] = useState(true);
-  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
-  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
-  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
-  const [isWalletOpen, setIsWalletOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(true);
+  const [isVerificationOpen, setIsVerificationOpen] = useState(true);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(true);
+  const [isWalletOpen, setIsWalletOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [newBranch, setNewBranch] = useState({
     name: "",
     phoneNumber: "",

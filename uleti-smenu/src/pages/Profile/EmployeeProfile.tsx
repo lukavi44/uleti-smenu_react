@@ -73,11 +73,11 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [workExperienceCount, setWorkExperienceCount] = useState(0);
-  const [isPendingOpen, setIsPendingOpen] = useState(false);
-  const [isReceivedOpen, setIsReceivedOpen] = useState(false);
-  const [isExperienceOpen, setIsExperienceOpen] = useState(false);
-  const [isShiftsOpen, setIsShiftsOpen] = useState(false);
-  const [isFavouritesOpen, setIsFavouritesOpen] = useState(false);
+  const [isPendingOpen, setIsPendingOpen] = useState(true);
+  const [isReceivedOpen, setIsReceivedOpen] = useState(true);
+  const [isExperienceOpen, setIsExperienceOpen] = useState(true);
+  const [isShiftsOpen, setIsShiftsOpen] = useState(true);
+  const [isFavouritesOpen, setIsFavouritesOpen] = useState(true);
 
   const fullName = `${user.firstName} ${user.lastName}`.trim();
   const reviewsPath = `/employees/${user.id}/reviews`;
