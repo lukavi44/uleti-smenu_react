@@ -104,6 +104,27 @@
   color: #94a3b8;
 }
 
+.summaryIconGreen {
+  color: #22c55e;
+}
+
+.summaryIconBlue {
+  color: #2563eb;
+}
+
+.summaryIconPurple {
+  color: #8b5cf6;
+}
+
+.summaryIconOrange {
+  color: #f97316;
+}
+
+.summaryActionIcon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
 .summaryValue {
   margin: 0;
   font-size: 1.35rem;
@@ -118,7 +139,6 @@
   font-size: 0.8rem;
 }
 
-.summaryAction,
 .summaryActionLink {
   margin-top: auto;
   align-self: flex-start;
@@ -129,6 +149,9 @@
   font-weight: 600;
   cursor: pointer;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
 }
 
 .summaryAction {
@@ -551,11 +574,103 @@
   height: 0.9rem;
 }
 
+.paymentSection {
+  margin-bottom: 1.25rem;
+}
+
+.subscriptionBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1e3a8a;
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span {
+    color: #475569;
+    font-size: 0.88rem;
+  }
+
+  .summaryActionLink {
+    margin-top: 0;
+    margin-left: auto;
+  }
+}
+
+.expandedPanel {
+  margin-top: 1rem;
+}
+
+.choiceCardSelectable {
+  position: relative;
+  border: 2px solid #e8edf5;
+}
+
+.choiceCardSelected {
+  border-color: #2563eb;
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.1);
+}
+
+.choiceRadioButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.choiceRadio {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choiceRadioActive {
+  border-color: #2563eb;
+}
+
+.choiceRadioDot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.outlinePrimaryButton {
+  width: 100%;
+  border: 1px solid #2563eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #2563eb;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: auto;
+}
+
+.outlinePrimaryButton:hover {
+  background: #eff6ff;
+}
+
 .choiceGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  max-width: 920px;
+  max-width: none;
 }
 
 .choiceCard,

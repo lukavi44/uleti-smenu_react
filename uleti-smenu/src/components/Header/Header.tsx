@@ -17,6 +17,7 @@ import {
     subscribeNotifications,
 } from "../../services/realtime-service";
 import { UserNotification } from "../../models/Notification.model";
+import { handleNotificationNavigation, isNavigableNotification } from "../../helpers/notificationNavigation";
 import { useTranslation } from "react-i18next";
 
 // import ProfileDialog from "../Dialogs/ProfileDialog";
@@ -355,9 +356,9 @@ const Header = () => {
                                             >
                                                 <div className={styles["notification-item-header"]}>
                                                     <p
-                                                        className={notification.type === "ReviewReminder" ? styles["notification-link"] : undefined}
+                                                        className={isNavigableNotification(notification.type) ? styles["notification-link"] : undefined}
                                                         onClick={() => {
-                                                            if (notification.type !== "ReviewReminder") {
+                                                            if (!isNavigableNotification(notification.type)) {
                                                                 return;
                                                             }
 
@@ -366,7 +367,7 @@ const Header = () => {
                                                             }
 
                                                             setIsNotificationsOpen(false);
-                                                            navigate("/profile");
+                                                            handleNotificationNavigation(notification, navigate);
                                                         }}
                                                     >
                                                         {notification.message}

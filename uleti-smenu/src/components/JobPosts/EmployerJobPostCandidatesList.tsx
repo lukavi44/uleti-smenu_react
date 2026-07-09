@@ -22,6 +22,7 @@ import {
 } from "../../helpers/applicationStatus";
 import { getApplicantStatusBadgeVariant } from "../../helpers/employerJobPostMobile";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
+import ConfirmActionDialog from "../Dialog/ConfirmActionDialog";
 import ChatContactAvatar from "../Chat/ChatContactAvatar";
 import RatingBadge from "../Reviews/RatingBadge";
 import styles from "./EmployerJobPostCandidatesList.module.scss";
@@ -47,6 +48,7 @@ const EmployerJobPostCandidatesList = ({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [pendingRejectApplicationId, setPendingRejectApplicationId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadApplicants = async () => {
@@ -287,7 +289,7 @@ const EmployerJobPostCandidatesList = ({
                     type="button"
                     className={`${styles.actionButton} ${styles.rejectButton}`}
                     disabled={activeAction !== null}
-                    onClick={() => void handleDecision(applicant.applicationId, "Denied")}
+                    onClick={() => setPendingRejectApplicationId(applicant.applicationId)}
                   >
                     <XMarkIcon className={styles.actionIcon} aria-hidden />
                     {activeAction === `${applicant.applicationId}:Denied`
@@ -332,6 +334,21 @@ const EmployerJobPostCandidatesList = ({
       {!isDesktopPanel && (
         <p className={styles.privacyNote}>{t("jobPosts.candidatePrivacyNote")}</p>
       )}
+
+      {pendingRejectApplicationId ? (
+        <ConfirmActionDialog
+          title={t("applicants.rejectConfirmTitle")}
+          message={t("applicants.rejectConfirmMessage")}
+          confirmLabel={t("applicants.reject")}
+          isLoading={activeAction === `${pendingRejectApplicationId}:Denied`}
+          onConfirm={() => void handleDecision(pendingRejectApplicationId, "Denied").finally(() => setPendingRejectApplicationId(null))}
+          onClose={() => {
+            if (activeAction !== `${pendingRejectApplicationId}:Denied`) {
+              setPendingRejectApplicationId(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { JobPostManagePanelActions } from "../components/JobPosts/JobPostManageP
 
 type UseJobPostManageHandlersOptions = {
   onPostsChanged: () => void;
-  onEdit?: (jobPostId: string) => void;
+  onEdit?: (jobPost: JobPost) => void;
   onViewCandidates?: (jobPost: JobPost) => void;
   onPreview?: (jobPost: JobPost) => void;
 };
@@ -20,13 +20,13 @@ export const useJobPostManageHandlers = ({
   const isMobile = useMediaQuery("(max-width:1023px)");
 
   return {
-    onEdit: (jobPostId) => {
+    onEdit: (jobPost) => {
       if (onEdit) {
-        onEdit(jobPostId);
+        onEdit(jobPost);
         return;
       }
 
-      navigate("/oglasi-za-posao", { state: { openEditForm: true, jobPostId } });
+      navigate("/oglasi-za-posao", { state: { openEditForm: true, jobPost } });
     },
     onViewCandidates: (jobPost) => {
       if (onViewCandidates) {

@@ -42,7 +42,7 @@ const EmployerJobPostDetailPage = () => {
       reloadJobPost();
       navigate("/oglasi-za-posao");
     },
-    onEdit: (jobPostId) => navigate("/oglasi-za-posao", { state: { openEditForm: true, jobPostId } }),
+    onEdit: (post) => navigate("/oglasi-za-posao", { state: { openEditForm: true, jobPost: post } }),
     onViewCandidates: (post) => {
       setJobPost(post);
       setActiveTab("candidates");

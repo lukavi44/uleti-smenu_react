@@ -11,6 +11,7 @@ import {
   canEmployerDecideOnApplication,
   getApplicationStatusLabel,
 } from "../../helpers/applicationStatus";
+import ConfirmActionDialog from "../Dialog/ConfirmActionDialog";
 
 interface EmployerApplicantsPanelProps {
   jobPostId: string;
@@ -23,6 +24,7 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
   const [isLoading, setIsLoading] = useState(false);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [pendingRejectApplicationId, setPendingRejectApplicationId] = useState<string | null>(null);
 
   const loadApplicants = async () => {
     setIsLoading(true);
@@ -155,7 +157,7 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
                       <button
                         className={`${styles.button} ${styles.rejectButton}`}
                         disabled={activeAction !== null}
-                        onClick={() => handleDecision(applicant.applicationId, "Denied")}
+                        onClick={() => setPendingRejectApplicationId(applicant.applicationId)}
                       >
                         {activeAction === `${applicant.applicationId}:Denied` ? t("applicants.rejecting") : t("applicants.reject")}
                       </button>
@@ -182,6 +184,21 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
           )}
         </div>
       )}
+
+      {pendingRejectApplicationId ? (
+        <ConfirmActionDialog
+          title={t("applicants.rejectConfirmTitle")}
+          message={t("applicants.rejectConfirmMessage")}
+          confirmLabel={t("applicants.reject")}
+          isLoading={activeAction === `${pendingRejectApplicationId}:Denied`}
+          onConfirm={() => void handleDecision(pendingRejectApplicationId, "Denied").finally(() => setPendingRejectApplicationId(null))}
+          onClose={() => {
+            if (activeAction !== `${pendingRejectApplicationId}:Denied`) {
+              setPendingRejectApplicationId(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 };

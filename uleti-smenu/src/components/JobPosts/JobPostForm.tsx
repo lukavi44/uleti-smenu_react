@@ -21,13 +21,15 @@ import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { JobPost } from "../../models/JobPost.model";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import axios from "axios";
+import { Link } from "react-router-dom";
+import { getApiErrorMessage } from "../../helpers/apiError";
 import FormDateTimeField from "../Common/FormDateTimeField";
 import styles from "./JobPostForm.module.scss";
 
 interface JobPostFormProps {
   onClose: () => void;
   onSubmit?: () => void;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
   initialData?: JobPost;
   embeddedInDrawer?: boolean;
   formId?: string;
@@ -55,12 +57,14 @@ const toDateTimeLocalValue = (value?: Date | string) => {
 const JobPostForm = ({
   onClose,
   onSubmit,
+  onSubmittingChange,
   initialData,
   embeddedInDrawer = false,
   formId,
 }: JobPostFormProps) => {
   const { t } = useTranslation();
   const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = Boolean(initialData?.id);
 
   const allowedStatuses = useMemo(() => {
@@ -150,13 +154,25 @@ const JobPostForm = ({
     void loadLocations();
   }, []);
 
-  const getSubmitErrorMessage = (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      const responseData = error.response?.data;
-      if (typeof responseData === "string" && responseData.trim().length > 0) return responseData;
+  const getSubmitErrorMessage = (error: unknown) =>
+    getApiErrorMessage(error, isEditMode ? t("jobPosts.saveError") : t("jobPostForm.createError"));
+
+  const resolveVisibleUntil = (formData: JobPostFormData): Date | undefined => {
+    if (formData.visibleUntil?.trim()) {
+      const parsed = new Date(formData.visibleUntil);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed;
+      }
     }
 
-    return t("jobPosts.saveError");
+    if (isEditMode && initialData?.visibleUntil) {
+      const parsed = new Date(initialData.visibleUntil);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    return undefined;
   };
 
   const resolveSubmitPayload = (formData: JobPostFormData) => ({
@@ -166,12 +182,18 @@ const JobPostForm = ({
     status: formData.status,
     salary: formData.salary,
     startingDate: new Date(formData.startingDate),
-    visibleUntil: formData.visibleUntil ? new Date(formData.visibleUntil) : undefined,
+    visibleUntil: resolveVisibleUntil(formData),
     restaurantLocationId: formData.restaurantLocationId,
   });
 
   const submitForm = async (formData: JobPostFormData) => {
+    if (isSubmitting) {
+      return;
+    }
+
     const fixedData = resolveSubmitPayload(formData);
+    setIsSubmitting(true);
+    onSubmittingChange?.(true);
 
     try {
       if (isEditMode && initialData) {
@@ -201,6 +223,9 @@ const JobPostForm = ({
       const message = getSubmitErrorMessage(error);
       toast.error(message);
       console.error(message, error);
+    } finally {
+      setIsSubmitting(false);
+      onSubmittingChange?.(false);
     }
   };
 
@@ -331,7 +356,16 @@ const JobPostForm = ({
                     error={!!errors.restaurantLocationId}
                     helperText={
                       errors.restaurantLocationId?.message ||
-                      (locations.length === 0 ? t("jobPostForm.noLocations") : "")
+                      (locations.length === 0 ? (
+                        <span>
+                          {t("jobPostForm.noLocations")}{" "}
+                          <Link to="/profile#employer-branches" onClick={onClose}>
+                            {t("profile.employerManage.manageBranches")}
+                          </Link>
+                        </span>
+                      ) : (
+                        ""
+                      ))
                     }
                     slotProps={{
                       input: embeddedInDrawer
@@ -452,8 +486,18 @@ const JobPostForm = ({
 
           {!embeddedInDrawer ? (
             <Box className={styles.formActions}>
-              <Button variant="contained" color="primary" type="submit" fullWidth>
-                {isEditMode ? t("jobPostForm.saveChanges") : t("jobPostForm.create")}
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                fullWidth
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? t("common.loading")
+                  : isEditMode
+                    ? t("jobPostForm.saveChanges")
+                    : t("jobPostForm.create")}
               </Button>
             </Box>
           ) : null}

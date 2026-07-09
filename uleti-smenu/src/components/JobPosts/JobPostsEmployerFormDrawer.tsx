@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { JobPost } from "../../models/JobPost.model";
 import JobPostForm from "./JobPostForm";
@@ -20,6 +21,7 @@ const JobPostsEmployerFormDrawer = ({
   onSubmit,
 }: JobPostsEmployerFormDrawerProps) => {
   const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = Boolean(editingJobPost?.id);
 
   return (
@@ -35,8 +37,17 @@ const JobPostsEmployerFormDrawer = ({
           <button type="button" className={styles.cancelButton} onClick={onClose}>
             {t("common.cancel")}
           </button>
-          <button type="submit" form={EMPLOYER_JOB_POST_FORM_ID} className={styles.applyButton}>
-            {isEditMode ? t("jobPostForm.saveChanges") : t("jobPostForm.createAd")}
+          <button
+            type="submit"
+            form={EMPLOYER_JOB_POST_FORM_ID}
+            className={styles.applyButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? t("common.loading")
+              : isEditMode
+                ? t("jobPostForm.saveChanges")
+                : t("jobPostForm.createAd")}
           </button>
         </>
       }
@@ -47,6 +58,7 @@ const JobPostsEmployerFormDrawer = ({
         initialData={editingJobPost}
         onClose={onClose}
         onSubmit={onSubmit}
+        onSubmittingChange={setIsSubmitting}
         embeddedInDrawer
       />
     </JobPostsSideDrawer>

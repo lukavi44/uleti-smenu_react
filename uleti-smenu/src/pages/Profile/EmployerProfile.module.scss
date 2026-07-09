@@ -28,13 +28,54 @@
   color: #0f172a;
 }
 
-.branchMenuButton {
+.branchMenuButton,
+.branchManageButton {
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: #64748b;
   cursor: pointer;
   padding: 0;
-  line-height: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.branchManageButton:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+.branchCardHighlighted,
+.branchCardEditing {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+
+.branchFormActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.branchDeleteConfirm {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e8edf5;
+}
+
+.branchDeleteConfirm p {
+  margin: 0 0 0.75rem;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.buttonDanger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.buttonDanger:hover {
+  background: #fecaca;
 }
 
 .branchLine {

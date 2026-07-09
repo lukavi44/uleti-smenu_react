@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useNotificationsMenu } from "../../hooks/useNotificationsMenu";
+import { handleNotificationNavigation, isNavigableNotification } from "../../helpers/notificationNavigation";
 import styles from "./NotificationsMenu.module.scss";
 
 type NotificationsMenuProps = {
@@ -72,9 +73,9 @@ const NotificationsMenu = ({ enabled = true, trigger }: NotificationsMenuProps) 
             >
               <div className={styles.itemHeader}>
                 <p
-                  className={notification.type === "ReviewReminder" ? styles.itemLink : undefined}
+                  className={isNavigableNotification(notification.type) ? styles.itemLink : undefined}
                   onClick={() => {
-                    if (notification.type !== "ReviewReminder") {
+                    if (!isNavigableNotification(notification.type)) {
                       return;
                     }
 
@@ -83,7 +84,7 @@ const NotificationsMenu = ({ enabled = true, trigger }: NotificationsMenuProps) 
                     }
 
                     close();
-                    navigate("/profile");
+                    handleNotificationNavigation(notification, navigate);
                   }}
                 >
                   {notification.message}

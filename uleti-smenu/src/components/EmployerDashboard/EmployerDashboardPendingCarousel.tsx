@@ -11,6 +11,7 @@ import { UpdateApplicationStatus } from "../../services/application-service";
 import { PendingApplicantItem } from "../../helpers/employerDashboardPending";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import ChatContactAvatar from "../Chat/ChatContactAvatar";
+import ConfirmActionDialog from "../Dialog/ConfirmActionDialog";
 import styles from "./EmployerDashboardPendingCarousel.module.scss";
 
 type EmployerDashboardPendingCarouselProps = {
@@ -29,6 +30,7 @@ const EmployerDashboardPendingCarousel = ({
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:1023px)");
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [pendingRejectApplicant, setPendingRejectApplicant] = useState<PendingApplicantItem | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [canGoNext, setCanGoNext] = useState(false);
 
@@ -173,7 +175,7 @@ const EmployerDashboardPendingCarousel = ({
                     className={styles.rejectButton}
                     disabled={activeAction !== null}
                     aria-label={t("applicants.reject")}
-                    onClick={() => void handleDecision(applicant, "Denied")}
+                    onClick={() => setPendingRejectApplicant(applicant)}
                   >
                     {activeAction === `${applicant.applicationId}:Denied` ? (
                       "..."
@@ -212,6 +214,23 @@ const EmployerDashboardPendingCarousel = ({
             />
           ))}
         </div>
+      ) : null}
+
+      {pendingRejectApplicant ? (
+        <ConfirmActionDialog
+          title={t("applicants.rejectConfirmTitle")}
+          message={t("applicants.rejectConfirmMessage")}
+          confirmLabel={t("applicants.reject")}
+          isLoading={activeAction === `${pendingRejectApplicant.applicationId}:Denied`}
+          onConfirm={() =>
+            void handleDecision(pendingRejectApplicant, "Denied").finally(() => setPendingRejectApplicant(null))
+          }
+          onClose={() => {
+            if (activeAction !== `${pendingRejectApplicant.applicationId}:Denied`) {
+              setPendingRejectApplicant(null);
+            }
+          }}
+        />
       ) : null}
     </div>
   );

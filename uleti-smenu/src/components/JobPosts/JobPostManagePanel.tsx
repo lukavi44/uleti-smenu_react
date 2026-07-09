@@ -23,12 +23,14 @@ import {
 } from "../../services/jobPost-service";
 import { JobPost } from "../../models/JobPost.model";
 import { JobPostApplicationStats } from "../../models/JobPostApplicationStats.model";
+import { getApiErrorMessage } from "../../helpers/apiError";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { getEmployerDashboardJobStatusBadge } from "../../helpers/employerDashboardJobPosts";
+import ConfirmActionDialog from "../Dialog/ConfirmActionDialog";
 import styles from "./JobPostManagePanel.module.scss";
 
 export type JobPostManagePanelActions = {
-  onEdit: (jobPostId: string) => void;
+  onEdit: (jobPost: JobPost) => void;
   onViewCandidates: (jobPost: JobPost) => void;
   onPreview: (jobPost: JobPost) => void;
   onPostsChanged: () => void;
@@ -138,8 +140,8 @@ const JobPostManagePanel = ({
         toast.success(t("jobPostManage.duplicateSuccess"));
         onPostsChanged();
         onClose();
-      } catch {
-        toast.error(t("jobPostManage.duplicateError"));
+      } catch (error: unknown) {
+        toast.error(getApiErrorMessage(error, t("jobPostManage.duplicateError")));
       }
     });
 
@@ -150,8 +152,8 @@ const JobPostManagePanel = ({
         toast.success(t("jobPostManage.archiveSuccess"));
         onPostsChanged();
         onClose();
-      } catch {
-        toast.error(t("jobPostManage.archiveError"));
+      } catch (error: unknown) {
+        toast.error(getApiErrorMessage(error, t("jobPostManage.archiveError")));
       }
     });
 
@@ -172,15 +174,9 @@ const JobPostManagePanel = ({
         onPostsChanged();
         onClose();
       } catch (error: unknown) {
-        const responseMessage =
-          (error as { response?: { data?: unknown } })?.response?.data;
-        if (typeof responseMessage === "string" && responseMessage.trim()) {
-          toast.error(responseMessage);
-        } else {
-          toast.error(t("jobPostManage.activateError"));
-        }
+        toast.error(getApiErrorMessage(error, t("jobPostManage.activateError")));
         onClose();
-        onEdit(jobPost.id);
+        onEdit(jobPost);
       }
     });
 
@@ -192,8 +188,8 @@ const JobPostManagePanel = ({
         toast.success(t("jobPostManage.deleteSuccess"));
         onPostsChanged();
         onClose();
-      } catch {
-        toast.error(t("jobPostManage.deleteError"));
+      } catch (error: unknown) {
+        toast.error(getApiErrorMessage(error, t("jobPostManage.deleteError")));
       } finally {
         setIsDeleting(false);
         setShowDeleteConfirm(false);
@@ -225,7 +221,7 @@ const JobPostManagePanel = ({
       tone: "default" as const,
       onClick: () => {
         onClose();
-        onEdit(jobPost.id);
+        onEdit(jobPost);
       },
     },
     {
@@ -363,33 +359,22 @@ const JobPostManagePanel = ({
           </section>
         </div>
 
-        {showDeleteConfirm ? (
-          <div className={styles.confirmOverlay}>
-            <div className={styles.confirmDialog} role="alertdialog" aria-labelledby="delete-job-post-title">
-              <h3 id="delete-job-post-title">{t("jobPostManage.deleteConfirmTitle")}</h3>
-              <p>{t("jobPostManage.deleteConfirmMessage")}</p>
-              <div className={styles.confirmActions}>
-                <button
-                  type="button"
-                  className={styles.confirmCancel}
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={isDeleting}
-                >
-                  {t("common.cancel")}
-                </button>
-                <button
-                  type="button"
-                  className={styles.confirmDelete}
-                  onClick={() => void handleDelete()}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? t("common.loading") : t("jobPostManage.actionDelete")}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </aside>
+
+      {showDeleteConfirm ? (
+        <ConfirmActionDialog
+          title={t("jobPostManage.deleteConfirmTitle")}
+          message={t("jobPostManage.deleteConfirmMessage")}
+          confirmLabel={t("jobPostManage.actionDelete")}
+          isLoading={isDeleting}
+          onConfirm={() => void handleDelete()}
+          onClose={() => {
+            if (!isDeleting) {
+              setShowDeleteConfirm(false);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 };

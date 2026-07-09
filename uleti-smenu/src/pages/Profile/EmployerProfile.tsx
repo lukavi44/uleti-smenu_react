@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useEffect, useMemo, useState } from "react";
+import { FormEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,7 +6,6 @@ import {
   CheckCircleIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
-  EllipsisVerticalIcon,
   EnvelopeIcon,
   IdentificationIcon,
   MapPinIcon,
@@ -28,9 +27,11 @@ import { Employer } from "../../models/User.model";
 import { RestaurantLocation } from "../../models/RestaurantLocation.model";
 import { ReviewSummary } from "../../models/Review.model";
 import { UpdateMyEmployerProfile } from "../../services/user-service";
-import { CreateMyRestaurantLocation, GetMyRestaurantLocations } from "../../services/restaurantLocation-service";
+import { CreateMyRestaurantLocation, DeleteMyRestaurantLocation, GetMyRestaurantLocations, UpdateMyRestaurantLocation } from "../../services/restaurantLocation-service";
+import { getApiErrorMessage } from "../../helpers/apiError";
 import { GetEmployerReviewPage } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
+import ConfirmActionDialog from "../../components/Dialog/ConfirmActionDialog";
 import styles from "./EmployerProfile.module.scss";
 
 interface EmployerProfileProps {
@@ -79,6 +80,23 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ averageRating: 0, reviewCount: 0 });
   const [reviewerAvatars, setReviewerAvatars] = useState<string[]>([]);
   const [isBranchesOpen, setIsBranchesOpen] = useState(true);
+  const [editingBranchId, setEditingBranchId] = useState<string | null>(null);
+  const [deleteConfirmBranchId, setDeleteConfirmBranchId] = useState<string | null>(null);
+  const [branchEditForm, setBranchEditForm] = useState({
+    name: "",
+    phoneNumber: "",
+    pib: "",
+    mb: "",
+    streetName: "",
+    streetNumber: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    region: "",
+  });
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
+  const [isDeletingLocation, setIsDeletingLocation] = useState(false);
+  const branchCardRefs = useRef<Record<string, HTMLElement | null>>({});
   const [isReviewsOpen, setIsReviewsOpen] = useState(true);
   const [isVerificationOpen, setIsVerificationOpen] = useState(true);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(true);
@@ -185,6 +203,95 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
     void loadLocations();
   }, [t]);
+
+  useEffect(() => {
+    if (window.location.hash !== "#employer-branches") {
+      return;
+    }
+
+    setIsBranchesOpen(true);
+    requestAnimationFrame(() => {
+      document.getElementById("employer-branches")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
+  const handleManageBranch = (location: RestaurantLocation) => {
+    setIsBranchesOpen(true);
+    setShowBranchForm(false);
+    setEditingBranchId(location.id);
+    setDeleteConfirmBranchId(null);
+    setBranchEditForm({
+      name: location.name,
+      phoneNumber: location.phoneNumber,
+      pib: location.pib,
+      mb: location.mb,
+      streetName: location.streetName,
+      streetNumber: location.streetNumber,
+      city: location.city,
+      postalCode: location.postalCode,
+      country: location.country,
+      region: location.region,
+    });
+    requestAnimationFrame(() => {
+      branchCardRefs.current[location.id]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  };
+
+  const handleBranchEditFieldChange = (field: keyof typeof branchEditForm, value: string) => {
+    setBranchEditForm((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleCancelBranchEdit = () => {
+    setEditingBranchId(null);
+    setDeleteConfirmBranchId(null);
+  };
+
+  const handleUpdateBranch = async () => {
+    if (!editingBranchId) {
+      return;
+    }
+
+    const requiredValues = Object.values(branchEditForm).every((value) => value.trim() !== "");
+    if (!requiredValues) {
+      toast.info(t("profile.fillBranchFields"));
+      return;
+    }
+
+    setIsUpdatingLocation(true);
+    try {
+      const response = await UpdateMyRestaurantLocation(editingBranchId, branchEditForm);
+      setLocations((previous) =>
+        previous.map((location) => (location.id === editingBranchId ? response.data : location))
+      );
+      setEditingBranchId(null);
+      toast.success(t("profile.branchUpdated"));
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, t("profile.branchUpdateError")));
+    } finally {
+      setIsUpdatingLocation(false);
+    }
+  };
+
+  const handleDeleteBranch = async () => {
+    if (!deleteConfirmBranchId) {
+      return;
+    }
+
+    setIsDeletingLocation(true);
+    try {
+      await DeleteMyRestaurantLocation(deleteConfirmBranchId);
+      setLocations((previous) => previous.filter((location) => location.id !== deleteConfirmBranchId));
+      if (editingBranchId === deleteConfirmBranchId) {
+        setEditingBranchId(null);
+      }
+      setDeleteConfirmBranchId(null);
+      toast.success(t("profile.branchDeleted"));
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, t("profile.branchDeleteError")));
+    } finally {
+      setIsDeletingLocation(false);
+    }
+  };
 
   const handleProfileSave = async (event: FormEvent) => {
     event.preventDefault();
@@ -367,30 +474,93 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const renderBranchesContent = () => (
     <>
       <div className={styles.branchToolbar}>
-        <button type="button" className={styles.linkAction} onClick={() => setShowBranchForm((open) => !open)}>
+        <button type="button" className={styles.linkAction} onClick={() => {
+          setShowBranchForm((open) => !open);
+          setEditingBranchId(null);
+          setDeleteConfirmBranchId(null);
+        }}>
           + {t("profile.addBranchAction")}
         </button>
       </div>
       <p className={styles.legalNotice}>{t("profile.branchLegalEntityHint")}</p>
       {locations.length === 0 ? <p className={styles.mutedText}>{t("profile.noBranches")}</p> : null}
       <div className={styles.branchGrid}>
-        {locations.map((location) => (
-          <article key={location.id} className={styles.branchCard}>
+        {locations.map((location) => {
+          const isEditing = editingBranchId === location.id;
+
+          return (
+          <article
+            key={location.id}
+            ref={(element) => {
+              branchCardRefs.current[location.id] = element;
+            }}
+            className={`${styles.branchCard} ${isEditing ? styles.branchCardEditing : ""}`}
+          >
             <div className={styles.branchCardTop}>
               <h3 className={styles.branchName}>{location.name}</h3>
-              <button type="button" className={styles.branchMenuButton} aria-label={t("admin.nav.more")}>
-                <EllipsisVerticalIcon width={18} height={18} />
-              </button>
+              {!isEditing ? (
+                <button
+                  type="button"
+                  className={styles.branchManageButton}
+                  onClick={() => handleManageBranch(location)}
+                >
+                  {t("profile.employerManage.manageBranch")}
+                </button>
+              ) : null}
             </div>
-            <p className={styles.branchLine}>
-              {location.streetName} {location.streetNumber}, {location.city}
-            </p>
-            <p className={styles.branchLine}>{location.phoneNumber}</p>
-            <p className={styles.branchLine}>
-              {t("registration.pib")}: {location.pib} · {t("registration.mb")}: {location.mb}
-            </p>
+
+            {isEditing ? (
+              <div className={styles.branchForm}>
+                <input className={styles.input} placeholder={t("profile.restaurantName")} value={branchEditForm.name} onChange={(e) => handleBranchEditFieldChange("name", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.phoneNumber")} value={branchEditForm.phoneNumber} onChange={(e) => handleBranchEditFieldChange("phoneNumber", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.pib")} value={branchEditForm.pib} onChange={(e) => handleBranchEditFieldChange("pib", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.mb")} value={branchEditForm.mb} onChange={(e) => handleBranchEditFieldChange("mb", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.streetName")} value={branchEditForm.streetName} onChange={(e) => handleBranchEditFieldChange("streetName", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.streetNumber")} value={branchEditForm.streetNumber} onChange={(e) => handleBranchEditFieldChange("streetNumber", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.city")} value={branchEditForm.city} onChange={(e) => handleBranchEditFieldChange("city", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.postalCode")} value={branchEditForm.postalCode} onChange={(e) => handleBranchEditFieldChange("postalCode", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.country")} value={branchEditForm.country} onChange={(e) => handleBranchEditFieldChange("country", e.target.value)} />
+                <input className={styles.input} placeholder={t("registration.region")} value={branchEditForm.region} onChange={(e) => handleBranchEditFieldChange("region", e.target.value)} />
+                <div className={styles.branchFormActions}>
+                  <button
+                    type="button"
+                    className={`${styles.button} ${styles.buttonPrimary}`}
+                    disabled={isUpdatingLocation}
+                    onClick={() => void handleUpdateBranch()}
+                  >
+                    {isUpdatingLocation ? t("common.loading") : t("profile.saveBranch")}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.button}
+                    disabled={isUpdatingLocation || isDeletingLocation}
+                    onClick={handleCancelBranchEdit}
+                  >
+                    {t("common.cancel")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.button} ${styles.buttonDanger}`}
+                    disabled={isUpdatingLocation || isDeletingLocation}
+                    onClick={() => setDeleteConfirmBranchId(location.id)}
+                  >
+                    {t("profile.deleteBranch")}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className={styles.branchLine}>
+                  {location.streetName} {location.streetNumber}, {location.city}
+                </p>
+                <p className={styles.branchLine}>{location.phoneNumber}</p>
+                <p className={styles.branchLine}>
+                  {t("registration.pib")}: {location.pib} · {t("registration.mb")}: {location.mb}
+                </p>
+              </>
+            )}
           </article>
-        ))}
+        )})}
       </div>
       {showBranchForm ? (
         <div className={styles.branchForm}>
@@ -457,6 +627,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         itemCount={locations.length}
         isOpen={isBranchesOpen}
         onOpenChange={setIsBranchesOpen}
+        id="employer-branches"
       >
         {renderBranchesContent()}
       </ProfileAccordion>
@@ -665,6 +836,21 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
         {renderSectionAccordions()}
       </div>
+
+      {deleteConfirmBranchId ? (
+        <ConfirmActionDialog
+          title={t("profile.deleteBranch")}
+          message={t("profile.branchDeleteConfirm")}
+          confirmLabel={t("profile.confirmDeleteBranch")}
+          isLoading={isDeletingLocation}
+          onConfirm={() => void handleDeleteBranch()}
+          onClose={() => {
+            if (!isDeletingLocation) {
+              setDeleteConfirmBranchId(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 };

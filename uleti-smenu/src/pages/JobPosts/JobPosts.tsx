@@ -5,6 +5,7 @@ import styles from "./JobPosts.module.scss";
 import JobPostForm from "../../components/JobPosts/JobPostForm";
 import {
     GetMyJobPostPositions,
+    GetMyJobPosts,
     GetMyJobPostsPaged,
     GetVisibleJobPostFilterOptions,
     GetVisibleJobPostsPaged,
@@ -108,7 +109,7 @@ const JobPosts = () => {
     const [candidatesPanelJobPost, setCandidatesPanelJobPost] = useState<JobPost | null>(null);
     const [manageJobPost, setManageJobPost] = useState<JobPost | null>(null);
     const [previewJobPost, setPreviewJobPost] = useState<JobPost | null>(null);
-    const [editingJobPostId, setEditingJobPostId] = useState<string | null>(null);
+    const [editingJobPost, setEditingJobPost] = useState<JobPost | null>(null);
     const [employeeFilter, setEmployeeFilter] = useState<"all" | "notApplied" | "applied">("all");
     const [hideAppliedPosts, setHideAppliedPosts] = useState(false);
     const [favouriteFilter, setFavouriteFilter] = useState<"all" | "favourites">("all");
@@ -165,17 +166,26 @@ const JobPosts = () => {
         });
     };
 
-    const openJobPostForm = (jobPostId: string | null = null) => {
+    const openJobPostForm = (jobPost: JobPost | null = null) => {
         saveListScrollPosition();
-        setEditingJobPostId(jobPostId);
+        setEditingJobPost(jobPost);
         setIsEmployerFiltersOpen(false);
         setJobPostCreatFormOpened(true);
     };
 
     const closeJobPostForm = () => {
         setJobPostCreatFormOpened(false);
-        setEditingJobPostId(null);
+        setEditingJobPost(null);
         restoreListScrollPosition();
+    };
+
+    const resolveEmployerJobPost = async (jobPostId: string): Promise<JobPost | null> => {
+        try {
+            const response = await GetMyJobPosts();
+            return response.data.find((post) => post.id === jobPostId) ?? null;
+        } catch {
+            return null;
+        }
     };
 
     const handleOpenEmployerFilters = () => {
@@ -218,8 +228,8 @@ const JobPosts = () => {
         const state = location.state as {
             openEditForm?: boolean;
             jobPostId?: string;
-            openCandidatesPanel?: boolean;
             jobPost?: JobPost;
+            openCandidatesPanel?: boolean;
             openPreview?: boolean;
         } | null;
 
@@ -227,20 +237,39 @@ const JobPosts = () => {
             return;
         }
 
-        if (state.openEditForm && state.jobPostId) {
-            openJobPostForm(state.jobPostId);
-        }
+        const handleNavigationState = async () => {
+            if (state.openEditForm) {
+                if (state.jobPost) {
+                    openJobPostForm(state.jobPost);
+                } else if (state.jobPostId) {
+                    const resolvedPost = await resolveEmployerJobPost(state.jobPostId);
+                    if (resolvedPost) {
+                        openJobPostForm(resolvedPost);
+                    } else {
+                        toast.error(t("jobPosts.postLoadError"));
+                    }
+                }
+            }
 
-        if (state.openCandidatesPanel && state.jobPost) {
-            setCandidatesPanelJobPost(state.jobPost);
-        }
+            if (state.openCandidatesPanel) {
+                if (state.jobPost) {
+                    setCandidatesPanelJobPost(state.jobPost);
+                } else if (state.jobPostId) {
+                    const resolvedPost = await resolveEmployerJobPost(state.jobPostId);
+                    if (resolvedPost) {
+                        setCandidatesPanelJobPost(resolvedPost);
+                    }
+                }
+            }
 
-        if (state.openPreview && state.jobPost) {
-            setPreviewJobPost(state.jobPost);
-        }
+            if (state.openPreview && state.jobPost) {
+                setPreviewJobPost(state.jobPost);
+            }
+        };
 
+        void handleNavigationState();
         navigate(location.pathname, { replace: true, state: null });
-    }, [isEmployerShellView, location.pathname, location.state, navigate]);
+    }, [isEmployerShellView, location.pathname, location.state, navigate, t]);
 
     const employerJobPostsResetKey = `${role}|${employerLifecycleFilter}|${cityFilter}|${restaurantFilter}|${positionFilter}|${employerSortBy}|${employerSortDirection}`;
     const fetchEmployerJobPostsPage = useCallback(
@@ -421,13 +450,6 @@ const JobPosts = () => {
         totalCount: guestTotalCount,
     } = useServerLazyLoad(fetchGuestJobPostsPage, guestJobPostsResetKey);
 
-    const editingJobPost = useMemo(() => {
-        if (!editingJobPostId || role !== "Employer") {
-            return undefined;
-        }
-
-        return employerJobPosts.find((post) => post.id === editingJobPostId);
-    }, [editingJobPostId, role, employerJobPosts]);
     const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
 
     useEffect(() => {
@@ -537,7 +559,7 @@ const JobPosts = () => {
         onPostsChanged: () => {
             void reloadJobPosts();
         },
-        onEdit: (jobPostId) => openJobPostForm(jobPostId),
+        onEdit: (jobPost) => openJobPostForm(jobPost),
         onViewCandidates: (jobPost) => setCandidatesPanelJobPost(jobPost),
         onPreview: (jobPost) => setPreviewJobPost(jobPost),
     });
@@ -1044,7 +1066,7 @@ const JobPosts = () => {
                     />
                     <JobPostsEmployerFormDrawer
                         isOpen={jobPostCreateFormOpened}
-                        editingJobPost={editingJobPost}
+                        editingJobPost={editingJobPost ?? undefined}
                         onClose={closeJobPostForm}
                         onSubmit={reloadJobPosts}
                     />
@@ -1400,8 +1422,8 @@ const JobPosts = () => {
             {showLegacyEmployerFormPanel && (
                 <div className={styles["right-panel"]}>
                     <JobPostForm
-                        key={editingJobPostId ?? "create"}
-                        initialData={editingJobPost}
+                        key={editingJobPost?.id ?? "create"}
+                        initialData={editingJobPost ?? undefined}
                         onClose={closeJobPostForm}
                         onSubmit={reloadJobPosts}
                     />

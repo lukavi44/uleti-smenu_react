@@ -5,6 +5,7 @@ import { JobPost } from "../models/JobPost.model";
 import { PagedResult } from "../models/PagedResult.model";
 import axiosInstance from "./axiosConfig"
 import { AxiosResponse } from "axios";
+import { serializeJobPostPayload } from "../helpers/jobPostPayload";
 
 export interface GetMyJobPostsPagedParams {
   page: number;
@@ -92,7 +93,7 @@ const normalizeFilterOptions = (data: unknown): VisibleJobPostFilterOptions => {
 
 
 export const CreateJobPost = async(body: JobPostDTO): Promise<AxiosResponse<JobPostDTO>> => {
-    return axiosInstance.post<JobPostDTO>("/api/v1/JobPost/createJobPost", body);
+    return axiosInstance.post<JobPostDTO>("/api/v1/JobPost/createJobPost", serializeJobPostPayload(body));
 }
 
 export const GetVisibleJobPostsPaged = async(
@@ -192,7 +193,7 @@ export const GetMyJobPostPositions = async(): Promise<AxiosResponse<string[]>> =
 }
 
 export const UpdateMyJobPost = async(jobPostId: string, body: JobPostDTO): Promise<AxiosResponse<JobPostDTO>> => {
-    return axiosInstance.put<JobPostDTO>(`/api/v1/JobPost/my/${jobPostId}`, body);
+    return axiosInstance.put<JobPostDTO>(`/api/v1/JobPost/my/${jobPostId}`, serializeJobPostPayload(body));
 }
 
 export const GetMyJobPostApplicationStats = async(

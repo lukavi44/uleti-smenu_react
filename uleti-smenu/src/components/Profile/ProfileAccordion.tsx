@@ -8,6 +8,7 @@ interface ProfileAccordionProps {
   itemCount?: number;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  id?: string;
   children: ReactNode;
 }
 
@@ -17,9 +18,10 @@ const ProfileAccordion = ({
   itemCount,
   isOpen,
   onOpenChange,
+  id,
   children,
 }: ProfileAccordionProps) => (
-  <section className={styles.section}>
+  <section id={id} className={styles.section}>
     <button
       type="button"
       className={styles.header}

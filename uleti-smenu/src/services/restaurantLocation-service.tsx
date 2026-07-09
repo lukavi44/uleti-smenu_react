@@ -50,3 +50,21 @@ export const CreateMyRestaurantLocation = async (
         data: normalizeRestaurantLocation(response.data as Record<string, unknown>),
     };
 };
+
+export const UpdateMyRestaurantLocation = async (
+    locationId: string,
+    payload: CreateRestaurantLocationRequest
+): Promise<AxiosResponse<RestaurantLocation>> => {
+    const response = await axiosInstance.put(`/api/v1/User/me/locations/${locationId}`, payload);
+
+    return {
+        ...response,
+        data: normalizeRestaurantLocation(response.data as Record<string, unknown>),
+    };
+};
+
+export const DeleteMyRestaurantLocation = async (
+    locationId: string
+): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.delete(`/api/v1/User/me/locations/${locationId}`);
+};
