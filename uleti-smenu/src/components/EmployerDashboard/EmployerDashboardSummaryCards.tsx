@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
+  LockClosedIcon,
   MegaphoneIcon,
   PlusIcon,
   UsersIcon,
@@ -13,17 +14,23 @@ type EmployerDashboardSummaryCardsProps = {
   activeJobPostsCount: number;
   pendingApplicantsCount: number;
   unreadMessagesCount: number;
+  canCreateJobPost: boolean;
 };
 
 const EmployerDashboardSummaryCards = ({
   activeJobPostsCount,
   pendingApplicantsCount,
   unreadMessagesCount,
+  canCreateJobPost,
 }: EmployerDashboardSummaryCardsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleCreatePost = () => {
+    if (!canCreateJobPost) {
+      navigate("/profile", { state: { editProfile: true } });
+      return;
+    }
     navigate("/oglasi-za-posao", { state: { openCreateForm: true } });
   };
 
@@ -73,7 +80,9 @@ const EmployerDashboardSummaryCards = ({
         </div>
       </button>
 
-      <article className={`${styles.card} ${styles.ctaCard}`}>
+      <article
+        className={`${styles.card} ${styles.ctaCard} ${!canCreateJobPost ? styles.ctaCardLocked : ""}`}
+      >
         <div className={styles.ctaIllustration} aria-hidden>
           <MegaphoneIcon className={styles.ctaIcon} />
         </div>
@@ -81,9 +90,16 @@ const EmployerDashboardSummaryCards = ({
           <p className={styles.ctaTitle}>{t("home.dashboard.createPostTitle")}</p>
           <p className={styles.ctaSubtitle}>{t("home.dashboard.createPostSubtitle")}</p>
           <button type="button" className={styles.ctaButton} onClick={handleCreatePost}>
-            <PlusIcon className={styles.ctaButtonIcon} aria-hidden />
-            {t("jobPosts.createPost")}
+            {canCreateJobPost ? (
+              <PlusIcon className={styles.ctaButtonIcon} aria-hidden />
+            ) : (
+              <LockClosedIcon className={styles.ctaButtonIcon} aria-hidden />
+            )}
+            {canCreateJobPost ? t("jobPosts.createPost") : t("profile.incomplete.cta")}
           </button>
+          {!canCreateJobPost ? (
+            <p className={styles.lockedHint}>{t("profile.incomplete.postingLockedHint")}</p>
+          ) : null}
         </div>
       </article>
     </div>

@@ -107,6 +107,33 @@
   line-height: 1.45;
 }
 
+.incompleteBannerWrap {
+  margin-bottom: 1rem;
+}
+
+.missingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ea580c;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.missingBar {
+  width: 3px;
+  height: 1rem;
+  border-radius: 999px;
+  background: #fb923c;
+  flex-shrink: 0;
+}
+
+.missingIcon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
 .profileContentInline {
   display: flex;
   align-items: center;

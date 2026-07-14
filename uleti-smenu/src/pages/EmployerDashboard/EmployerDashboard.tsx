@@ -1,8 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../store/Auth-context";
 import { JobPost } from "../../models/JobPost.model";
+import { Employer } from "../../models/User.model";
 import { EmployerDashboardSummary } from "../../models/EmployerDashboardSummary.model";
 import {
   GetEmployerDashboardSummary,
@@ -15,6 +16,7 @@ import {
   buildEmployerDashboardSummaryFromPosts,
   normalizeEmployerDashboardSummary,
 } from "../../helpers/employerDashboard";
+import { isEmployerProfileComplete } from "../../helpers/employerProfileCompleteness";
 import {
   PendingApplicantItem,
   loadPendingApplicantsForDashboard,
@@ -23,13 +25,15 @@ import EmployerDashboardSummaryCards from "../../components/EmployerDashboard/Em
 import EmployerDashboardPendingCarousel from "../../components/EmployerDashboard/EmployerDashboardPendingCarousel";
 import EmployerDashboardJobPostsList from "../../components/EmployerDashboard/EmployerDashboardJobPostsList";
 import EmployerDashboardMobileGreeting from "../../components/EmployerDashboard/EmployerDashboardMobileGreeting";
+import EmployerProfileIncompleteBanner from "../../components/Profile/EmployerProfileIncompleteBanner";
 import JobPostManagePanel from "../../components/JobPosts/JobPostManagePanel";
 import { useJobPostManageHandlers } from "../../hooks/useJobPostManageHandlers";
 import styles from "./EmployerDashboard.module.scss";
 
 const EmployerDashboard = () => {
   const { t } = useTranslation();
-  const { authStatus, role } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { authStatus, role, me } = useContext(AuthContext);
   const [dashboardSummary, setDashboardSummary] = useState<EmployerDashboardSummary | null>(null);
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
   const [pendingApplicants, setPendingApplicants] = useState<PendingApplicantItem[]>([]);
@@ -171,6 +175,8 @@ const EmployerDashboard = () => {
     ? pendingCount
     : (dashboardSummary?.pendingApplicantsCount ?? 0);
 
+  const canCreateJobPost = isEmployerProfileComplete(me as Employer | null);
+
   if (!isEmployer) {
     return null;
   }
@@ -178,6 +184,13 @@ const EmployerDashboard = () => {
   return (
     <div className={styles.dashboard}>
       <EmployerDashboardMobileGreeting />
+
+      {!canCreateJobPost ? (
+        <EmployerProfileIncompleteBanner
+          variant="home"
+          onCtaClick={() => navigate("/profile", { state: { editProfile: true } })}
+        />
+      ) : null}
 
       <section className={styles.section}>
         {isOverviewLoading ? (
@@ -187,6 +200,7 @@ const EmployerDashboard = () => {
             activeJobPostsCount={dashboardSummary?.activeJobPostsCount ?? 0}
             pendingApplicantsCount={displayedPendingCount}
             unreadMessagesCount={unreadMessagesCount}
+            canCreateJobPost={canCreateJobPost}
           />
         )}
       </section>

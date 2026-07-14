@@ -1,5 +1,5 @@
 import { FormEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   BuildingStorefrontIcon,
@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
   Cog6ToothIcon,
   EnvelopeIcon,
+  ExclamationCircleIcon,
   IdentificationIcon,
   MapPinIcon,
   PencilSquareIcon,
@@ -19,8 +20,13 @@ import {
 import { toast } from "react-toastify";
 import ProfileAccordion from "../../components/Profile/ProfileAccordion";
 import ProfileAvatarPicker from "../../components/Profile/ProfileAvatarPicker";
+import EmployerProfileIncompleteBanner from "../../components/Profile/EmployerProfileIncompleteBanner";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getRatingQualityLabel } from "../../helpers/ratingQualityLabel";
+import {
+  getEmployerProfileCompleteness,
+  EmployerMissingProfileField,
+} from "../../helpers/employerProfileCompleteness";
 import { useProfilePhotoUpload } from "../../hooks/useProfilePhotoUpload";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
 import { Employer } from "../../models/User.model";
@@ -62,7 +68,21 @@ const formatEmployerAddress = (user: Employer) => {
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const { t } = useTranslation();
   const { refreshMe } = useContext(AuthContext);
+  const location = useLocation();
   const isEmployerShell = useIsEmployerShell();
+  const employerInfoRef = useRef<HTMLElement | null>(null);
+  const profileCompleteness = useMemo(() => getEmployerProfileCompleteness(user), [
+    user.name,
+    user.phoneNumber,
+    user.pib,
+    user.mb,
+    user.address?.street?.name,
+    user.address?.street?.number,
+    user.address?.city?.name,
+    user.address?.city?.postalCode,
+    user.address?.city?.country,
+    user.address?.city?.region,
+  ]);
   const {
     profilePhotoUrl,
     setProfilePhotoUrl,
@@ -163,6 +183,38 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     user.address?.city?.country,
     user.address?.city?.region,
   ]);
+
+  useEffect(() => {
+    const state = location.state as { editProfile?: boolean } | null;
+    if (state?.editProfile) {
+      setIsEditingProfile(true);
+      window.setTimeout(() => {
+        employerInfoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+  }, [location.state]);
+
+  const handleCompleteProfileClick = () => {
+    setIsEditingProfile(true);
+    window.setTimeout(() => {
+      employerInfoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
+  const renderMissingBadge = () => (
+    <span className={styles.missingBadge}>
+      <span className={styles.missingBar} aria-hidden />
+      <ExclamationCircleIcon className={styles.missingIcon} aria-hidden />
+      <span>{t("profile.incomplete.missing")}</span>
+    </span>
+  );
+
+  const renderFieldValue = (field: EmployerMissingProfileField, value: string) => {
+    if (profileCompleteness.missing[field]) {
+      return renderMissingBadge();
+    }
+    return value.trim() || "—";
+  };
 
   useEffect(() => {
     setNewBranch((previous) => ({
@@ -318,8 +370,8 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       toast.success(t("profile.profileUpdated"));
       setIsEditingProfile(false);
       void refreshMe();
-    } catch {
-      toast.error(t("profile.profileUpdateError"));
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, t("profile.profileUpdateError")));
     } finally {
       setIsProfileSaving(false);
     }
@@ -423,6 +475,30 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           onChange={(event) => setProfileForm((previous) => ({ ...previous, city: event.target.value }))}
         />
       </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.postalCode")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.postalCode}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, postalCode: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.country")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.country}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, country: event.target.value }))}
+        />
+      </label>
+      <label className={styles.profileField}>
+        <span className={styles.infoLabel}>{t("registration.region")}</span>
+        <input
+          className={styles.input}
+          value={profileForm.region}
+          onChange={(event) => setProfileForm((previous) => ({ ...previous, region: event.target.value }))}
+        />
+      </label>
       <div className={styles.profileEditActions}>
         <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isProfileSaving}>
           {isProfileSaving ? t("common.loading") : t("profile.saveChanges")}
@@ -446,15 +522,19 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     <div className={styles.infoTable}>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("profile.restaurantName")}</span>
-        <span className={styles.infoValue}>{user.name}</span>
+        <span className={styles.infoValue}>{renderFieldValue("name", user.name ?? "")}</span>
       </div>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("profile.address")}</span>
-        <span className={styles.infoValue}>{formatEmployerAddress(user)}</span>
+        <span className={styles.infoValue}>
+          {profileCompleteness.missing.address
+            ? renderMissingBadge()
+            : formatEmployerAddress(user)}
+        </span>
       </div>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("profile.phone")}</span>
-        <span className={styles.infoValue}>{user.phoneNumber ?? "—"}</span>
+        <span className={styles.infoValue}>{renderFieldValue("phone", user.phoneNumber ?? "")}</span>
       </div>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("profile.email")}</span>
@@ -462,11 +542,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       </div>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("registration.pib")}</span>
-        <span className={styles.infoValue}>{user.pib}</span>
+        <span className={styles.infoValue}>{renderFieldValue("pib", user.pib ?? "")}</span>
       </div>
       <div className={styles.infoRow}>
         <span className={styles.infoLabel}>{t("registration.mb")}</span>
-        <span className={styles.infoValue}>{user.mb}</span>
+        <span className={styles.infoValue}>{renderFieldValue("mb", user.mb ?? "")}</span>
       </div>
     </div>
   );
@@ -717,6 +797,12 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           <h2 className={styles.mobilePageTitle}>{t("employerShell.profileTitle")}</h2>
         </div>
 
+        {!profileCompleteness.isComplete ? (
+          <div className={styles.incompleteBannerWrap}>
+            <EmployerProfileIncompleteBanner onCtaClick={handleCompleteProfileClick} />
+          </div>
+        ) : null}
+
         <div className={styles.mobileProfileBlock}>
           <div className={styles.mobileAvatarWrap}>
             <ProfileAvatarPicker
@@ -731,7 +817,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               fallbackClassName={styles.mobileAvatarFallback}
             />
           </div>
-          <h3 className={styles.mobileCompanyName}>{user.name}</h3>
+          <h3 className={styles.mobileCompanyName}>
+            {profileCompleteness.missing.name ? renderMissingBadge() : user.name}
+          </h3>
           {renderRatingLink(styles.mobileRating)}
         </div>
 
@@ -741,7 +829,11 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               <MapPinIcon className={styles.rowIcon} aria-hidden />
             </span>
             <span className={styles.rowBody}>
-              <span className={styles.rowTitle}>{formatEmployerAddress(user)}</span>
+              <span className={styles.rowTitle}>
+                {profileCompleteness.missing.address
+                  ? renderMissingBadge()
+                  : formatEmployerAddress(user)}
+              </span>
               <span className={styles.rowSubtitle}>{t("profile.address")}</span>
             </span>
             <ChevronRightIcon className={styles.rowChevron} aria-hidden />
@@ -751,7 +843,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               <PhoneIcon className={styles.rowIcon} aria-hidden />
             </span>
             <span className={styles.rowBody}>
-              <span className={styles.rowTitle}>{user.phoneNumber ?? "—"}</span>
+              <span className={styles.rowTitle}>
+                {renderFieldValue("phone", user.phoneNumber ?? "")}
+              </span>
               <span className={styles.rowSubtitle}>{t("profile.phone")}</span>
             </span>
             <ChevronRightIcon className={styles.rowChevron} aria-hidden />
@@ -771,7 +865,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               <IdentificationIcon className={styles.rowIcon} aria-hidden />
             </span>
             <span className={styles.rowBody}>
-              <span className={styles.rowTitle}>{user.pib}</span>
+              <span className={styles.rowTitle}>{renderFieldValue("pib", user.pib ?? "")}</span>
               <span className={styles.rowSubtitle}>{t("registration.pib")}</span>
             </span>
             <ChevronRightIcon className={styles.rowChevron} aria-hidden />
@@ -781,7 +875,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               <IdentificationIcon className={styles.rowIcon} aria-hidden />
             </span>
             <span className={styles.rowBody}>
-              <span className={styles.rowTitle}>{user.mb}</span>
+              <span className={styles.rowTitle}>{renderFieldValue("mb", user.mb ?? "")}</span>
               <span className={styles.rowSubtitle}>{t("registration.mb")}</span>
             </span>
             <ChevronRightIcon className={styles.rowChevron} aria-hidden />
@@ -798,7 +892,13 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       </div>
 
       <div className={styles.desktopShell}>
-        <section className={styles.card}>
+        {!profileCompleteness.isComplete ? (
+          <div className={styles.incompleteBannerWrap}>
+            <EmployerProfileIncompleteBanner onCtaClick={handleCompleteProfileClick} />
+          </div>
+        ) : null}
+
+        <section className={styles.card} ref={employerInfoRef}>
           <div className={styles.profileCardHeader}>
             <h2 className={styles.sectionTitle}>{t("profile.employerInfo")}</h2>
             {!isEditingProfile ? (
@@ -825,7 +925,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             <div>
               <div className={styles.companyHeader}>
                 <div>
-                  <h3 className={styles.companyName}>{user.name}</h3>
+                  <h3 className={styles.companyName}>
+                    {profileCompleteness.missing.name ? renderMissingBadge() : user.name}
+                  </h3>
                   {renderRatingLink(styles.ratingLine)}
                 </div>
               </div>

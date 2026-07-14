@@ -157,6 +157,34 @@
   height: 1rem;
 }
 
+.ctaCardLocked {
+  border-style: solid;
+  border-color: #fdba74;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 70%);
+}
+
+.ctaCardLocked .ctaIllustration {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.ctaCardLocked .ctaButton {
+  background: #ffffff;
+  color: #2563eb;
+  border: 1.5px solid #2563eb;
+}
+
+.ctaCardLocked .ctaButton:hover {
+  background: #eff6ff;
+}
+
+.lockedHint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #c2410c;
+  line-height: 1.35;
+}
+
 @media (max-width: 1023px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
