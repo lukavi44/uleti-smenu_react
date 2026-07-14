@@ -26,7 +26,7 @@ const RecommendedJobPostCard = ({
   hasApplied,
   onApplied,
 }: RecommendedJobPostCardProps) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isApplying, setIsApplying] = useState(false);
 
   const handleApply = async () => {
@@ -62,7 +62,7 @@ const RecommendedJobPostCard = ({
         </li>
         <li className={styles.metaItem}>
           <ClockIcon className={styles.metaIcon} aria-hidden="true" />
-          <span>{formatShiftDateTimeLabel(jobPost.startingDate, i18n.language)}</span>
+          <span>{formatShiftDateTimeLabel(jobPost.startingDate)}</span>
         </li>
         <li className={styles.metaItem}>
           <BanknotesIcon className={styles.metaIcon} aria-hidden="true" />

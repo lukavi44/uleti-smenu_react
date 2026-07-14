@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useNotificationsMenu } from "../../hooks/useNotificationsMenu";
 import { handleNotificationNavigation, isNavigableNotification } from "../../helpers/notificationNavigation";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import styles from "./NotificationsMenu.module.scss";
 
 type NotificationsMenuProps = {
@@ -19,7 +20,7 @@ const formatNotificationDate = (value: string) => {
   if (Number.isNaN(parsedDate.getTime())) {
     return "";
   }
-  return parsedDate.toLocaleString();
+  return formatDisplayDateTime(parsedDate);
 };
 
 const NotificationsMenu = ({ enabled = true, trigger }: NotificationsMenuProps) => {

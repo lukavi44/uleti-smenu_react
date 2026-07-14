@@ -17,10 +17,10 @@ export interface UpdateEmployerProfilePayload {
   mb: string;
   streetName: string;
   streetNumber: string;
-  city: string;
   postalCode: string;
-  country: string;
-  region: string;
+  countryCode: string;
+  regionCode: string;
+  cityCode: string;
 }
 
 const normalizeEmployee = (data: Record<string, unknown>): Employee => ({
@@ -60,6 +60,9 @@ const normalizeEmployer = (data: Record<string, unknown>): Employer => {
     isFavourite: Boolean(data.isFavourite ?? data.IsFavourite ?? false),
     publicSlug: (data.publicSlug ?? data.PublicSlug) as string | undefined,
     subscription: (data.subscription ?? data.Subscription) as EmployerSubscription | undefined,
+    countryCode: String(data.countryCode ?? data.CountryCode ?? ""),
+    regionCode: String(data.regionCode ?? data.RegionCode ?? ""),
+    cityCode: String(data.cityCode ?? data.CityCode ?? ""),
     address: {
       street: {
         name: String(addressRaw?.street ?? addressRaw?.Street ?? ""),

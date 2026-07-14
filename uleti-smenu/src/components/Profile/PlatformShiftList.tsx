@@ -3,6 +3,7 @@ import styles from "./PlatformShiftList.module.scss";
 import { useTranslation } from "react-i18next";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import Pagination from "../Common/Pagination";
 
 interface PlatformShiftListProps {
@@ -20,14 +21,6 @@ const PlatformShiftList = ({ shifts }: PlatformShiftListProps) => {
     pageSize,
     pagedItems,
   } = useClientPagination(shifts, LIST_PAGE_SIZE);
-
-  const formatDate = (value: string) => {
-    const parsedDate = new Date(value);
-    if (Number.isNaN(parsedDate.getTime())) {
-      return "-";
-    }
-    return parsedDate.toLocaleDateString();
-  };
 
   if (shifts.length === 0) {
     return <p className={styles.mutedText}>{t("employeeProfile.noPlatformShifts")}</p>;
@@ -52,7 +45,8 @@ const PlatformShiftList = ({ shifts }: PlatformShiftListProps) => {
                 : "-"}
             </p>
             <p className={styles.meta}>
-              <span>{t("employeeProfile.shiftDate")}:</span> {formatDate(shift.startingDate)}
+              <span>{t("employeeProfile.shiftDate")}:</span>{" "}
+              {formatDisplayDate(shift.startingDate) || "-"}
             </p>
             <p className={styles.meta}>
               <span>{t("employeeProfile.salary")}:</span> {shift.salary} RSD

@@ -5,6 +5,7 @@ import { AdminEmployerDetail } from "../../models/Admin.model";
 import { getAdminEmployerDetail, setAdminEmployerVerification } from "../../services/admin-service";
 import AdminStatusBadge from "../../components/Admin/AdminStatusBadge";
 import AdminVerificationModal from "../../components/Admin/AdminVerificationModal";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./AdminEmployerDetailPage.module.scss";
 
 type DetailTab = "overview" | "jobPosts" | "branches" | "statistics" | "billing" | "notes";
@@ -105,7 +106,7 @@ const AdminEmployerDetailPage = () => {
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>{t("admin.employers.columns.created")}</span>
             <span className={styles.infoValue}>
-              {employer.createdAtUtc ? new Date(employer.createdAtUtc).toLocaleDateString() : "—"}
+              {employer.createdAtUtc ? formatDisplayDate(employer.createdAtUtc) : "—"}
             </span>
           </div>
           <div className={styles.infoRow}>
@@ -147,7 +148,7 @@ const AdminEmployerDetailPage = () => {
               <div className={styles.infoRow}>
                 <span className={styles.infoLabel}>{t("admin.employerDetail.verifiedAt")}</span>
                 <span className={styles.infoValue}>
-                  {employer.verifiedAtUtc ? new Date(employer.verifiedAtUtc).toLocaleDateString() : "—"}
+                  {employer.verifiedAtUtc ? formatDisplayDate(employer.verifiedAtUtc) : "—"}
                 </span>
               </div>
             </div>
@@ -194,7 +195,7 @@ const AdminEmployerDetailPage = () => {
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>{t("admin.employerDetail.subscriptionExpiry")}</span>
             <span className={styles.infoValue}>
-              {employer.subscriptionStop ? new Date(employer.subscriptionStop).toLocaleDateString() : "—"}
+              {employer.subscriptionStop ? formatDisplayDate(employer.subscriptionStop) : "—"}
             </span>
           </div>
           <div className={styles.infoRow}>

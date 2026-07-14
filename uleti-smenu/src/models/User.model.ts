@@ -18,6 +18,9 @@ export interface Employer extends User {
     isVerifiedEmployer?: boolean;
     publicSlug?: string;
     subscription?: EmployerSubscription;
+    countryCode?: string;
+    regionCode?: string;
+    cityCode?: string;
 }
 
 

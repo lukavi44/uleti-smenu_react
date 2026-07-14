@@ -1,6 +1,16 @@
-export const formatDisplayDate = (value?: string): string => {
+export const formatDisplayDate = (value?: string | Date): string => {
   if (!value) {
     return "";
+  }
+
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) {
+      return "";
+    }
+
+    const dd = String(value.getDate()).padStart(2, "0");
+    const mm = String(value.getMonth() + 1).padStart(2, "0");
+    return `${dd}.${mm}.${value.getFullYear()}`;
   }
 
   const isoDate = value.includes("T") ? value.split("T")[0] : value.slice(0, 10);

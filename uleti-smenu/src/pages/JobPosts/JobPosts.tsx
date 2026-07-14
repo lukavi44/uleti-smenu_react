@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UsersIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
@@ -722,7 +723,7 @@ const JobPosts = () => {
         if (Number.isNaN(parsedDate.getTime())) {
             return "-";
         }
-        return parsedDate.toLocaleString();
+        return formatDisplayDateTime(parsedDate);
     };
 
     const visibleJobPosts = role === "Employee"

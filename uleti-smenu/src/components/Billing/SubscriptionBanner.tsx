@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { EmployerSubscription } from "../../models/Subscription.model";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./SubscriptionBanner.module.scss";
 
 interface SubscriptionBannerProps {
@@ -103,7 +104,7 @@ const SubscriptionBanner = ({ subscription, onManageBilling }: SubscriptionBanne
 
 const formatDate = (value?: string) => {
   if (!value) return "-";
-  return new Date(value).toLocaleDateString();
+  return formatDisplayDate(value) || "-";
 };
 
 export default SubscriptionBanner;

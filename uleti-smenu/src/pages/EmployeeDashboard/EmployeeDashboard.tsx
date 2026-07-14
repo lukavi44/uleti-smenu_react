@@ -40,13 +40,11 @@ const formatShiftDateTime = (startingDate: string) => {
     return formatDisplayDate(startingDate);
   }
 
-  return new Intl.DateTimeFormat("sr-RS", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+  const time = parsedDate.toLocaleTimeString("sr-RS", {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(parsedDate);
+  });
+  return `${formatDisplayDate(startingDate)} ${time}`;
 };
 
 const EmployeeDashboard = () => {

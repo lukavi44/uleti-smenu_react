@@ -441,7 +441,8 @@ const en = {
     noAccount: "Don't have an account? Register",
     submit: "Login",
     email: "Email",
-    password: "Password"
+    password: "Password",
+    capsLockWarning: "Caps Lock is on."
   },
   passwordReset: {
     forgotTitle: "Reset password",
@@ -456,6 +457,11 @@ const en = {
     resetError: "The reset link is invalid or expired.",
     invalidLink: "The reset link is invalid.",
     backToLogin: "Back to login"
+  },
+  geography: {
+    selectCountry: "Select a country",
+    selectRegion: "Select a region",
+    selectCity: "Select a city"
   },
   registration: {
     employerTitle: "Employer registration",

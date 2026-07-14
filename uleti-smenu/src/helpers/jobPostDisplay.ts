@@ -1,23 +1,18 @@
 import { JobPost } from "../models/JobPost.model";
+import { formatDisplayDateTime } from "./formatDisplayDateTime";
 
 export const formatShiftDateTime = (value: Date | string): Date | null => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
-export const formatShiftDateTimeLabel = (value: Date | string, locale?: string): string => {
+export const formatShiftDateTimeLabel = (value: Date | string): string => {
   const parsed = formatShiftDateTime(value);
   if (!parsed) {
     return "-";
   }
 
-  return parsed.toLocaleString(locale, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDisplayDateTime(parsed);
 };
 
 export const getJobPostLocationLabel = (post: JobPost): string => {

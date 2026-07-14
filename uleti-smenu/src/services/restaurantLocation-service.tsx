@@ -9,10 +9,10 @@ export interface CreateRestaurantLocationRequest {
     mb: string;
     streetName: string;
     streetNumber: string;
-    city: string;
     postalCode: string;
-    country: string;
-    region: string;
+    countryCode: string;
+    regionCode: string;
+    cityCode: string;
 }
 
 const normalizeRestaurantLocation = (data: Record<string, unknown>): RestaurantLocation => ({
@@ -28,6 +28,9 @@ const normalizeRestaurantLocation = (data: Record<string, unknown>): RestaurantL
     postalCode: String(data.postalCode ?? data.PostalCode ?? ""),
     country: String(data.country ?? data.Country ?? ""),
     region: String(data.region ?? data.Region ?? ""),
+    countryCode: String(data.countryCode ?? data.CountryCode ?? ""),
+    regionCode: String(data.regionCode ?? data.RegionCode ?? ""),
+    cityCode: String(data.cityCode ?? data.CityCode ?? ""),
 });
 
 export const GetMyRestaurantLocations = async (): Promise<AxiosResponse<RestaurantLocation[]>> => {

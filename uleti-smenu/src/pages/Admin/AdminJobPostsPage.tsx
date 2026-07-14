@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
 import styles from "../../components/Admin/AdminListPage.module.scss";
 import { getAdminJobPosts } from "../../services/admin-service";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 
 const AdminJobPostsPage = () => {
   const { t } = useTranslation();
@@ -19,8 +20,6 @@ const AdminJobPostsPage = () => {
     },
     []
   );
-
-  const formatDate = (value: string) => new Date(value).toLocaleDateString();
 
   return (
     <AdminListPage
@@ -59,7 +58,7 @@ const AdminJobPostsPage = () => {
         {
           key: "created",
           header: t("admin.employers.columns.created"),
-          render: (item) => formatDate(item.createdAtUtc),
+          render: (item) => formatDisplayDate(item.createdAtUtc),
         },
         {
           key: "status",
@@ -76,7 +75,7 @@ const AdminJobPostsPage = () => {
           <h3 className={styles.cardTitle}>{item.title}</h3>
           <p className={styles.cardSubtitle}>{item.employerName}</p>
           <p className={styles.cardMeta}>
-            {item.status} · {formatDate(item.createdAtUtc)}
+            {item.status} · {formatDisplayDate(item.createdAtUtc)}
           </p>
         </>
       )}

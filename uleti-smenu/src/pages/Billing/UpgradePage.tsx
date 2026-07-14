@@ -25,6 +25,7 @@ import {
 import { AuthContext } from "../../store/Auth-context";
 import ShellPageHeader from "../../components/Layout/ShellPageHeader";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./UpgradePage.module.scss";
 
 const billingReturnBase = () => `${window.location.origin}/billing/upgrade`;
@@ -115,9 +116,9 @@ const UpgradePage = () => {
   const formatTransactionDate = (value: string) => {
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return "—";
-    const date = parsed.toLocaleDateString("sr-RS");
+    const date = formatDisplayDate(value);
     const time = parsed.toLocaleTimeString("sr-RS", { hour: "2-digit", minute: "2-digit" });
-    return `${date}. ${time}`;
+    return `${date} ${time}`;
   };
 
   const getPlanFeatures = (planKind?: string) => {
@@ -241,7 +242,7 @@ const UpgradePage = () => {
 
   const subscriptionHint = hasActiveSubscription && subscription?.subscriptionStop
     ? t("billing.validUntil", {
-        date: new Date(subscription.subscriptionStop).toLocaleDateString("sr-RS"),
+        date: formatDisplayDate(subscription.subscriptionStop),
       })
     : t("billing.noSubscription");
 
@@ -371,7 +372,7 @@ const UpgradePage = () => {
             <span>
               {subscription.subscriptionStop
                 ? t("billing.validUntil", {
-                    date: new Date(subscription.subscriptionStop).toLocaleDateString("sr-RS"),
+                    date: formatDisplayDate(subscription.subscriptionStop),
                   })
                 : t("billing.activeSubscription.activeBadge")}
             </span>

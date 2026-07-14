@@ -22,6 +22,7 @@ import ProfileAccordion from "../../components/Profile/ProfileAccordion";
 import ProfileAvatarPicker from "../../components/Profile/ProfileAvatarPicker";
 import EmployerProfileIncompleteBanner from "../../components/Profile/EmployerProfileIncompleteBanner";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { getRatingQualityLabel } from "../../helpers/ratingQualityLabel";
 import {
   getEmployerProfileCompleteness,
@@ -38,6 +39,7 @@ import { getApiErrorMessage } from "../../helpers/apiError";
 import { GetEmployerReviewPage } from "../../services/review-service";
 import { AuthContext } from "../../store/Auth-context";
 import ConfirmActionDialog from "../../components/Dialog/ConfirmActionDialog";
+import GeographySelects from "../../components/Profile/GeographySelects";
 import styles from "./EmployerProfile.module.scss";
 
 interface EmployerProfileProps {
@@ -51,18 +53,20 @@ const buildEmployerProfileForm = (user: Employer) => ({
   mb: user.mb ?? "",
   streetName: user.address?.street?.name ?? "",
   streetNumber: user.address?.street?.number ? String(user.address.street.number) : "",
-  city: user.address?.city?.name ?? "",
   postalCode: user.address?.city?.postalCode ? String(user.address.city.postalCode) : "",
-  country: user.address?.city?.country ?? "",
-  region: user.address?.city?.region ?? "",
+  countryCode: user.countryCode ?? "",
+  regionCode: user.regionCode ?? "",
+  cityCode: user.cityCode ?? "",
 });
 
 const formatEmployerAddress = (user: Employer) => {
-  const form = buildEmployerProfileForm(user);
-  if (!form.streetName && !form.city) {
+  const streetName = user.address?.street?.name ?? "";
+  const streetNumber = user.address?.street?.number ? String(user.address.street.number) : "";
+  const city = user.address?.city?.name ?? "";
+  if (!streetName && !city) {
     return "—";
   }
-  return `${form.streetName} ${form.streetNumber}, ${form.city}`.trim();
+  return `${streetName} ${streetNumber}, ${city}`.trim();
 };
 
 const EmployerProfile = ({ user }: EmployerProfileProps) => {
@@ -71,18 +75,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const location = useLocation();
   const isEmployerShell = useIsEmployerShell();
   const employerInfoRef = useRef<HTMLElement | null>(null);
-  const profileCompleteness = useMemo(() => getEmployerProfileCompleteness(user), [
-    user.name,
-    user.phoneNumber,
-    user.pib,
-    user.mb,
-    user.address?.street?.name,
-    user.address?.street?.number,
-    user.address?.city?.name,
-    user.address?.city?.postalCode,
-    user.address?.city?.country,
-    user.address?.city?.region,
-  ]);
+  const profileCompleteness = getEmployerProfileCompleteness(user);
   const {
     profilePhotoUrl,
     setProfilePhotoUrl,
@@ -109,10 +102,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     mb: "",
     streetName: "",
     streetNumber: "",
-    city: "",
     postalCode: "",
-    country: "",
-    region: "",
+    countryCode: "RS",
+    regionCode: "",
+    cityCode: "",
   });
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
   const [isDeletingLocation, setIsDeletingLocation] = useState(false);
@@ -129,10 +122,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
     mb: user.mb ?? "",
     streetName: "",
     streetNumber: "",
-    city: "",
     postalCode: "",
-    country: "",
-    region: "",
+    countryCode: "RS",
+    regionCode: "",
+    cityCode: "",
   });
 
   const subscription = user.subscription;
@@ -145,7 +138,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
   const planExpiry =
     subscription?.subscriptionStop && subscription.isActive
       ? t("profile.employerManage.expiresOn", {
-          date: new Date(subscription.subscriptionStop).toLocaleDateString(),
+          date: formatDisplayDate(subscription.subscriptionStop),
         })
       : null;
   const walletLabel = `${walletBalance.toLocaleString()} RSD`;
@@ -171,18 +164,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
 
   useEffect(() => {
     setProfileForm(buildEmployerProfileForm(user));
-  }, [
-    user.name,
-    user.phoneNumber,
-    user.pib,
-    user.mb,
-    user.address?.street?.name,
-    user.address?.street?.number,
-    user.address?.city?.name,
-    user.address?.city?.postalCode,
-    user.address?.city?.country,
-    user.address?.city?.region,
-  ]);
+  }, [user]);
 
   useEffect(() => {
     const state = location.state as { editProfile?: boolean } | null;
@@ -279,10 +261,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       mb: location.mb,
       streetName: location.streetName,
       streetNumber: location.streetNumber,
-      city: location.city,
       postalCode: location.postalCode,
-      country: location.country,
-      region: location.region,
+      countryCode: location.countryCode || "RS",
+      regionCode: location.regionCode,
+      cityCode: location.cityCode,
     });
     requestAnimationFrame(() => {
       branchCardRefs.current[location.id]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -362,10 +344,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         mb: profileForm.mb.trim(),
         streetName: profileForm.streetName.trim(),
         streetNumber: profileForm.streetNumber.trim(),
-        city: profileForm.city.trim(),
         postalCode: profileForm.postalCode.trim(),
-        country: profileForm.country.trim(),
-        region: profileForm.region.trim(),
+        countryCode: profileForm.countryCode,
+        regionCode: profileForm.regionCode,
+        cityCode: profileForm.cityCode,
       });
       toast.success(t("profile.profileUpdated"));
       setIsEditingProfile(false);
@@ -399,10 +381,10 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         mb: user.mb ?? "",
         streetName: "",
         streetNumber: "",
-        city: "",
         postalCode: "",
-        country: "",
-        region: "",
+        countryCode: "RS",
+        regionCode: "",
+        cityCode: "",
       });
       setShowBranchForm(false);
       toast.success(t("profile.branchAdded"));
@@ -467,36 +449,27 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           onChange={(event) => setProfileForm((previous) => ({ ...previous, streetNumber: event.target.value }))}
         />
       </label>
-      <label className={styles.profileField}>
-        <span className={styles.infoLabel}>{t("registration.city")}</span>
-        <input
-          className={styles.input}
-          value={profileForm.city}
-          onChange={(event) => setProfileForm((previous) => ({ ...previous, city: event.target.value }))}
-        />
-      </label>
+      <GeographySelects
+        idPrefix="employer-profile"
+        className={styles.profileField}
+        labelClassName={styles.infoLabel}
+        selectClassName={styles.input}
+        disabled={isProfileSaving}
+        value={{
+          countryCode: profileForm.countryCode,
+          regionCode: profileForm.regionCode,
+          cityCode: profileForm.cityCode,
+        }}
+        onChange={(selection) =>
+          setProfileForm((previous) => ({ ...previous, ...selection }))
+        }
+      />
       <label className={styles.profileField}>
         <span className={styles.infoLabel}>{t("registration.postalCode")}</span>
         <input
           className={styles.input}
           value={profileForm.postalCode}
           onChange={(event) => setProfileForm((previous) => ({ ...previous, postalCode: event.target.value }))}
-        />
-      </label>
-      <label className={styles.profileField}>
-        <span className={styles.infoLabel}>{t("registration.country")}</span>
-        <input
-          className={styles.input}
-          value={profileForm.country}
-          onChange={(event) => setProfileForm((previous) => ({ ...previous, country: event.target.value }))}
-        />
-      </label>
-      <label className={styles.profileField}>
-        <span className={styles.infoLabel}>{t("registration.region")}</span>
-        <input
-          className={styles.input}
-          value={profileForm.region}
-          onChange={(event) => setProfileForm((previous) => ({ ...previous, region: event.target.value }))}
         />
       </label>
       <div className={styles.profileEditActions}>
@@ -597,10 +570,22 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 <input className={styles.input} placeholder={t("registration.mb")} value={branchEditForm.mb} onChange={(e) => handleBranchEditFieldChange("mb", e.target.value)} />
                 <input className={styles.input} placeholder={t("registration.streetName")} value={branchEditForm.streetName} onChange={(e) => handleBranchEditFieldChange("streetName", e.target.value)} />
                 <input className={styles.input} placeholder={t("registration.streetNumber")} value={branchEditForm.streetNumber} onChange={(e) => handleBranchEditFieldChange("streetNumber", e.target.value)} />
-                <input className={styles.input} placeholder={t("registration.city")} value={branchEditForm.city} onChange={(e) => handleBranchEditFieldChange("city", e.target.value)} />
+                <GeographySelects
+                  idPrefix={`branch-${location.id}`}
+                  className={styles.profileField}
+                  labelClassName={styles.infoLabel}
+                  selectClassName={styles.input}
+                  disabled={isUpdatingLocation}
+                  value={{
+                    countryCode: branchEditForm.countryCode,
+                    regionCode: branchEditForm.regionCode,
+                    cityCode: branchEditForm.cityCode,
+                  }}
+                  onChange={(selection) =>
+                    setBranchEditForm((previous) => ({ ...previous, ...selection }))
+                  }
+                />
                 <input className={styles.input} placeholder={t("registration.postalCode")} value={branchEditForm.postalCode} onChange={(e) => handleBranchEditFieldChange("postalCode", e.target.value)} />
-                <input className={styles.input} placeholder={t("registration.country")} value={branchEditForm.country} onChange={(e) => handleBranchEditFieldChange("country", e.target.value)} />
-                <input className={styles.input} placeholder={t("registration.region")} value={branchEditForm.region} onChange={(e) => handleBranchEditFieldChange("region", e.target.value)} />
                 <div className={styles.branchFormActions}>
                   <button
                     type="button"
@@ -650,10 +635,22 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
           <input className={styles.input} placeholder={t("registration.mb")} value={newBranch.mb} onChange={(e) => handleBranchFieldChange("mb", e.target.value)} />
           <input className={styles.input} placeholder={t("registration.streetName")} value={newBranch.streetName} onChange={(e) => handleBranchFieldChange("streetName", e.target.value)} />
           <input className={styles.input} placeholder={t("registration.streetNumber")} value={newBranch.streetNumber} onChange={(e) => handleBranchFieldChange("streetNumber", e.target.value)} />
-          <input className={styles.input} placeholder={t("registration.city")} value={newBranch.city} onChange={(e) => handleBranchFieldChange("city", e.target.value)} />
+          <GeographySelects
+            idPrefix="new-branch"
+            className={styles.profileField}
+            labelClassName={styles.infoLabel}
+            selectClassName={styles.input}
+            disabled={isCreatingLocation}
+            value={{
+              countryCode: newBranch.countryCode,
+              regionCode: newBranch.regionCode,
+              cityCode: newBranch.cityCode,
+            }}
+            onChange={(selection) =>
+              setNewBranch((previous) => ({ ...previous, ...selection }))
+            }
+          />
           <input className={styles.input} placeholder={t("registration.postalCode")} value={newBranch.postalCode} onChange={(e) => handleBranchFieldChange("postalCode", e.target.value)} />
-          <input className={styles.input} placeholder={t("registration.country")} value={newBranch.country} onChange={(e) => handleBranchFieldChange("country", e.target.value)} />
-          <input className={styles.input} placeholder={t("registration.region")} value={newBranch.region} onChange={(e) => handleBranchFieldChange("region", e.target.value)} />
           <button
             type="button"
             className={`${styles.button} ${styles.buttonPrimary}`}

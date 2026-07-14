@@ -11,4 +11,7 @@ export interface RestaurantLocation {
     postalCode: string;
     country: string;
     region: string;
+    countryCode: string;
+    regionCode: string;
+    cityCode: string;
 }

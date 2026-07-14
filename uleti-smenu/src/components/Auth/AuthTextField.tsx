@@ -5,6 +5,8 @@ import styles from "./AuthTextField.module.scss";
 type AuthTextFieldProps = {
   label: string;
   error?: string;
+  warning?: string;
+  reserveMessageSpace?: boolean;
   leadingIcon?: ReactNode;
   showPasswordToggle?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>;
@@ -12,6 +14,8 @@ type AuthTextFieldProps = {
 const AuthTextField = ({
   label,
   error,
+  warning,
+  reserveMessageSpace = false,
   leadingIcon,
   showPasswordToggle = false,
   type = "text",
@@ -21,6 +25,8 @@ const AuthTextField = ({
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password" || showPasswordToggle;
   const inputType = isPassword && showPasswordToggle ? (visible ? "text" : "password") : type;
+  const message = error ?? warning;
+  const showMessageSlot = Boolean(message) || reserveMessageSpace;
 
   return (
     <label className={styles.field}>
@@ -45,7 +51,15 @@ const AuthTextField = ({
           </button>
         ) : null}
       </div>
-      {error ? <span className={styles.error}>{error}</span> : null}
+      {showMessageSlot ? (
+        <span
+          className={`${styles.messageSlot} ${error ? styles.error : warning ? styles.warning : ""}`}
+          role={warning && !error ? "status" : undefined}
+          aria-live={warning && !error ? "polite" : undefined}
+        >
+          {message ?? "\u00a0"}
+        </span>
+      ) : null}
     </label>
   );
 };

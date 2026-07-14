@@ -1,3 +1,5 @@
+import { formatDisplayDate } from "./formatDisplayDate";
+
 const isSameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
   left.getMonth() === right.getMonth() &&
@@ -29,18 +31,14 @@ export const formatConversationListTimestamp = (
     return parsed.toLocaleDateString(locale, { weekday: "short" });
   }
 
-  return parsed.toLocaleDateString(locale, { day: "2-digit", month: "2-digit" });
+  return formatDisplayDate(parsed);
 };
 
-export const formatChatDateSeparator = (value: string, locale: string): string => {
+export const formatChatDateSeparator = (value: string): string => {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "";
 
-  return parsed.toLocaleDateString(locale, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatDisplayDate(parsed);
 };
 
 export const formatChatMessageTime = (value: string, locale: string): string =>

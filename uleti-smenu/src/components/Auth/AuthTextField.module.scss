@@ -80,8 +80,18 @@
   height: 1.15rem;
 }
 
+.messageSlot {
+  min-height: 1.2rem;
+  font-size: 0.8rem;
+  line-height: 1.2rem;
+}
+
 .error {
   color: #dc2626;
-  font-size: 0.8rem;
   font-weight: 500;
+}
+
+.warning {
+  color: #b45309;
+  font-weight: 600;
 }

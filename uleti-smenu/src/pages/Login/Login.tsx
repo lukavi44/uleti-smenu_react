@@ -19,6 +19,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
   const { refreshAuthState } = useContext(AuthContext);
 
   const schema = yup.object().shape({
@@ -48,6 +49,21 @@ const LoginPage = () => {
     nextParams.delete("registered");
     setSearchParams(nextParams, { replace: true });
   }, [searchParams, setSearchParams, t]);
+
+  useEffect(() => {
+    const syncCapsLock = (event: KeyboardEvent) => {
+      const next = event.getModifierState("CapsLock");
+      setIsCapsLockOn((previous) => (previous === next ? previous : next));
+    };
+
+    window.addEventListener("keydown", syncCapsLock);
+    window.addEventListener("keyup", syncCapsLock);
+
+    return () => {
+      window.removeEventListener("keydown", syncCapsLock);
+      window.removeEventListener("keyup", syncCapsLock);
+    };
+  }, []);
 
   const onSubmit = async (data: LoginUserDto) => {
     setLoading(true);
@@ -107,7 +123,13 @@ const LoginPage = () => {
               placeholder={t("login.passwordPlaceholder")}
               leadingIcon={<LockClosedIcon />}
               showPasswordToggle
+              reserveMessageSpace
               error={errors.password?.message}
+              warning={isCapsLockOn ? t("login.capsLockWarning") : undefined}
+              onMouseDown={(event) => {
+                const next = event.getModifierState("CapsLock");
+                setIsCapsLockOn((previous) => (previous === next ? previous : next));
+              }}
             />
           )}
         />

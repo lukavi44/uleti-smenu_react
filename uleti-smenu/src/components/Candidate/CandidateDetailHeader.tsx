@@ -9,6 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { getImageUrl } from "../../helpers/getHelperUrl";
 import { formatExperienceYears } from "../../helpers/formatExperienceYears";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
 import styles from "./CandidateDetailHeader.module.scss";
 
@@ -21,12 +22,7 @@ const formatMemberSince = (value?: string) => {
     return null;
   }
 
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return parsed.toLocaleDateString();
+  return formatDisplayDate(value) || null;
 };
 
 const formatLocation = (city?: string, country?: string) => {

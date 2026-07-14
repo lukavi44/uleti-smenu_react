@@ -31,14 +31,6 @@ interface EmployeePublicProfileSectionsProps {
   profile: EmployeePublicProfile;
 }
 
-const formatShiftDate = (value: string) => {
-  const parsedDate = new Date(value);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "-";
-  }
-  return parsedDate.toLocaleDateString();
-};
-
 const ReviewsAccordion = ({
   employeeId,
   reviewSummary,
@@ -231,27 +223,35 @@ const PlatformShiftsAccordion = ({
             <div className={styles.shiftList}>
               {shifts.map((shift) => (
                 <article key={shift.applicationId} className={styles.shiftCard}>
-                  <h4>{shift.jobPostTitle}</h4>
-                  <p className={styles.meta}>
-                    <span>{t("employeeProfile.employer")}:</span> {shift.employerName}
-                  </p>
-                  <p className={styles.meta}>
-                    <span>{t("employeeProfile.position")}:</span> {shift.position}
-                  </p>
-                  <p className={styles.meta}>
-                    <span>{t("employeeProfile.location")}:</span>{" "}
-                    {shift.restaurantLocationName
-                      ? `${shift.restaurantLocationName}${
-                          shift.restaurantLocationCity ? ` (${shift.restaurantLocationCity})` : ""
-                        }`
-                      : "-"}
-                  </p>
-                  <p className={styles.meta}>
-                    <span>{t("employeeProfile.shiftDate")}:</span> {formatShiftDate(shift.startingDate)}
-                  </p>
-                  <p className={styles.meta}>
-                    <span>{t("employeeProfile.salary")}:</span> {shift.salary} RSD
-                  </p>
+                  <div className={styles.shiftMain}>
+                    <div className={styles.shiftBody}>
+                      <h4>{shift.jobPostTitle}</h4>
+                      <p className={styles.meta}>
+                        <span>{t("employeeProfile.employer")}:</span> {shift.employerName}
+                      </p>
+                      <p className={styles.meta}>
+                        <span>{t("employeeProfile.position")}:</span> {shift.position}
+                      </p>
+                      <p className={styles.meta}>
+                        <span>{t("employeeProfile.location")}:</span>{" "}
+                        {shift.restaurantLocationName
+                          ? `${shift.restaurantLocationName}${
+                              shift.restaurantLocationCity ? ` (${shift.restaurantLocationCity})` : ""
+                            }`
+                          : "-"}
+                      </p>
+                      <p className={styles.meta}>
+                        <span>{t("employeeProfile.salary")}:</span> {shift.salary} RSD
+                      </p>
+                    </div>
+
+                    <p className={styles.shiftDate}>
+                      <CalendarDaysIcon className={styles.shiftDateIcon} aria-hidden />
+                      <time dateTime={shift.startingDate}>
+                        {formatDisplayDate(shift.startingDate) || "-"}
+                      </time>
+                    </p>
+                  </div>
                 </article>
               ))}
             </div>

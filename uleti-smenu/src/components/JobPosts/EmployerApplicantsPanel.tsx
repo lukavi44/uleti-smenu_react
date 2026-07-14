@@ -12,6 +12,7 @@ import {
   getApplicationStatusLabel,
 } from "../../helpers/applicationStatus";
 import ConfirmActionDialog from "../Dialog/ConfirmActionDialog";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 
 interface EmployerApplicantsPanelProps {
   jobPostId: string;
@@ -64,13 +65,7 @@ const EmployerApplicantsPanel = ({ jobPostId, variant = "default" }: EmployerApp
     }
   };
 
-  const formatDate = (value: string) => {
-    const parsedDate = new Date(value);
-    if (Number.isNaN(parsedDate.getTime())) {
-      return "-";
-    }
-    return parsedDate.toLocaleString();
-  };
+  const formatDate = (value: string) => formatDisplayDateTime(value) || "-";
 
   const getFinalStatusLabel = (status: string) => {
     if (status === "Accepted") {

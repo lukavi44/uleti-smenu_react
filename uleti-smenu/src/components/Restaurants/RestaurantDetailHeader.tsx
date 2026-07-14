@@ -11,6 +11,7 @@ import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getImageUrl } from "../../helpers/getHelperUrl";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { ReviewSummary } from "../../models/Review.model";
 import styles from "./RestaurantDetailHeader.module.scss";
 
@@ -34,12 +35,7 @@ const formatMemberSince = (value?: string) => {
     return null;
   }
 
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return parsed.toLocaleDateString();
+  return formatDisplayDate(value) || null;
 };
 
 const RestaurantDetailHeader = ({

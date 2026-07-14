@@ -12,6 +12,7 @@ import LoadMoreButton from "../../components/Common/LoadMoreButton";
 import RichReviewList from "../../components/Reviews/RichReviewList";
 import { CANDIDATE_SECTION_PAGE_SIZE, LIST_PAGE_SIZE } from "../../constants/pagination";
 import { mapReviewToRichItem } from "../../helpers/mapReviewPageToRich";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import { useLazyLoadList } from "../../hooks/useLazyLoadList";
 import { EmployerPublicProfile } from "../../models/EmployerPublicProfile.model";
 import { Review } from "../../models/Review.model";
@@ -32,13 +33,7 @@ const formatAddress = (location: EmployerPublicProfile["locations"][number]) => 
   return [street, cityLine, location.country].filter(Boolean).join(", ");
 };
 
-const formatDate = (value: string) => {
-  const parsedDate = new Date(value);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "-";
-  }
-  return parsedDate.toLocaleString();
-};
+const formatDate = (value: string) => formatDisplayDateTime(value) || "-";
 
 const SectionSkeleton = ({ rows = 3 }: { rows?: number }) => (
   <div className={styles.skeletonList} aria-hidden="true">

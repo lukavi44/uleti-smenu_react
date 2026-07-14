@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AdminEmployerListItem } from "../../models/Admin.model";
 import { getAdminEmployers } from "../../services/admin-service";
 import AdminStatusBadge from "../../components/Admin/AdminStatusBadge";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./AdminEmployersPage.module.scss";
 
 const PAGE_SIZE = 10;
@@ -56,7 +57,7 @@ const AdminEmployersPage = () => {
     if (!value) {
       return "—";
     }
-    return new Date(value).toLocaleDateString();
+    return formatDisplayDate(value) || "—";
   };
 
   return (

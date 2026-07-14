@@ -73,7 +73,10 @@ export const getEmployerProfileCompleteness = (
     !hasText(parts.cityName) ||
     !hasText(parts.postalCode) ||
     !hasText(parts.country) ||
-    !hasText(parts.region);
+    !hasText(parts.region) ||
+    !hasText(employer?.countryCode) ||
+    !hasText(employer?.regionCode) ||
+    !hasText(employer?.cityCode);
 
   const missing = {
     name: nameMissing,

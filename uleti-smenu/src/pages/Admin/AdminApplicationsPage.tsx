@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
 import styles from "../../components/Admin/AdminListPage.module.scss";
 import { getAdminApplications } from "../../services/admin-service";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 
 const AdminApplicationsPage = () => {
   const { t } = useTranslation();
@@ -19,8 +20,6 @@ const AdminApplicationsPage = () => {
     },
     []
   );
-
-  const formatDate = (value: string) => new Date(value).toLocaleDateString();
 
   return (
     <AdminListPage
@@ -63,7 +62,7 @@ const AdminApplicationsPage = () => {
         {
           key: "applied",
           header: t("admin.applications.columns.applied"),
-          render: (item) => formatDate(item.appliedAtUtc),
+          render: (item) => formatDisplayDate(item.appliedAtUtc),
         },
       ]}
       renderMobileCard={(item) => (

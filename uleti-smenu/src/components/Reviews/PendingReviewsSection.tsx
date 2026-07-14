@@ -9,6 +9,7 @@ import StarRatingInput from "./StarRatingInput";
 import styles from "./PendingReviewsSection.module.scss";
 import { LIST_PAGE_SIZE } from "../../constants/pagination";
 import { useClientPagination } from "../../hooks/useClientPagination";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import Pagination from "../Common/Pagination";
 
 const PendingReviewsSection = () => {
@@ -105,7 +106,7 @@ const PendingReviewsSection = () => {
                   </Link>
                 </p>
                 <p className={styles.meta}>
-                  {t("employeeProfile.shiftDate")}: {new Date(pendingReview.shiftDate).toLocaleDateString()}
+                  {t("employeeProfile.shiftDate")}: {formatDisplayDate(pendingReview.shiftDate)}
                 </p>
               </div>
               <button

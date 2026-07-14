@@ -304,7 +304,7 @@ const ConversationChatThread = ({
         <Fragment key={message.id}>
           {showDateSeparator && (
             <div className={styles.dateSeparator}>
-              <span>{formatChatDateSeparator(message.sentAtUtc, i18n.language)}</span>
+              <span>{formatChatDateSeparator(message.sentAtUtc)}</span>
             </div>
           )}
           <div
@@ -343,7 +343,7 @@ const ConversationChatThread = ({
         ) : null}
         <div className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}>
           <span>{message.content}</span>
-          <span className={styles.messageMeta}>{new Date(message.sentAtUtc).toLocaleString()}</span>
+          <span className={styles.messageMeta}>{messageTime}</span>
         </div>
         {isMine ? (
           <ChatContactAvatar name={currentUserName} profilePhoto={currentUserPhoto} size="sm" />

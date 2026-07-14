@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
 import styles from "../../components/Admin/AdminListPage.module.scss";
 import { getAdminBilling } from "../../services/admin-service";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 
 const AdminBillingPage = () => {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ const AdminBillingPage = () => {
     return { items: response.data.items, totalCount: response.data.totalCount };
   }, []);
 
-  const formatDate = (value: string) => new Date(value).toLocaleString();
+  const formatDate = (value: string) => formatDisplayDateTime(value) || "—";
 
   return (
     <AdminListPage

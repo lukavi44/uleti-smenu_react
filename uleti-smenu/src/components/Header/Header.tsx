@@ -18,6 +18,7 @@ import {
 } from "../../services/realtime-service";
 import { UserNotification } from "../../models/Notification.model";
 import { handleNotificationNavigation, isNavigableNotification } from "../../helpers/notificationNavigation";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import { useTranslation } from "react-i18next";
 
 // import ProfileDialog from "../Dialogs/ProfileDialog";
@@ -269,7 +270,7 @@ const Header = () => {
         if (Number.isNaN(parsedDate.getTime())) {
             return "";
         }
-        return parsedDate.toLocaleString();
+        return formatDisplayDateTime(parsedDate);
     }
 
     return (

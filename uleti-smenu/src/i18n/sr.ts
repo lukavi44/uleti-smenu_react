@@ -442,7 +442,8 @@ const sr = {
     noAccount: "Nemaš nalog? Registruj se",
     submit: "Prijavi se",
     email: "Email",
-    password: "Lozinka"
+    password: "Lozinka",
+    capsLockWarning: "Caps Lock je uključen."
   },
   passwordReset: {
     forgotTitle: "Resetovanje lozinke",
@@ -457,6 +458,11 @@ const sr = {
     resetError: "Link je neispravan ili je istekao.",
     invalidLink: "Link za resetovanje nije ispravan.",
     backToLogin: "Nazad na prijavu"
+  },
+  geography: {
+    selectCountry: "Izaberite državu",
+    selectRegion: "Izaberite opštinu",
+    selectCity: "Izaberite naselje"
   },
   registration: {
     employerTitle: "Registracija poslodavca",
