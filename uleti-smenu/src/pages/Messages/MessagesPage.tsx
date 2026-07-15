@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import ConversationChatThread from "../../components/Chat/ConversationChatThread";
 import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import ConversationListPanel from "../../components/Messages/ConversationListPanel";
@@ -10,12 +10,13 @@ import { useChatConversations } from "../../hooks/useChatConversations";
 import { ChatConversationFilter } from "../../services/chat-service";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
 import { useIsEmployerShell } from "../../hooks/useIsEmployerShell";
+import { getChatOtherPartyProfilePath } from "../../helpers/chatOtherPartyProfilePath";
 import { AuthContext } from "../../store/Auth-context";
 import styles from "./MessagesPage.module.scss";
 
 const MessagesPage = () => {
   const { t } = useTranslation();
-  const { authStatus } = useContext(AuthContext);
+  const { authStatus, role } = useContext(AuthContext);
   const isCandidateShell = useIsCandidateShell();
   const isEmployerShell = useIsEmployerShell();
   const isMobile = useMediaQuery("(max-width:1023px)");
@@ -88,6 +89,9 @@ const MessagesPage = () => {
   );
   const selectedContactPhoto = selectedConversation
     ? resolveContactPhoto(selectedConversation)
+    : undefined;
+  const selectedOtherPartyProfilePath = selectedConversation
+    ? getChatOtherPartyProfilePath(selectedConversation, role)
     : undefined;
   const selectedReadOnly = selectedConversation
     ? selectedConversation.isReadOnly || !selectedConversation.canSendMessages
@@ -188,9 +192,24 @@ const MessagesPage = () => {
                       name={selectedConversation.otherPartyName}
                       profilePhoto={selectedContactPhoto}
                       size="md"
+                      to={selectedOtherPartyProfilePath}
+                      ariaLabel={t("messages.viewProfile", {
+                        name: selectedConversation.otherPartyName,
+                      })}
                     />
                     <div>
-                      <h2>{selectedConversation.otherPartyName}</h2>
+                      {selectedOtherPartyProfilePath ? (
+                        <h2>
+                          <Link
+                            to={selectedOtherPartyProfilePath}
+                            className={styles.profileNameLink}
+                          >
+                            {selectedConversation.otherPartyName}
+                          </Link>
+                        </h2>
+                      ) : (
+                        <h2>{selectedConversation.otherPartyName}</h2>
+                      )}
                       <p>{selectedConversation.jobPostTitle}</p>
                       {(selectedConversation.restaurantLocationName ||
                         selectedConversation.restaurantLocationCity) && (
@@ -214,6 +233,7 @@ const MessagesPage = () => {
                   conversationId={selectedConversation.conversationId}
                   otherPartyName={selectedConversation.otherPartyName}
                   otherPartyProfilePhoto={selectedContactPhoto}
+                  otherPartyProfilePath={selectedOtherPartyProfilePath}
                   active
                   readOnly={selectedReadOnly}
                   variant="full"

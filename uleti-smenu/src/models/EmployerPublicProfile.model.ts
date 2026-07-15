@@ -17,6 +17,7 @@ export interface EmployerPublicProfile {
   name: string;
   profilePhoto?: string;
   phoneNumber: string;
+  city?: string;
   isFavourite?: boolean;
   locations: RestaurantLocation[];
   reviewSummary: ReviewSummary;

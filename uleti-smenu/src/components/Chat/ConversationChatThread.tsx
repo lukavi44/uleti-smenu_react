@@ -29,11 +29,17 @@ interface ConversationChatThreadProps {
   variant?: "embedded" | "full" | "mobileFull";
   otherPartyName?: string;
   otherPartyProfilePhoto?: string;
+  otherPartyProfilePath?: string;
   onMessagesChange?: () => void;
 }
 
-const MESSAGE_WINDOW_SIZE = 30;
+const MESSAGE_PAGE_SIZE = 30;
 const NEAR_EDGE_THRESHOLD_PX = 80;
+
+const sortBySentAt = (messages: ChatMessage[]): ChatMessage[] =>
+  [...messages].sort(
+    (first, second) => new Date(first.sentAtUtc).getTime() - new Date(second.sentAtUtc).getTime()
+  );
 
 const mergeMessages = (existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] => {
   const seen = new Set(existing.map((message) => message.id));
@@ -42,12 +48,11 @@ const mergeMessages = (existing: ChatMessage[], incoming: ChatMessage[]): ChatMe
   incoming.forEach((message) => {
     if (!seen.has(message.id)) {
       merged.push(message);
+      seen.add(message.id);
     }
   });
 
-  return merged.sort(
-    (first, second) => new Date(first.sentAtUtc).getTime() - new Date(second.sentAtUtc).getTime()
-  );
+  return sortBySentAt(merged);
 };
 
 const ConversationChatThread = ({
@@ -57,6 +62,7 @@ const ConversationChatThread = ({
   variant = "embedded",
   otherPartyName = "",
   otherPartyProfilePhoto,
+  otherPartyProfilePath,
   onMessagesChange,
 }: ConversationChatThreadProps) => {
   const { t, i18n } = useTranslation();
@@ -69,8 +75,7 @@ const ConversationChatThread = ({
   const [isSending, setIsSending] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const allMessagesRef = useRef<ChatMessage[]>([]);
-  const visibleStartIndexRef = useRef(0);
+  const messagesRef = useRef<ChatMessage[]>([]);
   const isLoadingOlderRef = useRef(false);
   const onMessagesChangeRef = useRef(onMessagesChange);
 
@@ -86,7 +91,6 @@ const ConversationChatThread = ({
   const currentUserPhoto = me?.profilePhoto?.trim() || undefined;
   const isMobileFull = variant === "mobileFull";
   const isFull = variant === "full";
-  const useScrollWindow = isFull || isMobileFull;
   const rootClassName = [
     styles.thread,
     isFull ? styles.threadFull : "",
@@ -94,6 +98,11 @@ const ConversationChatThread = ({
   ]
     .filter(Boolean)
     .join(" ");
+
+  const setVisibleMessages = useCallback((next: ChatMessage[]) => {
+    messagesRef.current = next;
+    setMessages(next);
+  }, []);
 
   const isNearBottom = useCallback((container: HTMLDivElement) => {
     return container.scrollHeight - container.scrollTop - container.clientHeight < NEAR_EDGE_THRESHOLD_PX;
@@ -111,89 +120,53 @@ const ConversationChatThread = ({
     });
   }, []);
 
-  const applyVisibleWindow = useCallback(
-    (startIndex: number, allMessages: ChatMessage[]) => {
-      visibleStartIndexRef.current = startIndex;
-      setHasMoreOlder(startIndex > 0);
-      setMessages(allMessages.slice(startIndex));
-    },
-    []
-  );
+  const markConversationRead = useCallback(async () => {
+    try {
+      await MarkChatConversationRead(conversationId);
+      onMessagesChangeRef.current?.();
+    } catch {
+      // Marking as read is best-effort; ignore failures so the thread still renders.
+    }
+  }, [conversationId]);
 
-  const showLatestWindow = useCallback(
-    (allMessages: ChatMessage[]) => {
-      const startIndex = useScrollWindow
-        ? Math.max(0, allMessages.length - MESSAGE_WINDOW_SIZE)
-        : 0;
-      applyVisibleWindow(startIndex, allMessages);
-    },
-    [applyVisibleWindow, useScrollWindow]
-  );
+  const loadOlderMessages = useCallback(async () => {
+    if (isLoadingOlderRef.current || !hasMoreOlder) {
+      return;
+    }
 
-  const loadOlderMessages = useCallback(() => {
-    if (isLoadingOlderRef.current || !hasMoreOlder || visibleStartIndexRef.current <= 0) {
+    const oldest = messagesRef.current[0];
+    if (!oldest) {
       return;
     }
 
     const container = messagesContainerRef.current;
-    if (!container || container.scrollHeight <= container.clientHeight) {
-      return;
-    }
-
-    const previousScrollHeight = container.scrollHeight;
-    const previousScrollTop = container.scrollTop;
-    const newStart = Math.max(0, visibleStartIndexRef.current - MESSAGE_WINDOW_SIZE);
+    const previousScrollHeight = container?.scrollHeight ?? 0;
+    const previousScrollTop = container?.scrollTop ?? 0;
 
     isLoadingOlderRef.current = true;
     setIsLoadingOlder(true);
 
-    applyVisibleWindow(newStart, allMessagesRef.current);
+    try {
+      const response = await GetChatMessages(conversationId, oldest.sentAtUtc, MESSAGE_PAGE_SIZE);
+      const merged = mergeMessages(messagesRef.current, response.data.items);
+      setVisibleMessages(merged);
+      setHasMoreOlder(response.data.hasMore);
 
-    requestAnimationFrame(() => {
-      const nextContainer = messagesContainerRef.current;
-      if (nextContainer) {
-        const heightDelta = nextContainer.scrollHeight - previousScrollHeight;
-        nextContainer.scrollTop = previousScrollTop + heightDelta;
-      }
-
+      // Preserve the viewport so the list does not jump after prepending.
+      requestAnimationFrame(() => {
+        const nextContainer = messagesContainerRef.current;
+        if (nextContainer) {
+          const heightDelta = nextContainer.scrollHeight - previousScrollHeight;
+          nextContainer.scrollTop = previousScrollTop + heightDelta;
+        }
+      });
+    } catch {
+      // Leave the current messages in place on failure.
+    } finally {
       isLoadingOlderRef.current = false;
       setIsLoadingOlder(false);
-    });
-  }, [applyVisibleWindow, hasMoreOlder]);
-
-  const handleMessagesScroll = useCallback(() => {
-    const container = messagesContainerRef.current;
-    if (!container || !useScrollWindow) {
-      return;
     }
-
-    if (
-      container.scrollTop < NEAR_EDGE_THRESHOLD_PX &&
-      container.scrollHeight > container.clientHeight
-    ) {
-      loadOlderMessages();
-    }
-  }, [loadOlderMessages, useScrollWindow]);
-
-  const appendIncomingMessages = useCallback(
-    (incoming: ChatMessage[], shouldScrollToBottom: boolean) => {
-      allMessagesRef.current = mergeMessages(allMessagesRef.current, incoming);
-
-      if (!useScrollWindow) {
-        setMessages(allMessagesRef.current);
-        if (shouldScrollToBottom) {
-          requestAnimationFrame(() => scrollToBottom("smooth"));
-        }
-        return;
-      }
-
-      if (shouldScrollToBottom) {
-        showLatestWindow(allMessagesRef.current);
-        requestAnimationFrame(() => scrollToBottom("smooth"));
-      }
-    },
-    [scrollToBottom, showLatestWindow, useScrollWindow]
-  );
+  }, [conversationId, hasMoreOlder, setVisibleMessages]);
 
   useEffect(() => {
     if (!active || !conversationId) {
@@ -202,36 +175,35 @@ const ConversationChatThread = ({
 
     let cancelled = false;
 
-    allMessagesRef.current = [];
-    visibleStartIndexRef.current = 0;
+    messagesRef.current = [];
+    isLoadingOlderRef.current = false;
     setMessages([]);
     setHasMoreOlder(false);
+    setIsLoadingOlder(false);
     setLoadError(false);
     setDraftMessage("");
     setIsLoading(true);
 
     const loadInitialMessages = async () => {
       try {
-        const messagesResponse = await GetChatMessages(conversationId);
+        const response = await GetChatMessages(conversationId, undefined, MESSAGE_PAGE_SIZE);
         if (cancelled) {
           return;
         }
 
-        allMessagesRef.current = messagesResponse.data;
-        showLatestWindow(allMessagesRef.current);
+        const initial = sortBySentAt(response.data.items);
+        setVisibleMessages(initial);
+        setHasMoreOlder(response.data.hasMore);
 
-        await MarkChatConversationRead(conversationId);
-        if (cancelled) {
-          return;
-        }
-
-        onMessagesChangeRef.current?.();
-
-        requestAnimationFrame(() => scrollToBottom("auto"));
+        requestAnimationFrame(() => {
+          if (!cancelled) {
+            scrollToBottom("auto");
+          }
+        });
       } catch {
         if (!cancelled) {
           setLoadError(true);
-          allMessagesRef.current = [];
+          messagesRef.current = [];
           setMessages([]);
           setHasMoreOlder(false);
         }
@@ -240,6 +212,11 @@ const ConversationChatThread = ({
           setIsLoading(false);
         }
       }
+
+      // Mark read separately so a failure here never hides the loaded messages.
+      if (!cancelled) {
+        await markConversationRead();
+      }
     };
 
     void loadInitialMessages();
@@ -247,7 +224,7 @@ const ConversationChatThread = ({
     return () => {
       cancelled = true;
     };
-  }, [active, conversationId, scrollToBottom, showLatestWindow]);
+  }, [active, conversationId, markConversationRead, scrollToBottom, setVisibleMessages]);
 
   useEffect(() => {
     if (!active || !conversationId) {
@@ -261,16 +238,39 @@ const ConversationChatThread = ({
         return;
       }
 
+      if (messagesRef.current.some((existing) => existing.id === message.id)) {
+        return;
+      }
+
       const container = messagesContainerRef.current;
       const shouldAutoScroll = container ? isNearBottom(container) : true;
-      appendIncomingMessages([message], shouldAutoScroll);
+      const fromOtherParty = message.senderId !== currentUserId;
+
+      setVisibleMessages(mergeMessages(messagesRef.current, [message]));
+
+      if (shouldAutoScroll) {
+        requestAnimationFrame(() => scrollToBottom("smooth"));
+      }
+
+      // A message received while the conversation is open should clear the badge immediately.
+      if (fromOtherParty) {
+        void markConversationRead();
+      }
     });
 
     return () => {
       unsubscribe();
       void leaveConversation(conversationId);
     };
-  }, [active, appendIncomingMessages, conversationId, isNearBottom]);
+  }, [
+    active,
+    conversationId,
+    currentUserId,
+    isNearBottom,
+    markConversationRead,
+    scrollToBottom,
+    setVisibleMessages,
+  ]);
 
   const handleSend = async (event: FormEvent) => {
     event.preventDefault();
@@ -283,8 +283,9 @@ const ConversationChatThread = ({
     setIsSending(true);
     try {
       const response = await SendChatMessage(conversationId, trimmedMessage);
-      appendIncomingMessages([response.data], true);
+      setVisibleMessages(mergeMessages(messagesRef.current, [response.data]));
       setDraftMessage("");
+      requestAnimationFrame(() => scrollToBottom("smooth"));
       onMessagesChangeRef.current?.();
     } catch {
       setLoadError(true);
@@ -339,6 +340,8 @@ const ConversationChatThread = ({
             name={otherPartyName}
             profilePhoto={otherPartyProfilePhoto}
             size="sm"
+            to={otherPartyProfilePath}
+            ariaLabel={t("messages.viewProfile", { name: otherPartyName })}
           />
         ) : null}
         <div className={`${styles.message} ${isMine ? styles.messageMine : styles.messageOther}`}>
@@ -361,16 +364,24 @@ const ConversationChatThread = ({
 
       {!loadError && !showInitialLoading && (
         <>
-          <div
-            ref={messagesContainerRef}
-            className={styles.messages}
-            onScroll={handleMessagesScroll}
-          >
-            {isLoadingOlder ? (
-              <div className={styles.topLoader} role="status" aria-live="polite">
-                {t("chat.loadingOlder")}
+          <div ref={messagesContainerRef} className={styles.messages}>
+            {(hasMoreOlder || isLoadingOlder) && (
+              <div className={styles.loadOlderRow}>
+                {isLoadingOlder ? (
+                  <span className={styles.topLoader} role="status" aria-live="polite">
+                    {t("chat.loadingOlder")}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.loadOlderButton}
+                    onClick={() => void loadOlderMessages()}
+                  >
+                    {t("chat.loadOlder")}
+                  </button>
+                )}
               </div>
-            ) : null}
+            )}
             {messages.length === 0 && !isLoading && (
               <p className={styles.emptyMessages}>{t("chat.noMessages")}</p>
             )}

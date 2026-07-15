@@ -39,6 +39,7 @@ const normalizePublicProfile = (data: Record<string, unknown>): EmployerPublicPr
   name: String(data.name ?? data.Name ?? ""),
   profilePhoto: (data.profilePhoto ?? data.ProfilePhoto) as string | undefined,
   phoneNumber: String(data.phoneNumber ?? data.PhoneNumber ?? ""),
+  city: String(data.city ?? data.City ?? "").trim() || undefined,
   isFavourite: (data.isFavourite ?? data.IsFavourite) as boolean | undefined,
   locations: (data.locations ?? data.Locations ?? []) as EmployerPublicProfile["locations"],
   reviewSummary: {
@@ -106,7 +107,7 @@ const mapEmployerToDirectoryPreview = (employer: Employer): EmployerDirectoryPre
   publicSlug: employer.publicSlug ?? "",
   name: employer.name,
   profilePhoto: employer.profilePhoto,
-  city: "",
+  city: employer.address?.city?.name?.trim() ?? "",
   reviewSummary: {
     averageRating: 0,
     reviewCount: 0,
@@ -184,6 +185,64 @@ const loadEmployerDirectoryStats = async (
   );
 };
 
+const fillMissingCitiesFromEmployerProfiles = async (
+  items: EmployerDirectoryPreview[],
+  cityFilter?: string
+): Promise<EmployerDirectoryPreview[]> => {
+  const missingCityIds = new Set(
+    items.filter((item) => !item.city?.trim()).map((item) => item.employerId)
+  );
+  if (missingCityIds.size === 0) {
+    return items;
+  }
+
+  try {
+    const employers = await fetchEmployersForDirectoryFallback(cityFilter);
+    const cityByEmployerId = new Map<string, string>();
+
+    for (const employer of employers) {
+      const raw = employer as Employer & {
+        Id?: string;
+        City?: string;
+        city?: string;
+        Address?: { City?: string; city?: string };
+      };
+      const employerId = String(raw.id ?? raw.Id ?? "");
+      if (!employerId) {
+        continue;
+      }
+
+      const addressCity = raw.address?.city;
+      const profileCity =
+        (typeof addressCity === "string"
+          ? addressCity.trim()
+          : addressCity?.name?.trim()) ||
+        String(
+          (raw.Address as { City?: string; city?: string } | undefined)?.City ??
+            (raw.Address as { City?: string; city?: string } | undefined)?.city ??
+            raw.city ??
+            raw.City ??
+            ""
+        ).trim();
+
+      if (profileCity) {
+        cityByEmployerId.set(employerId, profileCity);
+      }
+    }
+
+    return items.map((item) => {
+      if (item.city?.trim()) {
+        return item;
+      }
+
+      const profileCity = cityByEmployerId.get(item.employerId) ?? "";
+      return profileCity ? { ...item, city: profileCity } : item;
+    });
+  } catch {
+    return items;
+  }
+};
+
 const enrichDirectoryFallbackItems = async (
   items: EmployerDirectoryPreview[],
   cityFilter?: string
@@ -192,9 +251,11 @@ const enrichDirectoryFallbackItems = async (
     return items;
   }
 
+  let enriched = await fillMissingCitiesFromEmployerProfiles(items, cityFilter);
+
   try {
     const stats = await loadEmployerDirectoryStats(cityFilter);
-    return items.map((item) => {
+    enriched = enriched.map((item) => {
       const employerStats = stats.get(item.employerId);
       if (!employerStats) {
         return item;
@@ -202,13 +263,15 @@ const enrichDirectoryFallbackItems = async (
 
       return {
         ...item,
-        city: employerStats.city || item.city,
+        city: item.city || employerStats.city,
         activeJobPostsCount: employerStats.activeJobPostsCount,
       };
     });
   } catch {
-    return items;
+    // Keep profile-city enrichment even if job-post stats fail.
   }
+
+  return enriched;
 };
 
 const getEmployerDirectoryPagedFallback = async (
@@ -291,7 +354,12 @@ export const GetEmployerDirectoryPaged = async (
   for (const endpoint of directoryEndpoints) {
     try {
       const response = await axiosInstance.get(endpoint, { params: directoryParams });
-      return normalizeDirectoryPagedResponse(response, params);
+      const normalized = normalizeDirectoryPagedResponse(response, params);
+      normalized.data.items = await fillMissingCitiesFromEmployerProfiles(
+        normalized.data.items,
+        params.city
+      );
+      return normalized;
     } catch (error) {
       if (!axios.isAxiosError(error) || error.response?.status !== 404) {
         throw error;

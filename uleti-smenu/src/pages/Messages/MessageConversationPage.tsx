@@ -1,17 +1,18 @@
 import { useCallback, useContext, useMemo } from "react";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { ArrowLeftIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ConversationChatThread from "../../components/Chat/ConversationChatThread";
 import ChatContactAvatar from "../../components/Chat/ChatContactAvatar";
 import { useChatConversations } from "../../hooks/useChatConversations";
+import { getChatOtherPartyProfilePath } from "../../helpers/chatOtherPartyProfilePath";
 import { AuthContext } from "../../store/Auth-context";
 import styles from "./MessageConversationPage.module.scss";
 
 const MessageConversationPage = () => {
   const { t } = useTranslation();
-  const { authStatus } = useContext(AuthContext);
+  const { authStatus, role } = useContext(AuthContext);
   const { conversationId } = useParams<{ conversationId: string }>();
   const [searchParams] = useSearchParams();
   const tab = searchParams.get("tab");
@@ -80,6 +81,9 @@ const MessageConversationPage = () => {
   }
 
   const contactPhoto = conversation ? resolveContactPhoto(conversation) : undefined;
+  const otherPartyProfilePath = conversation
+    ? getChatOtherPartyProfilePath(conversation, role)
+    : undefined;
   const readOnly = conversation
     ? conversation.isReadOnly || !conversation.canSendMessages
     : false;
@@ -102,9 +106,17 @@ const MessageConversationPage = () => {
               name={conversation.otherPartyName}
               profilePhoto={contactPhoto}
               size="md"
+              to={otherPartyProfilePath}
+              ariaLabel={t("messages.viewProfile", { name: conversation.otherPartyName })}
             />
             <div className={styles.headerText}>
-              <strong>{conversation.otherPartyName}</strong>
+              {otherPartyProfilePath ? (
+                <Link to={otherPartyProfilePath} className={styles.profileNameLink}>
+                  <strong>{conversation.otherPartyName}</strong>
+                </Link>
+              ) : (
+                <strong>{conversation.otherPartyName}</strong>
+              )}
               <span>{conversation.jobPostTitle}</span>
               {(conversation.restaurantLocationName || conversation.restaurantLocationCity) && (
                 <span className={styles.locationLine}>
@@ -151,6 +163,7 @@ const MessageConversationPage = () => {
             conversationId={conversationId}
             otherPartyName={conversation.otherPartyName}
             otherPartyProfilePhoto={contactPhoto}
+            otherPartyProfilePath={otherPartyProfilePath}
             active
             readOnly={readOnly}
             variant="mobileFull"

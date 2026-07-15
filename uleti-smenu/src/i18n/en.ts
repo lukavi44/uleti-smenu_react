@@ -460,7 +460,7 @@ const en = {
   },
   geography: {
     selectCountry: "Select a country",
-    selectRegion: "Select a region",
+    selectRegion: "Select a municipality",
     selectCity: "Select a city"
   },
   registration: {
@@ -516,7 +516,7 @@ const en = {
     cityRequired: "City is required",
     postalCodeRequired: "Postal code is required",
     countryRequired: "Country is required",
-    regionRequired: "Region is required",
+    regionRequired: "Municipality is required",
     firstNameRequired: "First name is required",
     lastNameRequired: "Last name is required",
     success: "Please check your email to confirm registration.",
@@ -535,7 +535,7 @@ const en = {
     city: "City",
     postalCode: "Postal Code",
     country: "Country",
-    region: "Region",
+    region: "Municipality",
     firstName: "First Name",
     lastName: "Last Name"
   },
@@ -893,6 +893,7 @@ const en = {
     hideChat: "Hide chat",
     loading: "Loading chat...",
     loadingOlder: "Loading older messages...",
+    loadOlder: "Load older messages",
     loadError: "Unable to load chat.",
     noMessages: "No messages yet. Start the conversation.",
     messagePlaceholder: "Write a message...",
@@ -1056,7 +1057,8 @@ const en = {
     tabActive: "Active",
     tabArchived: "Archived",
     noArchivedConversations: "No archived conversations.",
-    archivedBadge: "Archived"
+    archivedBadge: "Archived",
+    viewProfile: "View {{name}} profile"
   },
   applicants: {
     panelTitle: "Candidates for post",

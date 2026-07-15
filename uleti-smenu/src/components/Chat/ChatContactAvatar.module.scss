@@ -6,6 +6,26 @@
   background: #e2e8f0;
 }
 
+.avatarLink {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 999px;
+  line-height: 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.avatarLink:hover .avatar,
+.avatarLink:hover .fallback {
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+.avatarLink:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .md {
   width: 2.5rem;
   height: 2.5rem;

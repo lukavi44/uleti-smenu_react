@@ -462,7 +462,7 @@ const sr = {
   geography: {
     selectCountry: "Izaberite državu",
     selectRegion: "Izaberite opštinu",
-    selectCity: "Izaberite naselje"
+    selectCity: "Izaberite grad"
   },
   registration: {
     employerTitle: "Registracija poslodavca",
@@ -517,7 +517,7 @@ const sr = {
     cityRequired: "Grad je obavezan",
     postalCodeRequired: "Poštanski broj je obavezan",
     countryRequired: "Država je obavezna",
-    regionRequired: "Region je obavezan",
+    regionRequired: "Opština je obavezna",
     firstNameRequired: "Ime je obavezno",
     lastNameRequired: "Prezime je obavezno",
     success: "Proveri email radi potvrde registracije.",
@@ -536,7 +536,7 @@ const sr = {
     city: "Grad",
     postalCode: "Poštanski broj",
     country: "Država",
-    region: "Region",
+    region: "Opština",
     firstName: "Ime",
     lastName: "Prezime"
   },
@@ -896,6 +896,7 @@ const sr = {
     hideChat: "Sakrij chat",
     loading: "Učitavanje chata...",
     loadingOlder: "Učitavanje starijih poruka...",
+    loadOlder: "Učitaj više",
     loadError: "Chat nije mogao da se učita.",
     noMessages: "Još nema poruka. Započnite razgovor.",
     messagePlaceholder: "Napišite poruku...",
@@ -1059,7 +1060,8 @@ const sr = {
     tabActive: "Aktivni",
     tabArchived: "Arhivirani",
     noArchivedConversations: "Nema arhiviranih razgovora.",
-    archivedBadge: "Arhivirano"
+    archivedBadge: "Arhivirano",
+    viewProfile: "Pogledaj profil: {{name}}"
   },
   applicants: {
     panelTitle: "Kandidati za oglas",

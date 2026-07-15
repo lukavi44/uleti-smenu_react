@@ -16,8 +16,12 @@ import { AuthContext } from "../../store/Auth-context";
 import EmployerPublicProfileSections from "./EmployerPublicProfileSections";
 import styles from "./EmployerPublicProfilePage.module.scss";
 
-const getProfileCity = (locations: EmployerPublicProfile["locations"]) => {
-  const cities = locations
+const getProfileCity = (profile: EmployerPublicProfile) => {
+  if (profile.city?.trim()) {
+    return profile.city.trim();
+  }
+
+  const cities = profile.locations
     .map((location) => location.city?.trim())
     .filter((city): city is string => Boolean(city));
   return [...new Set(cities)].join(", ") || undefined;
@@ -204,7 +208,7 @@ const EmployerPublicProfilePage = () => {
           <RestaurantDetailHeader
             name={profile.name}
             profilePhoto={profile.profilePhoto}
-            city={getProfileCity(profile.locations)}
+            city={getProfileCity(profile)}
             reviewSummary={profile.reviewSummary}
             activeJobPostsCount={profile.activeJobPosts.length}
             locationsCount={profile.locations.length}

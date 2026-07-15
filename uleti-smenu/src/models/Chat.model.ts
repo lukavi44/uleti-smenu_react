@@ -10,6 +10,7 @@ export interface ChatConversation {
   otherPartyName: string;
   otherPartyId?: string;
   otherPartyProfilePhoto?: string;
+  otherPartyPublicSlug?: string;
   lastMessagePreview?: string;
   lastMessageAtUtc?: string;
   unreadCount: number;
@@ -23,4 +24,9 @@ export interface ChatMessage {
   senderId: string;
   content: string;
   sentAtUtc: string;
+}
+
+export interface ChatMessagePage {
+  items: ChatMessage[];
+  hasMore: boolean;
 }

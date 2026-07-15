@@ -1,8 +1,7 @@
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { ReactNode, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../../store/Auth-context";
-import { GetMyUnreadChatCount } from "../../../services/chat-service";
-import { subscribeChatUnreadCount, startRealtimeConnection } from "../../../services/realtime-service";
+import { useUnreadChatCount } from "../../../hooks/useUnreadChatCount";
 import { isEmployerCandidateDetailPath } from "../../../helpers/candidateRoutes";
 import { isChatDetailPath } from "../../../helpers/chatRoutes";
 import { isEmployerJobPostDetailPath } from "../../../helpers/jobPostRoutes";
@@ -18,7 +17,7 @@ type EmployerLayoutProps = {
 const EmployerLayout = ({ children }: EmployerLayoutProps) => {
   const location = useLocation();
   const { logout } = useContext(AuthContext);
-  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const unreadChatCount = useUnreadChatCount();
   const isDashboard = location.pathname === "/";
   const isChatDetail = isChatDetailPath(location.pathname);
   const isCandidateDetail = isEmployerCandidateDetailPath(location.pathname);
@@ -26,27 +25,10 @@ const EmployerLayout = ({ children }: EmployerLayoutProps) => {
   const isMessagesList = location.pathname === "/messages";
   const isJobPostsList = location.pathname === "/oglasi-za-posao";
 
-  useEffect(() => {
-    void startRealtimeConnection();
-
-    const loadUnread = async () => {
-      try {
-        const response = await GetMyUnreadChatCount();
-        setUnreadChatCount(response.data.count);
-      } catch {
-        setUnreadChatCount(0);
-      }
-    };
-
-    void loadUnread();
-    const unsubscribe = subscribeChatUnreadCount((count) => setUnreadChatCount(count));
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const isChatSurface = isMessagesList || isChatDetail;
 
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${isChatSurface ? styles.shellChat : ""}`}>
       <EmployerSidebar unreadChatCount={unreadChatCount} onLogout={() => void logout()} />
       <div className={styles.contentColumn}>
         <main

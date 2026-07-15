@@ -63,6 +63,17 @@
   text-overflow: ellipsis;
 }
 
+.profileNameLink {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.profileNameLink:hover strong {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
 .headerText > span:not(.status) {
   color: #64748b;
   font-size: 0.8rem;
