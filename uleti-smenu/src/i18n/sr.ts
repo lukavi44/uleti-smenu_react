@@ -1033,14 +1033,16 @@ const sr = {
     viewAllReviews: "Pogledaj sve recenzije",
     city: "Grad",
     memberSince: "Član od {{date}}.",
+    verifiedEmployerBadge: "✔ Verifikovan poslodavac",
+    verifiedEmployerTooltip: "Ovaj poslodavac je ručno verifikovan od strane UletiSmenu tima.",
     statAverageRating: "Prosečna ocena",
     statReviewCount: "Recenzije",
+    statSuccessfulHires: "Uspešno angažovani kandidati",
     statActiveJobPosts: "Aktivni oglasi",
     statLocations: "Lokacije",
     reviewsAboutRestaurant: "Recenzije o restoranu",
     aboutRestaurant: "O restoranu",
-    aboutDescription: "Prijavite se na aktivne oglase da biste stupili u kontakt sa ovim restoranom. Kontakt podaci se dele nakon što vaša prijava bude prihvaćena.",
-    contactPhone: "Telefon"
+    aboutDescription: "Prijavite se na aktivne oglase. Nakon prihvatanja prijave, komunikacija sa poslodavcem odvija se isključivo putem UletiSmenu chata."
   },
   messages: {
     title: "Poruke",

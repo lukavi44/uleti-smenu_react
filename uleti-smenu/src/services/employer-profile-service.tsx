@@ -38,8 +38,9 @@ const normalizePublicProfile = (data: Record<string, unknown>): EmployerPublicPr
   publicSlug: String(data.publicSlug ?? data.PublicSlug ?? ""),
   name: String(data.name ?? data.Name ?? ""),
   profilePhoto: (data.profilePhoto ?? data.ProfilePhoto) as string | undefined,
-  phoneNumber: String(data.phoneNumber ?? data.PhoneNumber ?? ""),
   city: String(data.city ?? data.City ?? "").trim() || undefined,
+  isVerifiedEmployer: Boolean(data.isVerifiedEmployer ?? data.IsVerifiedEmployer ?? false),
+  successfulHiresCount: Number(data.successfulHiresCount ?? data.SuccessfulHiresCount ?? 0),
   isFavourite: (data.isFavourite ?? data.IsFavourite) as boolean | undefined,
   locations: (data.locations ?? data.Locations ?? []) as EmployerPublicProfile["locations"],
   reviewSummary: {
@@ -212,11 +213,8 @@ const fillMissingCitiesFromEmployerProfiles = async (
         continue;
       }
 
-      const addressCity = raw.address?.city;
       const profileCity =
-        (typeof addressCity === "string"
-          ? addressCity.trim()
-          : addressCity?.name?.trim()) ||
+        raw.address?.city?.name?.trim() ||
         String(
           (raw.Address as { City?: string; city?: string } | undefined)?.City ??
             (raw.Address as { City?: string; city?: string } | undefined)?.city ??

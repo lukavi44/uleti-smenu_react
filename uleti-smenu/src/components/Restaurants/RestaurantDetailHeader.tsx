@@ -2,10 +2,9 @@ import {
   BriefcaseIcon,
   BuildingStorefrontIcon,
   CalendarDaysIcon,
-  ChatBubbleLeftRightIcon,
-  CheckBadgeIcon,
   MapPinIcon,
   StarIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
@@ -24,6 +23,7 @@ interface RestaurantDetailHeaderProps {
   reviewSummary: ReviewSummary;
   activeJobPostsCount: number;
   locationsCount: number;
+  successfulHiresCount?: number;
   reviewsHref?: string;
   isFavourite?: boolean;
   favouriteInProgress?: boolean;
@@ -47,6 +47,7 @@ const RestaurantDetailHeader = ({
   reviewSummary,
   activeJobPostsCount,
   locationsCount,
+  successfulHiresCount,
   reviewsHref,
   isFavourite = false,
   favouriteInProgress = false,
@@ -59,10 +60,7 @@ const RestaurantDetailHeader = ({
     reviewSummary.reviewCount > 0
       ? reviewSummary.averageRating.toFixed(1)
       : t("employeeProfile.experienceUnavailable");
-  const reviewCountLabel =
-    reviewSummary.reviewCount > 0
-      ? String(reviewSummary.reviewCount)
-      : t("employeeProfile.experienceUnavailable");
+  const showSuccessfulHires = successfulHiresCount !== undefined;
 
   const favouriteButton = showFavourite ? (
     <button
@@ -94,7 +92,12 @@ const RestaurantDetailHeader = ({
           <div className={styles.nameRow}>
             <h1 className={styles.name}>{name}</h1>
             {isVerified ? (
-              <CheckBadgeIcon className={styles.verifiedIcon} aria-hidden="true" />
+              <span
+                className={styles.verifiedBadge}
+                title={t("employerProfile.verifiedEmployerTooltip")}
+              >
+                {t("employerProfile.verifiedEmployerBadge")}
+              </span>
             ) : null}
             {showFavourite ? <span className={styles.favouriteMobile}>{favouriteButton}</span> : null}
           </div>
@@ -139,12 +142,22 @@ const RestaurantDetailHeader = ({
         </article>
 
         <article className={styles.statCard}>
-          <ChatBubbleLeftRightIcon
+          <UserGroupIcon
             className={`${styles.statIcon} ${styles.statIconBlue}`}
             aria-hidden="true"
           />
-          <strong className={styles.statValue}>{reviewCountLabel}</strong>
-          <span className={styles.statLabel}>{t("employerProfile.statReviewCount")}</span>
+          <strong className={styles.statValue}>
+            {showSuccessfulHires
+              ? successfulHiresCount
+              : reviewSummary.reviewCount > 0
+                ? reviewSummary.reviewCount
+                : t("employeeProfile.experienceUnavailable")}
+          </strong>
+          <span className={styles.statLabel}>
+            {showSuccessfulHires
+              ? t("employerProfile.statSuccessfulHires")
+              : t("employerProfile.statReviewCount")}
+          </span>
         </article>
 
         <article className={styles.statCard}>

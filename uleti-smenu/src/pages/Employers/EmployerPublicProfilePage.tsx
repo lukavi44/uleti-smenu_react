@@ -209,9 +209,11 @@ const EmployerPublicProfilePage = () => {
             name={profile.name}
             profilePhoto={profile.profilePhoto}
             city={getProfileCity(profile)}
+            isVerified={profile.isVerifiedEmployer}
             reviewSummary={profile.reviewSummary}
             activeJobPostsCount={profile.activeJobPosts.length}
             locationsCount={profile.locations.length}
+            successfulHiresCount={profile.successfulHiresCount}
             reviewsHref={reviewsHref}
             isFavourite={profile.isFavourite}
             favouriteInProgress={favouriteInProgress}

@@ -1030,14 +1030,16 @@ const en = {
     viewAllReviews: "View all reviews",
     city: "City",
     memberSince: "Member since {{date}}.",
+    verifiedEmployerBadge: "✔ Verified employer",
+    verifiedEmployerTooltip: "This employer was manually verified by the UletiSmenu team.",
     statAverageRating: "Average rating",
     statReviewCount: "Reviews",
+    statSuccessfulHires: "Successfully hired candidates",
     statActiveJobPosts: "Active posts",
     statLocations: "Locations",
     reviewsAboutRestaurant: "Reviews about restaurant",
     aboutRestaurant: "About restaurant",
-    aboutDescription: "Apply to active job posts to connect with this restaurant. Contact details are shared after your application is accepted.",
-    contactPhone: "Phone"
+    aboutDescription: "Apply to active job posts. After your application is accepted, communicate with the employer only through UletiSmenu chat."
   },
   messages: {
     title: "Messages",

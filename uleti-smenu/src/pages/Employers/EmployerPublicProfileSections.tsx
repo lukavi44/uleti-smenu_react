@@ -62,9 +62,6 @@ const LocationsAccordion = ({ profile }: { profile: EmployerPublicProfile }) => 
           {profile.locations.map((location) => (
             <article key={location.id} className={styles.locationCard}>
               <h3>{location.name}</h3>
-              {location.phoneNumber ? (
-                <p className={styles.meta}>{location.phoneNumber}</p>
-              ) : null}
               <p className={styles.jobMeta}>{formatAddress(location)}</p>
             </article>
           ))}
@@ -253,7 +250,7 @@ const ReviewsAccordion = ({
   );
 };
 
-const AboutAccordion = ({ profile }: { profile: EmployerPublicProfile }) => {
+const AboutAccordion = () => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -265,12 +262,6 @@ const AboutAccordion = ({ profile }: { profile: EmployerPublicProfile }) => {
       onOpenChange={setIsOpen}
     >
       <div className={styles.aboutContent}>
-        {profile.phoneNumber ? (
-          <p className={styles.aboutRow}>
-            <span>{t("employerProfile.contactPhone")}</span>
-            <strong>{profile.phoneNumber}</strong>
-          </p>
-        ) : null}
         <p className={styles.aboutDescription}>{t("employerProfile.aboutDescription")}</p>
       </div>
     </CandidateProfileAccordion>
@@ -298,7 +289,7 @@ const EmployerPublicProfileSections = ({
       reviewCount={profile.reviewSummary.reviewCount}
       averageRating={profile.reviewSummary.averageRating}
     />
-    <AboutAccordion profile={profile} />
+    <AboutAccordion />
   </div>
 );
 

@@ -16,8 +16,9 @@ export interface EmployerPublicProfile {
   publicSlug: string;
   name: string;
   profilePhoto?: string;
-  phoneNumber: string;
   city?: string;
+  isVerifiedEmployer: boolean;
+  successfulHiresCount: number;
   isFavourite?: boolean;
   locations: RestaurantLocation[];
   reviewSummary: ReviewSummary;
