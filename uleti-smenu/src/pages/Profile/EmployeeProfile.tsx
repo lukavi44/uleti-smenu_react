@@ -417,10 +417,6 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
   return (
     <div className={`${styles.page} ${isCandidateShell ? styles.pageShell : ""}`}>
       <div className={styles.mobileShell}>
-        <div className={styles.mobileTopBar}>
-          <h2 className={styles.mobilePageTitle}>{t("candidate.profileTitle")}</h2>
-        </div>
-
         <div className={styles.mobileProfileBlock}>
           <div className={styles.mobileAvatarWrap}>
             <ProfileAvatarPicker

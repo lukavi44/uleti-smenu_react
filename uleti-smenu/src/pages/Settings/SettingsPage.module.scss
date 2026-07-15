@@ -1,0 +1,237 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.card {
+  position: relative;
+  padding: 1.25rem;
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.sectionHeading,
+.settingInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.sectionHeading h2,
+.settingInfo h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sectionHeading p,
+.settingInfo p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.sectionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.sectionIcon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.passwordForm {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+}
+
+.passwordForm label {
+  display: grid;
+  gap: 0.4rem;
+  color: #334155;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.passwordForm input {
+  width: 100%;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.passwordForm input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.formHint {
+  margin: -0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  justify-self: start;
+  border: 0;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.primaryButton:disabled,
+.dangerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.languageSelect {
+  flex-shrink: 0;
+  min-width: 7rem;
+  padding: 0.55rem 1.8rem 0.55rem 0.7rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.secondaryButton {
+  flex-shrink: 0;
+  border: 1px solid #dbe3ef;
+  background: #ffffff;
+  color: #334155;
+}
+
+.secondaryButton:hover {
+  background: #f8fafc;
+}
+
+.comingSoonCard {
+  padding-top: 2.5rem;
+}
+
+.comingSoonBadge {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.unavailableOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0 3.1rem;
+}
+
+.unavailableOptions span {
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.dangerCard {
+  padding-top: 2.5rem;
+  border-color: #fecaca;
+  background: #fffafa;
+}
+
+.dangerIcon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.dangerButton {
+  margin: 1rem 0 0 3.1rem;
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #b91c1c;
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 1rem;
+  }
+
+  .comingSoonCard,
+  .dangerCard {
+    padding-top: 2.5rem;
+  }
+
+  .settingRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .languageSelect,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .unavailableOptions,
+  .dangerButton {
+    margin-left: 0;
+  }
+
+  .dangerButton {
+    width: 100%;
+  }
+}

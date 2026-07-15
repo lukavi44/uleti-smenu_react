@@ -44,6 +44,7 @@ import AdminApplicationsPage from "./pages/Admin/AdminApplicationsPage";
 import AdminBillingPage from "./pages/Admin/AdminBillingPage";
 import AdminReportsPage from "./pages/Admin/AdminReportsPage";
 import AdminSettingsPage from "./pages/Admin/AdminSettingsPage";
+import SettingsPage from "./pages/Settings/SettingsPage";
 
 function App() {
   return (
@@ -98,6 +99,7 @@ function App() {
               <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
               <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
               <Route path="profile" element={<ProfilePage/>}/>
+              <Route path="settings" element={<SettingsPage/>}/>
               <Route path="billing/upgrade" element={<UpgradePage/>}/>
             </Route>
             <Route element={<RequireAdmin />}>

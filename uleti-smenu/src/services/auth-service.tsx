@@ -43,3 +43,10 @@ export const RegistrationEmployerRequest = async (
   ): Promise<AxiosResponse<{ message: string }>> => {
     return axiosInstance.post("/api/v1/User/reset-password", { email, token, password });
   };
+
+  export const ChangePasswordRequest = async (
+    oldPassword: string,
+    newPassword: string
+  ): Promise<AxiosResponse> => {
+    return axiosInstance.post("/manage/info", { oldPassword, newPassword });
+  };

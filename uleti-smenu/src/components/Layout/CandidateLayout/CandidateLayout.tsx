@@ -33,7 +33,12 @@ const CandidateLayout = ({ children }: CandidateLayoutProps) => {
           {children}
         </main>
       </div>
-      {!isChatDetail ? <CandidateMobileNav unreadChatCount={unreadChatCount} /> : null}
+      {!isChatDetail ? (
+        <CandidateMobileNav
+          unreadChatCount={unreadChatCount}
+          onLogout={() => void logout()}
+        />
+      ) : null}
     </div>
   );
 };
