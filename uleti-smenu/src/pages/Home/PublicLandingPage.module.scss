@@ -1,11 +1,18 @@
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: clamp(560px, 82vh, 780px);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 3.5rem 1.5rem 3rem;
   color: #0f172a;
+}
+
+/* Tall hero only when bottom nav is hidden (desktop shell). */
+@media (min-width: 1024px) {
+  .hero {
+    min-height: clamp(560px, 82vh, 780px);
+    align-items: center;
+  }
 }
 
 .heroBackdrop {
@@ -373,7 +380,6 @@
 
 @media (max-width: 768px) {
   .hero {
-    min-height: auto;
     padding: 2.5rem 1rem 2rem;
   }
 

@@ -72,14 +72,16 @@
   font-size: 0.86rem;
   font-weight: 600;
   color: #64748b;
+  order: 2;
 }
 
 .value {
   margin: 0;
-  font-size: clamp(1.65rem, 2.5vw, 2rem);
-  font-weight: 700;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  font-weight: 800;
   color: #0f172a;
   line-height: 1.1;
+  order: 1;
 }
 
 .hint {
@@ -87,6 +89,7 @@
   font-size: 0.8rem;
   color: #64748b;
   line-height: 1.35;
+  order: 3;
 }
 
 .ctaCard {

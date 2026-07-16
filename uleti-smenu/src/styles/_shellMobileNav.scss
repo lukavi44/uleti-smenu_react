@@ -25,13 +25,20 @@
   flex-direction: column;
   align-items: center;
   gap: 0.15rem;
-  padding: 0.35rem 0.15rem;
+  margin: 0 0.12rem;
+  padding: 0.4rem 0.35rem;
+  border-radius: 12px;
   font-size: 0.68rem;
   font-weight: 600;
+  transition: background-color 0.16s ease;
 }
 
 .navItemActive {
   color: #2563eb;
+}
+
+.navItemActive .navItemInner {
+  background: #eff6ff;
 }
 
 .navIcon {

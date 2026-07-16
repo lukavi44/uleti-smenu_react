@@ -32,7 +32,9 @@ const HomePage = () => {
     return <Navigate to="/admin" replace />;
   }
 
-  if (authStatus === "unauthenticated") {
+  // Avoid mounting JobPosts (100vh) while auth is still resolving — that
+  // created a huge blank band on slow staging/Render loads.
+  if (authStatus !== "authenticated") {
     return <PublicLandingPage />;
   }
 
