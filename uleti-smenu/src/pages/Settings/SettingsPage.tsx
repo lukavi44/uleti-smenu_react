@@ -30,7 +30,13 @@ const SettingsPage = () => {
       return;
     }
 
-    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+    if (
+      newPassword.length < 10 ||
+      !/[A-Z]/.test(newPassword) ||
+      !/[a-z]/.test(newPassword) ||
+      !/\d/.test(newPassword) ||
+      !/[^A-Za-z0-9]/.test(newPassword)
+    ) {
       toast.error(t("settings.passwordRequirements"));
       return;
     }

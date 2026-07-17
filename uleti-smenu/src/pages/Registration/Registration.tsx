@@ -30,9 +30,11 @@ const RegistrationPage = ({ userType }: RegistrationFormProps) => {
     email: yup.string().email(t("registration.invalidEmail")).required(t("registration.emailRequired")),
     password: yup
       .string()
-      .min(8, t("registration.passwordMin"))
+      .min(10, t("registration.passwordMin"))
       .matches(/[^a-zA-Z0-9]/, t("registration.passwordSpecial"))
       .matches(/[A-Z]/, t("registration.passwordUpper"))
+      .matches(/[a-z]/, t("registration.passwordLower"))
+      .matches(/[0-9]/, t("registration.passwordDigit"))
       .required(t("registration.passwordRequired")),
     confirmPassword: yup
       .string()
