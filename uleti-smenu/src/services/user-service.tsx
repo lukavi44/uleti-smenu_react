@@ -79,7 +79,7 @@ const normalizeEmployer = (data: Record<string, unknown>): Employer => {
 };
 
 export const GetAllEmployers = async (city?: string): Promise<AxiosResponse<Employer[]>> => {
-    return axiosInstance.get<Employer[]>("/api/v1/User/role/employer", {
+    return axiosInstance.get<Employer[]>("/api/v1/User/employers/list", {
         params: city ? { city } : undefined,
     });
 };
