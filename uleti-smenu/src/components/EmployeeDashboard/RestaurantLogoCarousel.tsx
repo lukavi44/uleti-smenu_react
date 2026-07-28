@@ -3,7 +3,7 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../Common/UserAvatar";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { PatchClientFavorite } from "../../services/user-service";
 import styles from "./RestaurantLogoCarousel.module.scss";
@@ -63,9 +63,9 @@ const RestaurantLogoCarousel = ({ restaurants, onFavouriteChange }: RestaurantLo
             aria-label={restaurant.name}
             title={restaurant.name}
           >
-            <img
-              src={getImageUrl(restaurant.profilePhoto)}
-              alt={restaurant.name}
+            <UserAvatar
+              name={restaurant.name}
+              profilePhoto={restaurant.profilePhoto}
               className={styles.logo}
             />
             <button

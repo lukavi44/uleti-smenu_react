@@ -18,7 +18,8 @@ const sr = {
     next: "Sledeće",
     back: "Nazad",
     loadingMore: "Učitavanje...",
-    loadedOf: "Prikazano {{visible}} od {{total}}"
+    loadedOf: "Prikazano {{visible}} od {{total}}",
+    phonePlaceholder: "+381 60 123 4567"
   },
   publicBrowse: {
     guestProfileBanner: "Prijavite se da vidite lokacije, kontakt podatke i prijavite se na smene.",

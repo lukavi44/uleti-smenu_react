@@ -24,7 +24,7 @@ import PendingReviewsSection from "../../components/Reviews/PendingReviewsSectio
 import ReceivedReviewsSection from "../../components/Reviews/ReceivedReviewsSection";
 import { FAVOURITE_RESTAURANTS_PAGE_SIZE } from "../../constants/pagination";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../../components/Common/UserAvatar";
 import { getRatingQualityLabel } from "../../helpers/ratingQualityLabel";
 import { useClientPagination } from "../../hooks/useClientPagination";
 import { useIsCandidateShell } from "../../hooks/useIsCandidateShell";
@@ -258,6 +258,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
         <span className={styles.infoLabel}>{t("profile.phone")}</span>
         <input
           className={styles.input}
+          type="tel"
+          autoComplete="tel"
+          placeholder={t("common.phonePlaceholder")}
           value={profileForm.phoneNumber}
           onChange={(event) => setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))}
         />
@@ -372,9 +375,9 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                 <article key={restaurant.id} className={styles.favouriteCard}>
                   <div className={styles.favouriteRow}>
                     <Link to={getRestaurantProfilePath(restaurant)}>
-                      <img
-                        src={getImageUrl(restaurant.profilePhoto)}
-                        alt={restaurant.name}
+                      <UserAvatar
+                        name={restaurant.name}
+                        profilePhoto={restaurant.profilePhoto}
                         className={styles.favouriteLogo}
                       />
                     </Link>
@@ -425,7 +428,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
               isUploading={isPhotoUploadInProgress}
               inputRef={photoInputRef}
               onSelect={handlePhotoSelect}
-              onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+              onPhotoError={() => setProfilePhotoUrl(null)}
               variant="mobile"
               imageClassName={styles.mobileAvatar}
               fallbackClassName={styles.mobileAvatarFallback}
@@ -516,7 +519,7 @@ const EmployeeProfile = ({ user }: EmployeeProfileProps) => {
                 isUploading={isPhotoUploadInProgress}
                 inputRef={photoInputRef}
                 onSelect={handlePhotoSelect}
-                onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+                onPhotoError={() => setProfilePhotoUrl(null)}
                 variant="desktop"
                 imageClassName={styles.profileImage}
                 fallbackClassName={styles.avatarFallback}

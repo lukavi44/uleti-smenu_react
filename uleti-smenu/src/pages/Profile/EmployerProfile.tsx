@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import ProfileAccordion from "../../components/Profile/ProfileAccordion";
 import ProfileAvatarPicker from "../../components/Profile/ProfileAvatarPicker";
 import EmployerProfileIncompleteBanner from "../../components/Profile/EmployerProfileIncompleteBanner";
-import { getImageUrl } from "../../helpers/getHelperUrl";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { getRatingQualityLabel } from "../../helpers/ratingQualityLabel";
 import {
@@ -409,6 +408,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         <span className={styles.infoLabel}>{t("profile.phone")}</span>
         <input
           className={styles.input}
+          type="tel"
+          autoComplete="tel"
+          placeholder={t("common.phonePlaceholder")}
           value={profileForm.phoneNumber}
           onChange={(event) => setProfileForm((previous) => ({ ...previous, phoneNumber: event.target.value }))}
         />
@@ -565,7 +567,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
             {isEditing ? (
               <div className={styles.branchForm}>
                 <input className={styles.input} placeholder={t("profile.restaurantName")} value={branchEditForm.name} onChange={(e) => handleBranchEditFieldChange("name", e.target.value)} />
-                <input className={styles.input} placeholder={t("registration.phoneNumber")} value={branchEditForm.phoneNumber} onChange={(e) => handleBranchEditFieldChange("phoneNumber", e.target.value)} />
+                <input className={styles.input} type="tel" autoComplete="tel" placeholder={t("common.phonePlaceholder")} value={branchEditForm.phoneNumber} onChange={(e) => handleBranchEditFieldChange("phoneNumber", e.target.value)} />
                 <input className={styles.input} placeholder={t("registration.pib")} value={branchEditForm.pib} onChange={(e) => handleBranchEditFieldChange("pib", e.target.value)} />
                 <input className={styles.input} placeholder={t("registration.mb")} value={branchEditForm.mb} onChange={(e) => handleBranchEditFieldChange("mb", e.target.value)} />
                 <input className={styles.input} placeholder={t("registration.streetName")} value={branchEditForm.streetName} onChange={(e) => handleBranchEditFieldChange("streetName", e.target.value)} />
@@ -630,7 +632,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
       {showBranchForm ? (
         <div className={styles.branchForm}>
           <input className={styles.input} placeholder={t("profile.restaurantName")} value={newBranch.name} onChange={(e) => handleBranchFieldChange("name", e.target.value)} />
-          <input className={styles.input} placeholder={t("registration.phoneNumber")} value={newBranch.phoneNumber} onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)} />
+          <input className={styles.input} type="tel" autoComplete="tel" placeholder={t("common.phonePlaceholder")} value={newBranch.phoneNumber} onChange={(e) => handleBranchFieldChange("phoneNumber", e.target.value)} />
           <input className={styles.input} placeholder={t("registration.pib")} value={newBranch.pib} onChange={(e) => handleBranchFieldChange("pib", e.target.value)} />
           <input className={styles.input} placeholder={t("registration.mb")} value={newBranch.mb} onChange={(e) => handleBranchFieldChange("mb", e.target.value)} />
           <input className={styles.input} placeholder={t("registration.streetName")} value={newBranch.streetName} onChange={(e) => handleBranchFieldChange("streetName", e.target.value)} />
@@ -808,7 +810,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
               isUploading={isPhotoUploadInProgress}
               inputRef={photoInputRef}
               onSelect={handlePhotoSelect}
-              onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+              onPhotoError={() => setProfilePhotoUrl(null)}
               variant="mobile"
               imageClassName={styles.mobileAvatar}
               fallbackClassName={styles.mobileAvatarFallback}
@@ -913,7 +915,7 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
                 isUploading={isPhotoUploadInProgress}
                 inputRef={photoInputRef}
                 onSelect={handlePhotoSelect}
-                onPhotoError={() => setProfilePhotoUrl(getImageUrl(null))}
+                onPhotoError={() => setProfilePhotoUrl(null)}
                 variant="desktop"
                 imageClassName={styles.profileImage}
                 fallbackClassName={styles.avatarFallback}

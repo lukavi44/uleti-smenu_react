@@ -9,7 +9,7 @@ import {
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../Common/UserAvatar";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { ReviewSummary } from "../../models/Review.model";
 import styles from "./RestaurantDetailHeader.module.scss";
@@ -84,7 +84,7 @@ const RestaurantDetailHeader = ({
     <section className={styles.card}>
       <div className={styles.profileRow}>
         <div className={styles.photoWrap}>
-          <img src={getImageUrl(profilePhoto)} alt={name} className={styles.photo} />
+          <UserAvatar name={name} profilePhoto={profilePhoto} className={styles.photo} />
           {showFavourite ? <span className={styles.favouriteDesktop}>{favouriteButton}</span> : null}
         </div>
 

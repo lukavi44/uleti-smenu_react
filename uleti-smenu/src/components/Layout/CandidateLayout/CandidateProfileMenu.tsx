@@ -9,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../store/Auth-context";
 import { Employee } from "../../../models/User.model";
-import { getImageUrl } from "../../../helpers/getHelperUrl";
+import UserAvatar from "../../../components/Common/UserAvatar";
 import styles from "./CandidateProfileMenu.module.scss";
 
 const CandidateProfileMenu = () => {
@@ -56,7 +56,13 @@ const CandidateProfileMenu = () => {
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <img src={getImageUrl(employee?.profilePhoto)} alt="" className={styles.avatar} />
+        <UserAvatar
+          name={
+            employee ? `${employee.firstName} ${employee.lastName}`.trim() : ""
+          }
+          profilePhoto={employee?.profilePhoto}
+          className={styles.avatar}
+        />
       </button>
 
       {isOpen ? (

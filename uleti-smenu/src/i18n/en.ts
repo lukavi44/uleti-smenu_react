@@ -18,7 +18,8 @@ const en = {
     next: "Next",
     back: "Back",
     loadingMore: "Loading more...",
-    loadedOf: "Showing {{visible}} of {{total}}"
+    loadedOf: "Showing {{visible}} of {{total}}",
+    phonePlaceholder: "+381 60 123 4567"
   },
   publicBrowse: {
     guestProfileBanner: "Sign in to see branch locations, contact details, and apply for shifts.",

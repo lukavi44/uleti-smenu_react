@@ -1,4 +1,3 @@
-import defaultImg from '../assets/restoran1.jpg';
 import getApiBaseUrl from '../configuration/config';
 
 const buildImageUrl = (relativePath: string): string => {
@@ -19,11 +18,7 @@ export const getOptionalImageUrl = (relativePath?: string | null): string | unde
     return buildImageUrl(relativePath);
 };
 
-export const getImageUrl = (relativePath?: string | null): string => {
-    if (!relativePath || relativePath.trim() === "") {
-      return defaultImg;
-    }
-
-    return buildImageUrl(relativePath);
-  };
+/** @deprecated Prefer UserAvatar or ImageWithFallback for missing/invalid images. */
+export const getImageUrl = (relativePath?: string | null): string =>
+  getOptionalImageUrl(relativePath) ?? "";
   

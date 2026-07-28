@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../store/Auth-context";
 import { Employer } from "../../../models/User.model";
-import { getImageUrl } from "../../../helpers/getHelperUrl";
+import UserAvatar from "../../../components/Common/UserAvatar";
 import NotificationsMenu from "../../Notifications/NotificationsMenu";
 import shellStyles from "./EmployerLayout.module.scss";
 import styles from "./EmployerTopActions.module.scss";
@@ -36,7 +36,11 @@ const EmployerTopActions = () => {
       />
 
       <Link to="/profile" className={styles.avatarLink} aria-label={t("nav.profile")}>
-        <img src={getImageUrl(employer?.profilePhoto)} alt="" className={styles.avatar} />
+        <UserAvatar
+          name={employer?.name ?? ""}
+          profilePhoto={employer?.profilePhoto}
+          className={styles.avatar}
+        />
       </Link>
     </div>
   );

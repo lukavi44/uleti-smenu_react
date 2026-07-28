@@ -7,7 +7,7 @@ import { Employer } from "../../models/User.model";
 
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../Common/UserAvatar";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { GetEmployerCities, PatchClientFavorite } from "../../services/user-service";
 import { GetEmployerReviewSummary } from "../../services/review-service";
@@ -162,9 +162,9 @@ const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
         <article className={cardClassName} key={employer.id}>
           <Link to={profilePath} className={styles.pageCardProfileLink}>
             <div className={styles.photoWrapper}>
-              <img
-                src={getImageUrl(employer.profilePhoto)}
-                alt={employer.name}
+              <UserAvatar
+                name={employer.name}
+                profilePhoto={employer.profilePhoto}
                 className={styles["employer-img"]}
               />
             </div>
@@ -180,24 +180,24 @@ const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
         <div className={styles.photoWrapper}>
           {canViewProfile ? (
             isPageLayout ? (
-              <img
-                src={getImageUrl(employer.profilePhoto)}
-                alt={employer.name}
+              <UserAvatar
+                name={employer.name}
+                profilePhoto={employer.profilePhoto}
                 className={styles["employer-img"]}
               />
             ) : (
               <Link to={profilePath} className={styles.cardLink}>
-                <img
-                  src={getImageUrl(employer.profilePhoto)}
-                  alt={employer.name}
+                <UserAvatar
+                  name={employer.name}
+                  profilePhoto={employer.profilePhoto}
                   className={styles["employer-img"]}
                 />
               </Link>
             )
           ) : (
-            <img
-              src={getImageUrl(employer.profilePhoto)}
-              alt={employer.name}
+            <UserAvatar
+              name={employer.name}
+              profilePhoto={employer.profilePhoto}
               className={styles["employer-img"]}
             />
           )}

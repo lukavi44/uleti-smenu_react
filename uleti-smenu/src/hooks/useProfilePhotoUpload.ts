@@ -3,7 +3,7 @@ import { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } fro
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { PROFILE_PHOTO_MAX_MB } from "../constants/uploadLimits";
-import { getImageUrl } from "../helpers/getHelperUrl";
+import { getOptionalImageUrl } from "../helpers/getHelperUrl";
 import { validateProfilePhotoFile } from "../helpers/profilePhotoUploadValidation";
 import { UpdateMyProfilePhoto, getCurrentUser } from "../services/user-service";
 import { AuthContext } from "../store/Auth-context";
@@ -12,11 +12,13 @@ export const useProfilePhotoUpload = (initialPhoto?: string, userId?: string) =>
   const { t } = useTranslation();
   const { refreshMe } = useContext(AuthContext);
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(getImageUrl(initialPhoto));
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(
+    getOptionalImageUrl(initialPhoto) ?? null
+  );
   const [isPhotoUploadInProgress, setIsPhotoUploadInProgress] = useState(false);
 
   useEffect(() => {
-    setProfilePhotoUrl(getImageUrl(initialPhoto));
+    setProfilePhotoUrl(getOptionalImageUrl(initialPhoto) ?? null);
   }, [initialPhoto]);
 
   useEffect(() => {
@@ -28,9 +30,9 @@ export const useProfilePhotoUpload = (initialPhoto?: string, userId?: string) =>
       try {
         const response = await getCurrentUser();
         const photo = "profilePhoto" in response.data ? response.data.profilePhoto : undefined;
-        setProfilePhotoUrl(getImageUrl(photo));
+        setProfilePhotoUrl(getOptionalImageUrl(photo) ?? null);
       } catch {
-        setProfilePhotoUrl(getImageUrl(initialPhoto));
+        setProfilePhotoUrl(getOptionalImageUrl(initialPhoto) ?? null);
       }
     };
 
@@ -56,7 +58,7 @@ export const useProfilePhotoUpload = (initialPhoto?: string, userId?: string) =>
       setIsPhotoUploadInProgress(true);
       try {
         const response = await UpdateMyProfilePhoto(file);
-        setProfilePhotoUrl(getImageUrl(response.data.imagePath));
+        setProfilePhotoUrl(getOptionalImageUrl(response.data.imagePath) ?? null);
         toast.success(t("profile.photoUpdated"));
         void refreshMe();
       } catch (error: unknown) {

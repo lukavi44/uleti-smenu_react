@@ -2,9 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { MapPinIcon, StarIcon } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
 import { EmployerDirectoryPreview } from "../../models/EmployerDirectoryPreview.model";
-import { getImageUrl } from "../../helpers/getHelperUrl";
 import { getRestaurantProfilePath, getRestaurantReviewsPath } from "../../helpers/restaurantPaths";
-import defaultHeroImage from "../../assets/restoran1.jpg";
+import ImageWithFallback from "../Common/ImageWithFallback";
+import UserAvatar from "../Common/UserAvatar";
 import styles from "./RestaurantDirectoryCard.module.scss";
 
 type RestaurantDirectoryCardProps = {
@@ -31,8 +31,21 @@ const RestaurantDirectoryCard = ({
     },
     { myId: myEmployerId, role }
   );
-  const heroImage = getImageUrl(restaurant.profilePhoto) || defaultHeroImage;
-  const logoImage = getImageUrl(restaurant.profilePhoto);
+  const heroImage = (
+    <ImageWithFallback
+      src={restaurant.profilePhoto}
+      alt=""
+      className={styles.heroImage}
+      fallbackClassName={styles.heroImage}
+    />
+  );
+  const logoImage = (
+    <UserAvatar
+      name={restaurant.name}
+      profilePhoto={restaurant.profilePhoto}
+      className={styles.logo}
+    />
+  );
   const hasRating = restaurant.reviewSummary.reviewCount > 0;
   const cityLabel = restaurant.city || t("restaurants.unknownCity");
   const reviewsPath = getRestaurantReviewsPath({
@@ -49,11 +62,9 @@ const RestaurantDirectoryCard = ({
 
   const cardContent = (
     <>
-      <div className={styles.hero}>
-        <img src={heroImage} alt="" className={styles.heroImage} />
-      </div>
+      <div className={styles.hero}>{heroImage}</div>
       <div className={styles.body}>
-        <img src={logoImage} alt="" className={styles.logo} />
+        {logoImage}
         <div className={styles.details}>
           <h3 className={styles.name}>{restaurant.name}</h3>
           <p className={styles.location}>

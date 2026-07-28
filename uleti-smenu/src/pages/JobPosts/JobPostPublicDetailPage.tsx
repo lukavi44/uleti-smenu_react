@@ -7,7 +7,7 @@ import { JobPost } from "../../models/JobPost.model";
 import { GetVisibleJobPostById } from "../../services/jobPost-service";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../../components/Common/UserAvatar";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { showGuestApplyRequiredToast } from "../../helpers/showGuestApplyRequiredToast";
 import { toast } from "react-toastify";
@@ -177,10 +177,10 @@ const JobPostPublicDetailPage = () => {
       </header>
 
       <section className={styles.employerCard}>
-        <img
+        <UserAvatar
+          name={employer?.name ?? ""}
+          profilePhoto={employer?.profilePhoto}
           className={styles.employerLogo}
-          src={getImageUrl(employer?.profilePhoto)}
-          alt={employer?.name ? `${employer.name} logo` : "Employer logo"}
         />
         <div className={styles.employerInfo}>
           <Link className={styles.employerName} to={restaurantPath}>

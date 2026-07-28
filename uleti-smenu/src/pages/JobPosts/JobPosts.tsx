@@ -18,7 +18,7 @@ import EmployerJobPostCandidatesSidePanel from "../../components/JobPosts/Employ
 import EmployerJobPostMobileCard from "../../components/JobPosts/EmployerJobPostMobileCard";
 import { ApplyToJobPost, GetMyApplications } from "../../services/application-service";
 import { toast } from "react-toastify";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../../components/Common/UserAvatar";
 import { getRestaurantProfilePath } from "../../helpers/restaurantPaths";
 import { getJobPostStatusLabel } from "../../helpers/jobPostStatus";
 import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
@@ -1262,10 +1262,10 @@ const JobPosts = () => {
                   tabIndex={0}
                 >
                   <div className={styles["employee-card-header"]}>
-                    <img
+                    <UserAvatar
+                      name={jobPost.employer?.name ?? ""}
+                      profilePhoto={jobPost.employer?.profilePhoto}
                       className={styles["employee-card-logo"]}
-                      src={getImageUrl(jobPost.employer?.profilePhoto)}
-                      alt={jobPost.employer?.name ? `${jobPost.employer.name} logo` : "Employer logo"}
                     />
                     <div className={styles["guest-card-heading"]}>
                       <h4>{jobPost.title}</h4>
@@ -1325,10 +1325,10 @@ const JobPosts = () => {
               {isEmployee && (
                 <article className={styles["employee-jobpost-card"]}>
                   <div className={styles["employee-card-header"]}>
-                    <img
+                    <UserAvatar
+                      name={jobPost.employer?.name ?? ""}
+                      profilePhoto={jobPost.employer?.profilePhoto}
                       className={styles["employee-card-logo"]}
-                      src={getImageUrl(jobPost.employer?.profilePhoto)}
-                      alt={jobPost.employer?.name ? `${jobPost.employer.name} logo` : "Employer logo"}
                     />
                     <h4>{jobPost.title}</h4>
                   </div>

@@ -7,7 +7,7 @@ import {
   StarIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
-import { getImageUrl } from "../../helpers/getHelperUrl";
+import UserAvatar from "../Common/UserAvatar";
 import { formatExperienceYears } from "../../helpers/formatExperienceYears";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { EmployeePublicProfile } from "../../models/WorkExperience.model";
@@ -46,9 +46,9 @@ const CandidateDetailHeader = ({ profile }: CandidateDetailHeaderProps) => {
     <section className={styles.card}>
       <div className={styles.profileRow}>
         <div className={styles.photoWrap}>
-          <img
-            src={getImageUrl(profile.profilePhoto)}
-            alt={`${profile.firstName} ${profile.lastName}`}
+          <UserAvatar
+            name={`${profile.firstName} ${profile.lastName}`}
+            profilePhoto={profile.profilePhoto}
             className={styles.photo}
           />
           <span className={styles.onlineDot} aria-hidden="true" />
