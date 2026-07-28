@@ -2,6 +2,7 @@ import { ChangeEvent, RefObject } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { PROFILE_PHOTO_ACCEPT, PROFILE_PHOTO_MAX_MB } from "../../constants/uploadLimits";
+import { getInitials } from "../../helpers/getInitials";
 import styles from "./ProfileAvatarPicker.module.scss";
 
 interface ProfileAvatarPickerProps {
@@ -28,7 +29,7 @@ const ProfileAvatarPicker = ({
   fallbackClassName,
 }: ProfileAvatarPickerProps) => {
   const { t } = useTranslation();
-  const initials = fallbackLabel.trim().slice(0, 2).toUpperCase() || "?";
+  const initials = getInitials(fallbackLabel);
 
   return (
     <div className={styles.field}>
