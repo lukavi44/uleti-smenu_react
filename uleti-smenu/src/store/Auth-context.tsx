@@ -1,7 +1,7 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { LogoutUserRequest } from "../services/auth-service";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, GetCurrentUserRole } from "../services/user-service";
+import { getCurrentUser } from "../services/user-service";
 import { MeResponse } from "../models/User.model";
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -69,11 +69,22 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         }
 
         try {
-            const [roleResponse, meResponse] = await Promise.all([GetCurrentUserRole(), getCurrentUser()]);
+            const meResponse = await getCurrentUser();
+            const meData = meResponse.data as Record<string, unknown>;
+            const role =
+                typeof meData.role === "string"
+                    ? meData.role
+                    : typeof meData.Role === "string"
+                      ? meData.Role
+                      : "firstName" in meData
+                        ? "Employee"
+                        : "name" in meData
+                          ? "Employer"
+                          : null;
 
             setIsLoggedIn(true);
             setAuthStatus("authenticated");
-            setRole(roleResponse.data);
+            setRole(role);
             setMe(meResponse.data);
         } catch (error) {
             console.error("AuthContext init failed:", error);

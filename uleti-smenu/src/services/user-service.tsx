@@ -96,13 +96,29 @@ export const GetEmployerCities = async (): Promise<AxiosResponse<string[]>> => {
 
 export const GetCurrentUserRole = async (): Promise<AxiosResponse<string>> => {
     return axiosInstance.get<string>("/api/v1/User/me/role");
-}
+};
+
+const inferRoleFromMePayload = (data: Record<string, unknown>): string | null => {
+    const explicitRole = data.role ?? data.Role;
+    if (typeof explicitRole === "string" && explicitRole.trim()) {
+        return explicitRole;
+    }
+
+    if ("firstName" in data || "FirstName" in data) {
+        return "Employee";
+    }
+
+    if ("name" in data || "Name" in data) {
+        return "Employer";
+    }
+
+    return null;
+};
 
 export const getCurrentUser = async () => {
     const response = await axiosInstance.get("/api/v1/User/me");
     const data = response.data as Record<string, unknown>;
-    const roleResponse = await GetCurrentUserRole().catch(() => null);
-    const role = roleResponse?.data;
+    const role = inferRoleFromMePayload(data);
 
     if (role === "Employee") {
       return {

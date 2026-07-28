@@ -52,6 +52,10 @@ const LoginPage = () => {
 
   useEffect(() => {
     const syncCapsLock = (event: KeyboardEvent) => {
+      if (typeof event.getModifierState !== "function") {
+        return;
+      }
+
       const next = event.getModifierState("CapsLock");
       setIsCapsLockOn((previous) => (previous === next ? previous : next));
     };
@@ -69,13 +73,13 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const response = await LoginUserRequest(data);
-      toast.success(t("login.success"));
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
-      await refreshAuthState();
       const returnUrl = searchParams.get("returnUrl");
       const safeReturnUrl =
         returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : "/";
+      void refreshAuthState();
+      toast.success(t("login.success"));
       navigate(safeReturnUrl);
     } catch (error: unknown) {
       console.error("Login failed:", error);
@@ -127,6 +131,10 @@ const LoginPage = () => {
               error={errors.password?.message}
               warning={isCapsLockOn ? t("login.capsLockWarning") : undefined}
               onMouseDown={(event) => {
+                if (typeof event.getModifierState !== "function") {
+                  return;
+                }
+
                 const next = event.getModifierState("CapsLock");
                 setIsCapsLockOn((previous) => (previous === next ? previous : next));
               }}
