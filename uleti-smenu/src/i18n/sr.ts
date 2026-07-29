@@ -385,7 +385,7 @@ const sr = {
           "Zadržavate prava na sadržaj koji šaljete, ali dajete UletiSmenu ograničenu licencu za prikaz na platformi. Ne smete postavljati sadržaj koji krši tuđa prava ili sadrži malver.",
         section6Title: "Odgovornost i izmene",
         section6Text:
-          "Usluga se pruža u viđenom stanju. U meri dozvoljenoj zakonom, UletiSmenu nije odgovoran za indirektne štete iz aranžmana o smenama. Uslove možemo ažurirati; o bitnim izmenama obavestićemo na sajtu."
+          "Usluga se pruža u viđenom stanju. U meri dozvoljenoj zakonom, UletiSmenu nije odgovoran za indirektne štete iz aranžmana o smenama. Uslove možemo ažurirati; o bitnim izmenama obavestićemo na sajtu. Pravna pitanja: legal@uletismenu.com."
       },
       privacy: {
         title: "Politika privatnosti",
@@ -408,7 +408,7 @@ const sr = {
           "Podatke čuvamo dok je nalog aktivan i koliko je potrebno za pravne, poreske ili sporove. Primenujemo tehničke i organizacione mere; nijedan sistem nije 100% siguran.",
         section6Title: "Vaša prava",
         section6Text:
-          "U zavisnosti od zakona, možete zatražiti pristup, ispravku, brisanje, ograničenje, prenosivost ili prigovor. Pišite na support@uletismenu.com. Možete podneti pritužbu nadzornom organu."
+          "U zavisnosti od zakona, možete zatražiti pristup, ispravku, brisanje, ograničenje, prenosivost ili prigovor. Pišite na privacy@uletismenu.com. Možete podneti pritužbu nadzornom organu."
       },
       cookies: {
         title: "Politika kolačića",
@@ -431,9 +431,29 @@ const sr = {
           "Stranice za plaćanje (npr. Stripe Checkout) mogu postavljati sopstvene kolačiće prema politici provajdera.",
         section6Title: "Upravljanje kolačićima",
         section6Text:
-          "Kolačiće možete brisati ili blokirati u pregledaču. Blokiranje neophodnih kolačića može sprečiti prijavu."
+          "Kolačiće možete brisati ili blokirati u pregledaču. Blokiranje neophodnih kolačića može sprečiti prijavu. Pitanja o kolačićima: privacy@uletismenu.com."
       }
     }
+  },
+  contact: {
+    title: "Kontakt",
+    intro: "Pišite UletiSmenu timu za podršku, privatnost ili pravna pitanja.",
+    directTitle: "Pišite nam direktno",
+    supportLabel: "Podrška",
+    infoLabel: "Opšte",
+    privacyLabel: "Privatnost",
+    legalLabel: "Pravno",
+    name: "Ime",
+    email: "Email",
+    subject: "Naslov",
+    message: "Poruka",
+    send: "Pošalji poruku",
+    nameRequired: "Ime je obavezno",
+    subjectRequired: "Naslov je obavezan",
+    messageRequired: "Poruka je obavezna",
+    messageTooShort: "Poruka mora imati najmanje 10 karaktera",
+    success: "Poruka je poslata. Javićemo vam se uskoro.",
+    error: "Poruka nije poslata. Pišite na support@uletismenu.com.",
   },
   footer: {
     platform: "Platforma",
@@ -453,6 +473,7 @@ const sr = {
     privacy: "Politika privatnosti",
     cookies: "Politika kolačića",
     contact: "Kontakt",
+    contactForm: "Kontakt forma",
     intro:
       "UletiSmenu povezuje restorane kojima hitno treba podrška sa kandidatima koji žele fleksibilne dnevne angažmane.",
     tagline: "Fleksibilne smene za restorane i radnike u Srbiji.",

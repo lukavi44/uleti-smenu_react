@@ -6,6 +6,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import logo from "../../assets/logo.png";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../store/Auth-context";
+import { CONTACT_EMAILS, mailto } from "../../constants/contactEmails";
 
 interface FooterLink {
   label: string;
@@ -61,9 +62,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     {
       title: t("footer.contact"),
       links: [
-        { label: "support@uletismenu.com", href: "mailto:support@uletismenu.com", external: true },
-        { label: "+381 11 123 456", href: "tel:+38111123456", external: true },
-        { label: "Novi Sad, Srbija", external: true },
+        { label: CONTACT_EMAILS.support, href: mailto(CONTACT_EMAILS.support), external: true },
+        { label: CONTACT_EMAILS.info, href: mailto(CONTACT_EMAILS.info), external: true },
+        { label: t("footer.contactForm"), to: "/kontakt" },
       ],
     },
   ];

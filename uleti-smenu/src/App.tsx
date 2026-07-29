@@ -26,6 +26,7 @@ import FaqPage from "./pages/Info/FaqPage";
 import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
 import ForEmployersPage from "./pages/Info/ForEmployersPage";
 import LegalHubPage from "./pages/Info/LegalHubPage";
+import ContactPage from "./pages/Info/ContactPage";
 import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
 import CandidateShiftsPage from "./pages/CandidateShifts/CandidateShiftsPage";
 import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
@@ -72,6 +73,8 @@ function App() {
             <Route path="za-restorane" element={<ForEmployersPage />} />
             <Route path="for-employers" element={<Navigate to="/za-restorane" replace />} />
             <Route path="pravno" element={<LegalHubPage />} />
+            <Route path="kontakt" element={<ContactPage />} />
+            <Route path="contact" element={<Navigate to="/kontakt" replace />} />
             <Route path="terms" element={<Navigate to="/pravno#uslovi" replace />} />
             <Route path="privacy" element={<Navigate to="/pravno#privatnost" replace />} />
             <Route path="cookies" element={<Navigate to="/pravno#kolacici" replace />} />

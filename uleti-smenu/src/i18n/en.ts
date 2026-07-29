@@ -384,7 +384,7 @@ const en = {
           "You retain rights to content you submit but grant UletiSmenu a limited licence to display it on the platform. You must not upload content that infringes third-party rights or contains malware.",
         section6Title: "Liability and changes",
         section6Text:
-          "The service is provided as available. To the extent permitted by law, UletiSmenu is not liable for indirect losses arising from shift arrangements. We may update these terms; material changes will be communicated on the site."
+          "The service is provided as available. To the extent permitted by law, UletiSmenu is not liable for indirect losses arising from shift arrangements. We may update these terms; material changes will be communicated on the site. Legal questions: legal@uletismenu.com."
       },
       privacy: {
         title: "Privacy policy",
@@ -407,7 +407,7 @@ const en = {
           "We retain data while your account is active and as needed for legal, tax, or dispute purposes. Technical and organisational measures protect data; no system is 100% secure.",
         section6Title: "Your rights",
         section6Text:
-          "Depending on applicable law, you may request access, correction, deletion, restriction, portability, or object to processing. Contact support@uletismenu.com. You may lodge a complaint with your supervisory authority."
+          "Depending on applicable law, you may request access, correction, deletion, restriction, portability, or object to processing. Contact privacy@uletismenu.com. You may lodge a complaint with your supervisory authority."
       },
       cookies: {
         title: "Cookie policy",
@@ -430,9 +430,29 @@ const en = {
           "Payment pages (e.g. Stripe Checkout) may set their own cookies governed by the provider's policy.",
         section6Title: "Managing cookies",
         section6Text:
-          "You can delete or block cookies in your browser settings. Blocking essential cookies may prevent sign-in."
+          "You can delete or block cookies in your browser settings. Blocking essential cookies may prevent sign-in. Questions about cookies: privacy@uletismenu.com."
       }
     }
+  },
+  contact: {
+    title: "Contact",
+    intro: "Reach the UletiSmenu team for product support, privacy requests, or legal questions.",
+    directTitle: "Email us directly",
+    supportLabel: "Support",
+    infoLabel: "General",
+    privacyLabel: "Privacy",
+    legalLabel: "Legal",
+    name: "Name",
+    email: "Email",
+    subject: "Subject",
+    message: "Message",
+    send: "Send message",
+    nameRequired: "Name is required",
+    subjectRequired: "Subject is required",
+    messageRequired: "Message is required",
+    messageTooShort: "Message must be at least 10 characters",
+    success: "Message sent. We will get back to you soon.",
+    error: "Could not send your message. Email support@uletismenu.com instead.",
   },
   footer: {
     platform: "Platform",
@@ -452,6 +472,7 @@ const en = {
     privacy: "Privacy policy",
     cookies: "Cookie policy",
     contact: "Contact",
+    contactForm: "Contact form",
     intro:
       "UletiSmenu connects restaurants that urgently need support with candidates looking for flexible daily engagements.",
     tagline: "Flexible shifts for restaurants and workers in Serbia.",
