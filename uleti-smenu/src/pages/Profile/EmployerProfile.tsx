@@ -783,6 +783,9 @@ const EmployerProfile = ({ user }: EmployerProfileProps) => {
         onOpenChange={setIsSettingsOpen}
       >
         <p className={styles.mutedText}>{t("profile.employerManage.accountSettingsHint")}</p>
+        <Link to="/settings" className={styles.outlineButton}>
+          {t("nav.settings")}
+        </Link>
       </ProfileAccordion>
     </div>
   );

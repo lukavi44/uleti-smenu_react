@@ -129,7 +129,7 @@ const EmployersList = ({ variant = "carousel" }: EmployersListProps) => {
 
       setEmployers((prev: Employer[]) =>
         prev.map((e: Employer) =>
-          e.id === employer.id ? { ...e, isFavourite: !Boolean(e.isFavourite) } : e,
+          e.id === employer.id ? { ...e, isFavourite: !e.isFavourite } : e,
         ),
       );
     } catch (error) {

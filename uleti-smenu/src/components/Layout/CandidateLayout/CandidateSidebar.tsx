@@ -2,8 +2,9 @@ import { NavLink } from "react-router-dom";
 import {
   ArrowRightOnRectangleIcon,
   BuildingStorefrontIcon,
-  ChatBubbleLeftRightIcon,
   CalendarDaysIcon,
+  ChatBubbleLeftRightIcon,
+  Cog6ToothIcon,
   HomeIcon,
   NewspaperIcon,
   UserIcon,
@@ -12,6 +13,7 @@ import {
   BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
   CalendarDaysIcon as CalendarDaysIconSolid,
+  Cog6ToothIcon as Cog6ToothIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
   UserIcon as UserIconSolid,
@@ -70,10 +72,30 @@ const CandidateSidebar = ({ unreadChatCount, onLogout }: CandidateSidebarProps) 
         ))}
       </nav>
 
-      <button type="button" className={styles.logoutButton} onClick={onLogout}>
-        <ArrowRightOnRectangleIcon className={styles.navIcon} />
-        <span>{t("header.logout")}</span>
-      </button>
+      <div className={styles.sidebarFooter}>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              {isActive ? (
+                <Cog6ToothIconSolid className={styles.navIcon} />
+              ) : (
+                <Cog6ToothIcon className={styles.navIcon} />
+              )}
+              <span>{t("nav.settings")}</span>
+            </>
+          )}
+        </NavLink>
+
+        <button type="button" className={styles.logoutButton} onClick={onLogout}>
+          <ArrowRightOnRectangleIcon className={styles.navIcon} />
+          <span>{t("header.logout")}</span>
+        </button>
+      </div>
     </aside>
   );
 };

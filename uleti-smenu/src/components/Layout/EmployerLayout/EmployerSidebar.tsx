@@ -3,6 +3,7 @@ import {
   ArrowRightOnRectangleIcon,
   BuildingStorefrontIcon,
   ChatBubbleLeftRightIcon,
+  Cog6ToothIcon,
   CreditCardIcon,
   HomeIcon,
   NewspaperIcon,
@@ -11,6 +12,7 @@ import {
 import {
   BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid,
+  Cog6ToothIcon as Cog6ToothIconSolid,
   CreditCardIcon as CreditCardIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
@@ -80,10 +82,30 @@ const EmployerSidebar = ({ unreadChatCount, onLogout }: EmployerSidebarProps) =>
         ))}
       </nav>
 
-      <button type="button" className={styles.logoutButton} onClick={onLogout}>
-        <ArrowRightOnRectangleIcon className={styles.navIcon} />
-        <span>{t("header.logout")}</span>
-      </button>
+      <div className={styles.sidebarFooter}>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              {isActive ? (
+                <Cog6ToothIconSolid className={styles.navIcon} />
+              ) : (
+                <Cog6ToothIcon className={styles.navIcon} />
+              )}
+              <span>{t("nav.settings")}</span>
+            </>
+          )}
+        </NavLink>
+
+        <button type="button" className={styles.logoutButton} onClick={onLogout}>
+          <ArrowRightOnRectangleIcon className={styles.navIcon} />
+          <span>{t("header.logout")}</span>
+        </button>
+      </div>
     </aside>
   );
 };

@@ -4,6 +4,7 @@ import {
   ArrowRightOnRectangleIcon,
   CalendarDaysIcon,
   ChevronRightIcon,
+  Cog6ToothIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
@@ -76,6 +77,12 @@ const CandidateProfileMenu = () => {
           <button type="button" className={styles.menuItem} onClick={() => handleNavigate("/moje-smene")}>
             <CalendarDaysIcon className={styles.menuIcon} aria-hidden />
             <span>{t("nav.myShifts")}</span>
+            <ChevronRightIcon className={styles.menuChevron} aria-hidden />
+          </button>
+
+          <button type="button" className={styles.menuItem} onClick={() => handleNavigate("/settings")}>
+            <Cog6ToothIcon className={styles.menuIcon} aria-hidden />
+            <span>{t("nav.settings")}</span>
             <ChevronRightIcon className={styles.menuChevron} aria-hidden />
           </button>
 

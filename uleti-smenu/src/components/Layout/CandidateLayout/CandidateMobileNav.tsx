@@ -121,7 +121,7 @@ const CandidateMobileNav = ({ unreadChatCount, onLogout }: CandidateMobileNavPro
               </button>
               <button type="button" className={styles.drawerItem} onClick={() => handleNavigate("/settings")}>
                 <Cog6ToothIcon />
-                <span>{t("candidateMenu.settings")}</span>
+                <span>{t("nav.settings")}</span>
               </button>
               <div className={`${styles.drawerItem} ${styles.languageItem}`}>
                 <span className={styles.languageLabel}>

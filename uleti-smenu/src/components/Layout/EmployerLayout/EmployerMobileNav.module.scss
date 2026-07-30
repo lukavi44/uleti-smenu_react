@@ -1,1 +1,160 @@
 @use "../../../styles/shellMobileNav" as *;
+
+.menuButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  border: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.drawer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  max-height: min(82dvh, 680px);
+  overflow-y: auto;
+  padding: 0.55rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  border-radius: 22px 22px 0 0;
+  background: #ffffff;
+  box-shadow: 0 -20px 50px rgba(15, 23, 42, 0.18);
+}
+
+.drawerHandle {
+  width: 2.5rem;
+  height: 0.25rem;
+  margin: 0 auto 0.5rem;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0 0.65rem;
+}
+
+.drawerHeader h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+}
+
+.closeButton svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.drawerItems {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.drawerItem,
+.languageItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.7rem 0.75rem;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.drawerItem {
+  cursor: pointer;
+}
+
+.languageItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: default;
+}
+
+.drawerItem:hover,
+.drawerItem:focus-visible,
+.languageItem:focus-within {
+  background: #f8fafc;
+}
+
+.drawerItem svg,
+.languageLabel svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+.languageLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.languageItem select {
+  margin: 0 0 0 auto;
+  flex-shrink: 0;
+  padding: 0.35rem 1.75rem 0.35rem 0.55rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.drawerItemDanger {
+  margin-top: 0.35rem;
+  border-top: 1px solid #eef2f7;
+  border-radius: 0;
+  color: #b91c1c;
+}
+
+.drawerItemDanger svg {
+  color: #b91c1c;
+}
+
+@media (min-width: 1024px) {
+  .drawerBackdrop,
+  .drawer {
+    display: none;
+  }
+}

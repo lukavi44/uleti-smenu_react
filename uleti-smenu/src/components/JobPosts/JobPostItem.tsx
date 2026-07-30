@@ -32,7 +32,7 @@ interface JobPostItemProps {
       try {
         await ApplyToJobPost(jobPost.id);
         toast.success(t("jobPosts.applySuccess"));
-      } catch (error) {
+      } catch {
         toast.error(t("jobPosts.applyError"));
       } finally {
         setIsApplying(false);
