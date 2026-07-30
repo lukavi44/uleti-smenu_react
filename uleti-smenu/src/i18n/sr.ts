@@ -17,6 +17,8 @@ const sr = {
     previous: "Prethodno",
     next: "Sledeće",
     back: "Nazad",
+    yes: "Da",
+    no: "Ne",
     loadingMore: "Učitavanje...",
     loadedOf: "Prikazano {{visible}} od {{total}}",
     phonePlaceholder: "+381 60 123 4567"
@@ -1346,6 +1348,7 @@ const sr = {
       dashboard: "Dashboard",
       candidates: "Kandidati",
       employers: "Poslodavci",
+      users: "Korisnici",
       restaurants: "Restorani / filijale",
       jobPosts: "Oglasi",
       jobsShort: "Oglasi",
@@ -1359,6 +1362,7 @@ const sr = {
       dashboard: "Dashboard",
       candidates: "Kandidati",
       employers: "Poslodavci",
+      users: "Korisnici",
       employerDetail: "Detalji poslodavca",
       restaurants: "Restorani / filijale",
       jobPosts: "Oglasi",
@@ -1496,6 +1500,26 @@ const sr = {
     },
     reports: {
       empty: "Još nema prijavljenih prigovora. Ovaj modul će prikazati prijave kandidata i poslodavaca kada bude dostupan."
+    },
+    users: {
+      searchPlaceholder: "Pretraga po imenu, emailu ili telefonu...",
+      empty: "Nema korisnika za izabrane filtere.",
+      allRoles: "Sve uloge",
+      lock: "Zaključaj",
+      unlock: "Otključaj",
+      lockedSuccess: "Korisnik je zaključan.",
+      unlockedSuccess: "Korisnik je otključan.",
+      lockError: "Zaključavanje nije uspelo. Pokušaj ponovo.",
+      roles: {
+        Employee: "Kandidat",
+        Employer: "Poslodavac",
+        Admin: "Admin"
+      },
+      columns: {
+        user: "Korisnik",
+        roles: "Uloge",
+        emailConfirmed: "Email potvrđen"
+      }
     },
     settings: {
       title: "Podešavanja admin panela",

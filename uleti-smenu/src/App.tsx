@@ -45,6 +45,7 @@ import AdminApplicationsPage from "./pages/Admin/AdminApplicationsPage";
 import AdminBillingPage from "./pages/Admin/AdminBillingPage";
 import AdminReportsPage from "./pages/Admin/AdminReportsPage";
 import AdminSettingsPage from "./pages/Admin/AdminSettingsPage";
+import AdminUsersPage from "./pages/Admin/AdminUsersPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
 
 function App() {
@@ -110,6 +111,7 @@ function App() {
               <Route path="admin/candidates" element={<AdminCandidatesPage />} />
               <Route path="admin/employers" element={<AdminEmployersPage />} />
               <Route path="admin/employers/:employerId" element={<AdminEmployerDetailPage />} />
+              <Route path="admin/users" element={<AdminUsersPage />} />
               <Route path="admin/restaurants" element={<AdminRestaurantsPage />} />
               <Route path="admin/job-posts" element={<AdminJobPostsPage />} />
               <Route path="admin/applications" element={<AdminApplicationsPage />} />

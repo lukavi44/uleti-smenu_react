@@ -9,6 +9,7 @@ import {
   AdminJobPostListItem,
   AdminPagedResponse,
   AdminRestaurantListItem,
+  AdminUserListItem,
 } from "../models/Admin.model";
 
 export const getAdminDashboard = (fromUtc?: string, toUtc?: string) =>
@@ -62,3 +63,14 @@ export const getAdminApplications = (params: {
 
 export const getAdminBilling = (params: { search?: string; page?: number; pageSize?: number }) =>
   axiosInstance.get<AdminPagedResponse<AdminBillingListItem>>("/api/v1/Admin/billing", { params });
+
+export const getAdminUsers = (params: {
+  search?: string;
+  role?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}) => axiosInstance.get<AdminPagedResponse<AdminUserListItem>>("/api/v1/Admin/users", { params });
+
+export const setAdminUserLockout = (userId: string, isLockedOut: boolean) =>
+  axiosInstance.put<AdminUserListItem>(`/api/v1/Admin/users/${userId}/lockout`, { isLockedOut });

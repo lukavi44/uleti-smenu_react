@@ -17,6 +17,8 @@ const en = {
     previous: "Previous",
     next: "Next",
     back: "Back",
+    yes: "Yes",
+    no: "No",
     loadingMore: "Loading more...",
     loadedOf: "Showing {{visible}} of {{total}}",
     phonePlaceholder: "+381 60 123 4567"
@@ -1342,6 +1344,7 @@ const en = {
       dashboard: "Dashboard",
       candidates: "Candidates",
       employers: "Employers",
+      users: "Users",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
       jobsShort: "Jobs",
@@ -1355,6 +1358,7 @@ const en = {
       dashboard: "Dashboard",
       candidates: "Candidates",
       employers: "Employers",
+      users: "Users",
       employerDetail: "Employer details",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
@@ -1492,6 +1496,26 @@ const en = {
     },
     reports: {
       empty: "No reports have been submitted yet. This module will list candidate and employer reports when available."
+    },
+    users: {
+      searchPlaceholder: "Search users by name, email, or phone...",
+      empty: "No users match the selected filters.",
+      allRoles: "All roles",
+      lock: "Lock",
+      unlock: "Unlock",
+      lockedSuccess: "User locked.",
+      unlockedSuccess: "User unlocked.",
+      lockError: "Could not update lockout. Please try again.",
+      roles: {
+        Employee: "Candidate",
+        Employer: "Employer",
+        Admin: "Admin"
+      },
+      columns: {
+        user: "User",
+        roles: "Roles",
+        emailConfirmed: "Email confirmed"
+      }
     },
     settings: {
       title: "Admin panel settings",
