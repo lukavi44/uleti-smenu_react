@@ -85,6 +85,14 @@
   color: #2563eb;
 }
 
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
 .logoutButton {
   display: flex;
   align-items: center;
@@ -99,7 +107,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
-  margin-top: auto;
   flex-shrink: 0;
 }
 

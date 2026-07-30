@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowRightOnRectangleIcon,
   ChevronRightIcon,
+  Cog6ToothIcon,
   CreditCardIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
@@ -78,6 +79,12 @@ const EmployerProfileMenu = () => {
           >
             <CreditCardIcon className={styles.menuIcon} aria-hidden />
             <span>{t("nav.billing")}</span>
+            <ChevronRightIcon className={styles.menuChevron} aria-hidden />
+          </button>
+
+          <button type="button" className={styles.menuItem} onClick={() => handleNavigate("/settings")}>
+            <Cog6ToothIcon className={styles.menuIcon} aria-hidden />
+            <span>{t("nav.settings")}</span>
             <ChevronRightIcon className={styles.menuChevron} aria-hidden />
           </button>
 
