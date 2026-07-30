@@ -33,7 +33,7 @@ export const useEmployers = (city?: string) => {
 
                 setEmployers(normalizedEmployers);
                 setError(null);
-            } catch (err) {
+            } catch {
                 console.log(t("employers.loadError"))
                 setError(t("employers.loadError"));
             } finally {

@@ -3,7 +3,7 @@ import Layout from "./Layout";
 import { useTranslation } from "react-i18next";
 
 interface ConfirmationDialogProps {
-  onConfirm: (e: any) => void;
+  onConfirm: React.MouseEventHandler;
   onClose: React.MouseEventHandler;
 }
 
