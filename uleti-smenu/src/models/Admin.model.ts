@@ -80,6 +80,7 @@ export interface AdminRestaurantListItem {
 
 export interface AdminJobPostListItem {
   id: string;
+  employerId?: string;
   title: string;
   position: string;
   employerName: string;
@@ -87,6 +88,7 @@ export interface AdminJobPostListItem {
   status: string;
   applicationsCount: number;
   createdAtUtc: string;
+  startingDate?: string;
 }
 
 export interface AdminApplicationListItem {
@@ -100,6 +102,7 @@ export interface AdminApplicationListItem {
 
 export interface AdminBillingListItem {
   id: string;
+  employerId?: string;
   employerName: string;
   amount: number;
   type: string;
@@ -136,4 +139,9 @@ export interface AdminEmployerDetail {
   averageRating?: number;
   reviewCount: number;
   createdAtUtc?: string;
+  adminNotes?: string;
+  lockoutEnd?: string;
+  jobPosts?: AdminJobPostListItem[];
+  branches?: AdminRestaurantListItem[];
+  billingTransactions?: AdminBillingListItem[];
 }

@@ -32,6 +32,16 @@ export const setAdminEmployerVerification = (employerId: string, isVerified: boo
     isVerified,
   });
 
+export const setAdminEmployerSuspension = (employerId: string, isSuspended: boolean) =>
+  axiosInstance.put<AdminEmployerDetail>(`/api/v1/Admin/employers/${employerId}/suspension`, {
+    isSuspended,
+  });
+
+export const setAdminEmployerNotes = (employerId: string, notes: string | null) =>
+  axiosInstance.put<AdminEmployerDetail>(`/api/v1/Admin/employers/${employerId}/notes`, {
+    notes,
+  });
+
 export const getAdminCandidates = (params: {
   search?: string;
   city?: string;
