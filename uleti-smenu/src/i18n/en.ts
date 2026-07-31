@@ -17,6 +17,8 @@ const en = {
     previous: "Previous",
     next: "Next",
     back: "Back",
+    yes: "Yes",
+    no: "No",
     loadingMore: "Loading more...",
     loadedOf: "Showing {{visible}} of {{total}}",
     phonePlaceholder: "+381 60 123 4567"
@@ -97,6 +99,7 @@ const en = {
     languageDescription: "Choose the application language for this device.",
     notifications: "Notifications",
     notificationsDescription: "Choose which email and in-app alerts you receive.",
+    employerNotificationsDescription: "Choose how you are notified when candidates apply and when reviews are due.",
     notificationsEmailSection: "Email",
     notificationsInAppSection: "In-app (bell)",
     notifyEmailFavouriteJobPost: "New jobs from favourite restaurants",
@@ -109,8 +112,11 @@ const en = {
     notifyInAppApplicationDeclinedDescription: "When an employer declines your application.",
     notifyInAppApplicationReceived: "New application received",
     notifyInAppApplicationReceivedDescription: "When a candidate applies to one of your job posts.",
+    notifyEmailApplicationReceived: "New application received",
+    notifyEmailApplicationReceivedDescription: "Get an email when a candidate applies to one of your job posts.",
     notifyInAppReviewReminder: "Review reminders",
     notifyInAppReviewReminderDescription: "Remind you to leave a review after a completed shift.",
+    notifyInAppReviewReminderEmployerDescription: "Remind you to review candidates after a completed shift.",
     notificationsSaved: "Notification preferences updated.",
     notificationsSaveError: "We could not update your notification preferences.",
     notificationsLoadError: "We could not load your notification preferences.",
@@ -1342,6 +1348,7 @@ const en = {
       dashboard: "Dashboard",
       candidates: "Candidates",
       employers: "Employers",
+      users: "Users",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
       jobsShort: "Jobs",
@@ -1355,6 +1362,7 @@ const en = {
       dashboard: "Dashboard",
       candidates: "Candidates",
       employers: "Employers",
+      users: "Users",
       employerDetail: "Employer details",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
@@ -1435,6 +1443,19 @@ const en = {
       subscription: "Subscription",
       subscriptionExpiry: "Expires",
       walletBalance: "Wallet balance",
+      startingDate: "Starting date",
+      suspend: "Suspend employer",
+      unsuspend: "Unsuspend employer",
+      suspendedSuccess: "Employer suspended.",
+      unsuspendedSuccess: "Employer unsuspended.",
+      emptyJobPosts: "This employer has no job posts yet.",
+      emptyBranches: "This employer has no branches yet.",
+      emptyBilling: "No billing transactions for this employer yet.",
+      notesLabel: "Internal notes",
+      notesPlaceholder: "Add a short support note for this employer…",
+      saveNotes: "Save notes",
+      notesSaved: "Notes saved.",
+      saveError: "Could not save changes. Please try again.",
       tabs: {
         overview: "Overview",
         jobPosts: "Job posts",
@@ -1492,6 +1513,26 @@ const en = {
     },
     reports: {
       empty: "No reports have been submitted yet. This module will list candidate and employer reports when available."
+    },
+    users: {
+      searchPlaceholder: "Search users by name, email, or phone...",
+      empty: "No users match the selected filters.",
+      allRoles: "All roles",
+      lock: "Lock",
+      unlock: "Unlock",
+      lockedSuccess: "User locked.",
+      unlockedSuccess: "User unlocked.",
+      lockError: "Could not update lockout. Please try again.",
+      roles: {
+        Employee: "Candidate",
+        Employer: "Employer",
+        Admin: "Admin"
+      },
+      columns: {
+        user: "User",
+        roles: "Roles",
+        emailConfirmed: "Email confirmed"
+      }
     },
     settings: {
       title: "Admin panel settings",

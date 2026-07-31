@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import { AdminEmployerDetail } from "../../models/Admin.model";
-import { getAdminEmployerDetail, setAdminEmployerVerification } from "../../services/admin-service";
+import {
+  getAdminEmployerDetail,
+  setAdminEmployerNotes,
+  setAdminEmployerSuspension,
+  setAdminEmployerVerification,
+} from "../../services/admin-service";
 import AdminStatusBadge from "../../components/Admin/AdminStatusBadge";
 import AdminVerificationModal from "../../components/Admin/AdminVerificationModal";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
+import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import styles from "./AdminEmployerDetailPage.module.scss";
 
 type DetailTab = "overview" | "jobPosts" | "branches" | "statistics" | "billing" | "notes";
@@ -20,6 +27,9 @@ const AdminEmployerDetailPage = () => {
   const [modalMode, setModalMode] = useState<"confirm" | "success">("confirm");
   const [pendingVerified, setPendingVerified] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [notesDraft, setNotesDraft] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [savingSuspension, setSavingSuspension] = useState(false);
 
   useEffect(() => {
     const loadEmployer = async () => {
@@ -27,6 +37,7 @@ const AdminEmployerDetailPage = () => {
       try {
         const response = await getAdminEmployerDetail(employerId);
         setEmployer(response.data);
+        setNotesDraft(response.data.adminNotes ?? "");
       } catch {
         setEmployer(null);
       } finally {
@@ -63,6 +74,7 @@ const AdminEmployerDetailPage = () => {
     try {
       const response = await setAdminEmployerVerification(employer.id, pendingVerified);
       setEmployer(response.data);
+      setNotesDraft(response.data.adminNotes ?? "");
       if (pendingVerified) {
         setModalMode("success");
       } else {
@@ -70,8 +82,50 @@ const AdminEmployerDetailPage = () => {
       }
     } catch {
       setModalOpen(false);
+      toast.error(t("admin.employerDetail.saveError"));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleToggleSuspension = async () => {
+    if (!employer) {
+      return;
+    }
+
+    const nextSuspended = employer.status !== "Suspended";
+    setSavingSuspension(true);
+    try {
+      const response = await setAdminEmployerSuspension(employer.id, nextSuspended);
+      setEmployer(response.data);
+      toast.success(
+        nextSuspended
+          ? t("admin.employerDetail.suspendedSuccess")
+          : t("admin.employerDetail.unsuspendedSuccess"),
+      );
+    } catch {
+      toast.error(t("admin.employerDetail.saveError"));
+    } finally {
+      setSavingSuspension(false);
+    }
+  };
+
+  const handleSaveNotes = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!employer) {
+      return;
+    }
+
+    setSavingNotes(true);
+    try {
+      const response = await setAdminEmployerNotes(employer.id, notesDraft.trim() || null);
+      setEmployer(response.data);
+      setNotesDraft(response.data.adminNotes ?? "");
+      toast.success(t("admin.employerDetail.notesSaved"));
+    } catch {
+      toast.error(t("admin.employerDetail.saveError"));
+    } finally {
+      setSavingNotes(false);
     }
   };
 
@@ -89,6 +143,11 @@ const AdminEmployerDetailPage = () => {
       </div>
     );
   }
+
+  const jobPosts = employer.jobPosts ?? [];
+  const branches = employer.branches ?? [];
+  const billingTransactions = employer.billingTransactions ?? [];
+  const isSuspended = employer.status === "Suspended";
 
   const renderOverview = () => (
     <div className={styles.grid}>
@@ -118,10 +177,22 @@ const AdminEmployerDetailPage = () => {
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>{t("admin.employers.columns.status")}</span>
             <span className={styles.infoValue}>
-              <AdminStatusBadge kind={employer.status === "Suspended" ? "suspended" : "active"} />
+              <AdminStatusBadge kind={isSuspended ? "suspended" : "active"} />
             </span>
           </div>
         </div>
+        <button
+          type="button"
+          className={isSuspended ? styles.secondaryAction : styles.dangerAction}
+          disabled={savingSuspension}
+          onClick={() => void handleToggleSuspension()}
+        >
+          {savingSuspension
+            ? t("common.loading")
+            : isSuspended
+              ? t("admin.employerDetail.unsuspend")
+              : t("admin.employerDetail.suspend")}
+        </button>
       </article>
 
       <article className={styles.card}>
@@ -207,8 +278,113 @@ const AdminEmployerDetailPage = () => {
     </div>
   );
 
-  const renderPlaceholder = (tabLabel: string) => (
-    <div className={styles.placeholderPanel}>{t("admin.placeholder.comingSoon", { section: tabLabel })}</div>
+  const renderJobPosts = () => (
+    <div className={styles.tableCard}>
+      {jobPosts.length === 0 ? (
+        <p className={styles.emptyState}>{t("admin.employerDetail.emptyJobPosts")}</p>
+      ) : (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{t("admin.jobPosts.columns.title")}</th>
+              <th>{t("admin.employers.columns.status")}</th>
+              <th>{t("admin.employerDetail.startingDate")}</th>
+              <th>{t("admin.candidates.columns.applications")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {jobPosts.map((post) => (
+              <tr key={post.id}>
+                <td>
+                  <strong>{post.title}</strong>
+                  <div className={styles.subtle}>{post.position}</div>
+                </td>
+                <td>{post.status}</td>
+                <td>{post.startingDate ? formatDisplayDateTime(post.startingDate) : "—"}</td>
+                <td>{post.applicationsCount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+
+  const renderBranches = () => (
+    <div className={styles.tableCard}>
+      {branches.length === 0 ? (
+        <p className={styles.emptyState}>{t("admin.employerDetail.emptyBranches")}</p>
+      ) : (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{t("admin.restaurants.columns.name")}</th>
+              <th>{t("admin.employers.columns.city")}</th>
+              <th>{t("admin.candidates.columns.phone")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {branches.map((branch) => (
+              <tr key={branch.id}>
+                <td>{branch.name}</td>
+                <td>{branch.city}</td>
+                <td>{branch.phoneNumber || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+
+  const renderBilling = () => (
+    <div className={styles.tableCard}>
+      {billingTransactions.length === 0 ? (
+        <p className={styles.emptyState}>{t("admin.employerDetail.emptyBilling")}</p>
+      ) : (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{t("admin.billing.columns.type")}</th>
+              <th>{t("admin.billing.columns.amount")}</th>
+              <th>{t("admin.billing.columns.date")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {billingTransactions.map((tx) => (
+              <tr key={tx.id}>
+                <td>
+                  <strong>{tx.type}</strong>
+                  {tx.description ? <div className={styles.subtle}>{tx.description}</div> : null}
+                </td>
+                <td>{tx.amount.toLocaleString()} RSD</td>
+                <td>{formatDisplayDateTime(tx.createdAtUtc)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+
+  const renderNotes = () => (
+    <form className={styles.notesCard} onSubmit={(event) => void handleSaveNotes(event)}>
+      <label className={styles.notesLabel} htmlFor="admin-employer-notes">
+        {t("admin.employerDetail.notesLabel")}
+      </label>
+      <textarea
+        id="admin-employer-notes"
+        className={styles.notesInput}
+        value={notesDraft}
+        maxLength={4000}
+        rows={8}
+        onChange={(event) => setNotesDraft(event.target.value)}
+        placeholder={t("admin.employerDetail.notesPlaceholder")}
+      />
+      <button type="submit" className={styles.primaryAction} disabled={savingNotes}>
+        {savingNotes ? t("common.loading") : t("admin.employerDetail.saveNotes")}
+      </button>
+    </form>
   );
 
   return (
@@ -230,7 +406,10 @@ const AdminEmployerDetailPage = () => {
             <p className={styles.headerContact}>
               {employer.email} · {employer.phoneNumber}
             </p>
-            {employer.isVerifiedEmployer ? <AdminStatusBadge kind="verified" /> : null}
+            <div className={styles.headerBadges}>
+              {employer.isVerifiedEmployer ? <AdminStatusBadge kind="verified" /> : null}
+              <AdminStatusBadge kind={isSuspended ? "suspended" : "active"} />
+            </div>
           </div>
         </div>
       </section>
@@ -249,11 +428,11 @@ const AdminEmployerDetailPage = () => {
       </div>
 
       {activeTab === "overview" ? renderOverview() : null}
-      {activeTab === "jobPosts" ? renderPlaceholder(t("admin.employerDetail.tabs.jobPosts")) : null}
-      {activeTab === "branches" ? renderPlaceholder(t("admin.employerDetail.tabs.branches")) : null}
+      {activeTab === "jobPosts" ? renderJobPosts() : null}
+      {activeTab === "branches" ? renderBranches() : null}
       {activeTab === "statistics" ? renderOverview() : null}
-      {activeTab === "billing" ? renderPlaceholder(t("admin.employerDetail.tabs.billing")) : null}
-      {activeTab === "notes" ? renderPlaceholder(t("admin.employerDetail.tabs.notes")) : null}
+      {activeTab === "billing" ? renderBilling() : null}
+      {activeTab === "notes" ? renderNotes() : null}
 
       <AdminVerificationModal
         open={modalOpen}

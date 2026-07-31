@@ -17,6 +17,8 @@ const sr = {
     previous: "Prethodno",
     next: "Sledeće",
     back: "Nazad",
+    yes: "Da",
+    no: "Ne",
     loadingMore: "Učitavanje...",
     loadedOf: "Prikazano {{visible}} od {{total}}",
     phonePlaceholder: "+381 60 123 4567"
@@ -98,6 +100,7 @@ const sr = {
     languageDescription: "Izaberite jezik aplikacije na ovom uređaju.",
     notifications: "Obaveštenja",
     notificationsDescription: "Izaberite koja email i in-app obaveštenja želite da primate.",
+    employerNotificationsDescription: "Izaberite kako želite da budete obavešteni o prijavama kandidata i ocenama.",
     notificationsEmailSection: "Email",
     notificationsInAppSection: "U aplikaciji (zvonce)",
     notifyEmailFavouriteJobPost: "Novi oglasi omiljenih restorana",
@@ -110,8 +113,11 @@ const sr = {
     notifyInAppApplicationDeclinedDescription: "Kada poslodavac odbije vašu prijavu.",
     notifyInAppApplicationReceived: "Nova prijava",
     notifyInAppApplicationReceivedDescription: "Kada kandidat aplicira na vaš oglas.",
+    notifyEmailApplicationReceived: "Nova prijava",
+    notifyEmailApplicationReceivedDescription: "Email kada kandidat aplicira na vaš oglas.",
     notifyInAppReviewReminder: "Podsetnici za ocene",
     notifyInAppReviewReminderDescription: "Podsetnik da ostavite ocenu posle završene smene.",
+    notifyInAppReviewReminderEmployerDescription: "Podsetnik da ocenite kandidate posle završene smene.",
     notificationsSaved: "Podešavanja obaveštenja su sačuvana.",
     notificationsSaveError: "Podešavanja obaveštenja nisu sačuvana.",
     notificationsLoadError: "Nismo mogli da učitamo podešavanja obaveštenja.",
@@ -1346,6 +1352,7 @@ const sr = {
       dashboard: "Dashboard",
       candidates: "Kandidati",
       employers: "Poslodavci",
+      users: "Korisnici",
       restaurants: "Restorani / filijale",
       jobPosts: "Oglasi",
       jobsShort: "Oglasi",
@@ -1359,6 +1366,7 @@ const sr = {
       dashboard: "Dashboard",
       candidates: "Kandidati",
       employers: "Poslodavci",
+      users: "Korisnici",
       employerDetail: "Detalji poslodavca",
       restaurants: "Restorani / filijale",
       jobPosts: "Oglasi",
@@ -1439,6 +1447,19 @@ const sr = {
       subscription: "Pretplata",
       subscriptionExpiry: "Ističe",
       walletBalance: "Stanje novčanika",
+      startingDate: "Datum početka",
+      suspend: "Suspenduj poslodavca",
+      unsuspend: "Ukloni suspenziju",
+      suspendedSuccess: "Poslodavac je suspendovan.",
+      unsuspendedSuccess: "Suspenzija poslodavca je uklonjena.",
+      emptyJobPosts: "Ovaj poslodavac još nema oglasa.",
+      emptyBranches: "Ovaj poslodavac još nema filijala.",
+      emptyBilling: "Nema transakcija za ovog poslodavca.",
+      notesLabel: "Interne napomene",
+      notesPlaceholder: "Dodaj kratku napomenu podrške za ovog poslodavca…",
+      saveNotes: "Sačuvaj napomene",
+      notesSaved: "Napomene su sačuvane.",
+      saveError: "Izmena nije sačuvana. Pokušaj ponovo.",
       tabs: {
         overview: "Pregled",
         jobPosts: "Oglasi",
@@ -1496,6 +1517,26 @@ const sr = {
     },
     reports: {
       empty: "Još nema prijavljenih prigovora. Ovaj modul će prikazati prijave kandidata i poslodavaca kada bude dostupan."
+    },
+    users: {
+      searchPlaceholder: "Pretraga po imenu, emailu ili telefonu...",
+      empty: "Nema korisnika za izabrane filtere.",
+      allRoles: "Sve uloge",
+      lock: "Zaključaj",
+      unlock: "Otključaj",
+      lockedSuccess: "Korisnik je zaključan.",
+      unlockedSuccess: "Korisnik je otključan.",
+      lockError: "Zaključavanje nije uspelo. Pokušaj ponovo.",
+      roles: {
+        Employee: "Kandidat",
+        Employer: "Poslodavac",
+        Admin: "Admin"
+      },
+      columns: {
+        user: "Korisnik",
+        roles: "Uloge",
+        emailConfirmed: "Email potvrđen"
+      }
     },
     settings: {
       title: "Podešavanja admin panela",

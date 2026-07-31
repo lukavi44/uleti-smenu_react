@@ -9,6 +9,7 @@ import {
   CreditCardIcon,
   HomeIcon,
   NewspaperIcon,
+  UserCircleIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -21,6 +22,7 @@ import {
   CreditCardIcon as CreditCardIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
+  UserCircleIcon as UserCircleIconSolid,
   UserGroupIcon as UserGroupIconSolid,
 } from "@heroicons/react/24/solid";
 import { ComponentType, SVGProps } from "react";
@@ -37,6 +39,7 @@ export const getAdminNavItems = (t: TFunction): AdminNavItem[] => [
   { to: "/admin", labelKey: t("admin.nav.dashboard"), Icon: HomeIcon, ActiveIcon: HomeIconSolid, end: true },
   { to: "/admin/candidates", labelKey: t("admin.nav.candidates"), Icon: UserGroupIcon, ActiveIcon: UserGroupIconSolid },
   { to: "/admin/employers", labelKey: t("admin.nav.employers"), Icon: BuildingOffice2Icon, ActiveIcon: BuildingOffice2IconSolid },
+  { to: "/admin/users", labelKey: t("admin.nav.users"), Icon: UserCircleIcon, ActiveIcon: UserCircleIconSolid },
   {
     to: "/admin/restaurants",
     labelKey: t("admin.nav.restaurants"),

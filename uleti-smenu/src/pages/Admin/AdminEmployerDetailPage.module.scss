@@ -65,6 +65,13 @@
   font-size: 0.9rem;
 }
 
+.headerBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
 .tabs {
   display: flex;
   gap: 0.5rem;
@@ -189,6 +196,104 @@
   border: 1px dashed #cbd5e1;
   color: #64748b;
   text-align: center;
+}
+
+.primaryAction,
+.secondaryAction,
+.dangerAction {
+  margin-top: 1rem;
+  padding: 0.65rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryAction {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled,
+.dangerAction:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.secondaryAction {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.dangerAction {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.tableCard,
+.notesCard {
+  padding: 1.15rem;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.85rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+  font-size: 0.9rem;
+}
+
+.table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.subtle {
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.emptyState {
+  margin: 0;
+  color: #64748b;
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+.notesLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.notesInput {
+  width: 100%;
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  resize: vertical;
+  font: inherit;
+  color: #0f172a;
+  background: #ffffff;
 }
 
 .loading,

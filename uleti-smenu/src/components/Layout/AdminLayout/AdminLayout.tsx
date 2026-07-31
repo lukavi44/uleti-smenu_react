@@ -33,6 +33,7 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       "/admin": t("admin.pages.dashboard"),
       "/admin/candidates": t("admin.pages.candidates"),
       "/admin/employers": t("admin.pages.employers"),
+      "/admin/users": t("admin.pages.users"),
       "/admin/restaurants": t("admin.pages.restaurants"),
       "/admin/job-posts": t("admin.pages.jobPosts"),
       "/admin/applications": t("admin.pages.applications"),

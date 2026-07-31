@@ -9,6 +9,7 @@ import {
   AdminJobPostListItem,
   AdminPagedResponse,
   AdminRestaurantListItem,
+  AdminUserListItem,
 } from "../models/Admin.model";
 
 export const getAdminDashboard = (fromUtc?: string, toUtc?: string) =>
@@ -30,6 +31,16 @@ export const getAdminEmployerDetail = (employerId: string) =>
 export const setAdminEmployerVerification = (employerId: string, isVerified: boolean) =>
   axiosInstance.put<AdminEmployerDetail>(`/api/v1/Admin/employers/${employerId}/verification`, {
     isVerified,
+  });
+
+export const setAdminEmployerSuspension = (employerId: string, isSuspended: boolean) =>
+  axiosInstance.put<AdminEmployerDetail>(`/api/v1/Admin/employers/${employerId}/suspension`, {
+    isSuspended,
+  });
+
+export const setAdminEmployerNotes = (employerId: string, notes: string | null) =>
+  axiosInstance.put<AdminEmployerDetail>(`/api/v1/Admin/employers/${employerId}/notes`, {
+    notes,
   });
 
 export const getAdminCandidates = (params: {
@@ -62,3 +73,14 @@ export const getAdminApplications = (params: {
 
 export const getAdminBilling = (params: { search?: string; page?: number; pageSize?: number }) =>
   axiosInstance.get<AdminPagedResponse<AdminBillingListItem>>("/api/v1/Admin/billing", { params });
+
+export const getAdminUsers = (params: {
+  search?: string;
+  role?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}) => axiosInstance.get<AdminPagedResponse<AdminUserListItem>>("/api/v1/Admin/users", { params });
+
+export const setAdminUserLockout = (userId: string, isLockedOut: boolean) =>
+  axiosInstance.put<AdminUserListItem>(`/api/v1/Admin/users/${userId}/lockout`, { isLockedOut });
