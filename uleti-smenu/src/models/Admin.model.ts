@@ -145,3 +145,15 @@ export interface AdminEmployerDetail {
   branches?: AdminRestaurantListItem[];
   billingTransactions?: AdminBillingListItem[];
 }
+
+export interface AdminUserListItem {
+  id: string;
+  displayName: string;
+  email: string;
+  roles: string[];
+  emailConfirmed: boolean;
+  isLockedOut: boolean;
+  lockoutEnd?: string;
+  phoneNumber?: string;
+  employerId?: string;
+}
