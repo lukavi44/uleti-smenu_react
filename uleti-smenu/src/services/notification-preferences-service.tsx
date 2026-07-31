@@ -6,6 +6,7 @@ export interface NotificationPreferences {
   inAppApplicationAccepted: boolean;
   inAppApplicationDeclined: boolean;
   inAppApplicationReceived: boolean;
+  emailApplicationReceived: boolean;
   inAppReviewReminder: boolean;
 }
 
@@ -20,6 +21,8 @@ type NotificationPreferencesApi = {
   InAppApplicationDeclined?: boolean;
   inAppApplicationReceived?: boolean;
   InAppApplicationReceived?: boolean;
+  emailApplicationReceived?: boolean;
+  EmailApplicationReceived?: boolean;
   inAppReviewReminder?: boolean;
   InAppReviewReminder?: boolean;
 };
@@ -30,6 +33,7 @@ const normalizePreferences = (data: NotificationPreferencesApi): NotificationPre
   inAppApplicationAccepted: Boolean(data.inAppApplicationAccepted ?? data.InAppApplicationAccepted ?? true),
   inAppApplicationDeclined: Boolean(data.inAppApplicationDeclined ?? data.InAppApplicationDeclined ?? true),
   inAppApplicationReceived: Boolean(data.inAppApplicationReceived ?? data.InAppApplicationReceived ?? true),
+  emailApplicationReceived: Boolean(data.emailApplicationReceived ?? data.EmailApplicationReceived ?? true),
   inAppReviewReminder: Boolean(data.inAppReviewReminder ?? data.InAppReviewReminder ?? true),
 });
 
@@ -39,6 +43,7 @@ const toApiPayload = (update: Partial<NotificationPreferences>) => ({
   inAppApplicationAccepted: update.inAppApplicationAccepted,
   inAppApplicationDeclined: update.inAppApplicationDeclined,
   inAppApplicationReceived: update.inAppApplicationReceived,
+  emailApplicationReceived: update.emailApplicationReceived,
   inAppReviewReminder: update.inAppReviewReminder,
 });
 
