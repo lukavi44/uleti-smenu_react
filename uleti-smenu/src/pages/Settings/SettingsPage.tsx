@@ -236,7 +236,11 @@ const SettingsPage = () => {
           <span className={styles.sectionIcon}><BellIcon /></span>
           <div>
             <h2>{t("settings.notifications")}</h2>
-            <p>{t("settings.notificationsDescription")}</p>
+            <p>
+              {isEmployer
+                ? t("settings.employerNotificationsDescription")
+                : t("settings.notificationsDescription")}
+            </p>
           </div>
         </div>
 
@@ -244,17 +248,29 @@ const SettingsPage = () => {
           <p className={styles.preferenceStatus}>{t("common.loading")}</p>
         ) : (
           <div className={styles.preferencesPanel}>
-            {isEmployee && (
+            {(isEmployee || isEmployer) && (
               <div className={styles.preferenceGroup}>
                 <h3>{t("settings.notificationsEmailSection")}</h3>
-                <PreferenceToggle
-                  id="notify-email-favourite-job"
-                  label={t("settings.notifyEmailFavouriteJobPost")}
-                  description={t("settings.notifyEmailFavouriteJobPostDescription")}
-                  checked={preferences.emailFavouriteJobPost}
-                  disabled={isSavingPreference}
-                  onChange={(checked) => void handlePreferenceChange("emailFavouriteJobPost", checked)}
-                />
+                {isEmployee && (
+                  <PreferenceToggle
+                    id="notify-email-favourite-job"
+                    label={t("settings.notifyEmailFavouriteJobPost")}
+                    description={t("settings.notifyEmailFavouriteJobPostDescription")}
+                    checked={preferences.emailFavouriteJobPost}
+                    disabled={isSavingPreference}
+                    onChange={(checked) => void handlePreferenceChange("emailFavouriteJobPost", checked)}
+                  />
+                )}
+                {isEmployer && (
+                  <PreferenceToggle
+                    id="notify-email-application-received"
+                    label={t("settings.notifyEmailApplicationReceived")}
+                    description={t("settings.notifyEmailApplicationReceivedDescription")}
+                    checked={preferences.emailApplicationReceived}
+                    disabled={isSavingPreference}
+                    onChange={(checked) => void handlePreferenceChange("emailApplicationReceived", checked)}
+                  />
+                )}
               </div>
             )}
 
@@ -301,7 +317,11 @@ const SettingsPage = () => {
               <PreferenceToggle
                 id="notify-inapp-review-reminder"
                 label={t("settings.notifyInAppReviewReminder")}
-                description={t("settings.notifyInAppReviewReminderDescription")}
+                description={
+                  isEmployer
+                    ? t("settings.notifyInAppReviewReminderEmployerDescription")
+                    : t("settings.notifyInAppReviewReminderDescription")
+                }
                 checked={preferences.inAppReviewReminder}
                 disabled={isSavingPreference}
                 onChange={(checked) => void handlePreferenceChange("inAppReviewReminder", checked)}
