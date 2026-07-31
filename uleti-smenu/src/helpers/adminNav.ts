@@ -11,6 +11,7 @@ import {
   NewspaperIcon,
   UserCircleIcon,
   UserGroupIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import {
   ArrowRightOnRectangleIcon as ArrowRightOnRectangleIconSolid,
@@ -20,6 +21,7 @@ import {
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   Cog6ToothIcon as Cog6ToothIconSolid,
   CreditCardIcon as CreditCardIconSolid,
+  EnvelopeIcon as EnvelopeIconSolid,
   HomeIcon as HomeIconSolid,
   NewspaperIcon as NewspaperIconSolid,
   UserCircleIcon as UserCircleIconSolid,
@@ -54,6 +56,12 @@ export const getAdminNavItems = (t: TFunction): AdminNavItem[] => [
     ActiveIcon: ClipboardDocumentListIconSolid,
   },
   { to: "/admin/billing", labelKey: t("admin.nav.billing"), Icon: CreditCardIcon, ActiveIcon: CreditCardIconSolid },
+  {
+    to: "/admin/contact-messages",
+    labelKey: t("admin.nav.contactMessages"),
+    Icon: EnvelopeIcon,
+    ActiveIcon: EnvelopeIconSolid,
+  },
   { to: "/admin/reports", labelKey: t("admin.nav.reports"), Icon: ChartBarIcon, ActiveIcon: ChartBarIconSolid },
   { to: "/admin/settings", labelKey: t("admin.nav.settings"), Icon: Cog6ToothIcon, ActiveIcon: Cog6ToothIconSolid },
 ];

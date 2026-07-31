@@ -687,6 +687,23 @@ const sr = {
     createPost: "Napravi oglas",
     applySuccess: "Uspešno ste se prijavili za ovu smenu.",
     applyError: "Prijava na smenu nije uspela.",
+    report: "Prijavi",
+    reportTitle: "Prijavi ovaj oglas",
+    reportReason: "Razlog",
+    reportReasonPlaceholder: "Izaberite razlog",
+    reportDetails: "Detalji (opciono)",
+    reportDetailsPlaceholder: "Dodajte kontekst za moderatore...",
+    reportSubmit: "Pošalji prijavu",
+    reportCancel: "Otkaži",
+    reportSuccess: "Hvala — prijava je poslata.",
+    reportError: "Prijava nije mogla da se pošalje.",
+    reportLoginRequired: "Prijavite se da biste prijavili ovaj oglas.",
+    reportReasons: {
+      misleading: "Obmanjujuće ili netačno",
+      spam: "Spam ili prevara",
+      inappropriate: "Neprimeren sadržaj",
+      other: "Ostalo"
+    },
     saveError: "Oglas nije mogao da se sačuva.",
     postLoadError: "Oglas nije mogao da se učita.",
     filterCity: "Grad",
@@ -1358,6 +1375,7 @@ const sr = {
       jobsShort: "Oglasi",
       applications: "Prijave / smene",
       billing: "Plaćanja / billing",
+      contactMessages: "Kontakt poruke",
       reports: "Izveštaji",
       settings: "Podešavanja",
       more: "Više"
@@ -1372,7 +1390,10 @@ const sr = {
       jobPosts: "Oglasi",
       applications: "Prijave / smene",
       billing: "Plaćanja / billing",
-      reports: "Izveštaji",
+      contactMessages: "Kontakt poruke",
+      contactMessageDetail: "Kontakt poruka",
+      reports: "Prigovori",
+      reportDetail: "Prigovor",
       settings: "Podešavanja"
     },
     dashboard: {
@@ -1523,7 +1544,64 @@ const sr = {
       }
     },
     reports: {
-      empty: "Još nema prijavljenih prigovora. Ovaj modul će prikazati prijave kandidata i poslodavaca kada bude dostupan."
+      searchPlaceholder: "Pretraga po razlogu, detaljima ili emailu prijavitelja...",
+      empty: "Nema prigovora za izabrane filtere.",
+      allStatuses: "Svi statusi",
+      viewDetails: "Otvori",
+      resolve: "Označi kao rešeno",
+      resolveSuccess: "Prigovor je označen kao rešen.",
+      resolveError: "Rešavanje prigovora nije uspelo.",
+      backToList: "Nazad na prigovore",
+      notFound: "Prigovor nije pronađen.",
+      reporter: "Prijavitelj",
+      openTarget: "Otvori povezanu stavku",
+      details: "Detalji",
+      notes: "Napomena (opciono)",
+      notesPlaceholder: "Kratka beleška o rešenju...",
+      status: {
+        Open: "Otvoreno",
+        Resolved: "Rešeno"
+      },
+      targetType: {
+        JobPost: "Oglas",
+        Employer: "Poslodavac"
+      },
+      columns: {
+        target: "Cilj",
+        reason: "Razlog",
+        reporter: "Prijavitelj",
+        created: "Podneto",
+        status: "Status",
+        actions: "Akcije"
+      }
+    },
+    contactMessages: {
+      searchPlaceholder: "Pretraga po imenu, emailu ili naslovu...",
+      empty: "Nema kontakt poruka za izabrane filtere.",
+      allStatuses: "Svi statusi",
+      viewDetails: "Otvori",
+      resolve: "Označi kao rešeno",
+      resolveSuccess: "Poruka je označena kao rešena.",
+      resolveError: "Rešavanje nije uspelo.",
+      backToList: "Nazad na kontakt poruke",
+      notFound: "Poruka nije pronađena.",
+      replyMailto: "Odgovori emailom",
+      notes: "Napomena (opciono)",
+      notesPlaceholder: "Kratka beleška o rešenju...",
+      emailSent: "Email poslat",
+      emailNotSent: "Email nije poslat",
+      messageBody: "Poruka",
+      status: {
+        Open: "Otvoreno",
+        Resolved: "Rešeno"
+      },
+      columns: {
+        from: "Pošiljalac",
+        subject: "Naslov",
+        created: "Primljeno",
+        status: "Status",
+        actions: "Akcije"
+      }
     },
     users: {
       searchPlaceholder: "Pretraga po imenu, emailu ili telefonu...",

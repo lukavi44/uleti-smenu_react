@@ -685,6 +685,23 @@ const en = {
     createPost: "Create Job Post",
     applySuccess: "Successfully applied for this shift.",
     applyError: "Unable to apply for this shift.",
+    report: "Report",
+    reportTitle: "Report this job post",
+    reportReason: "Reason",
+    reportReasonPlaceholder: "Select a reason",
+    reportDetails: "Details (optional)",
+    reportDetailsPlaceholder: "Add more context for moderators...",
+    reportSubmit: "Submit report",
+    reportCancel: "Cancel",
+    reportSuccess: "Thanks — your report was submitted.",
+    reportError: "Unable to submit the report.",
+    reportLoginRequired: "Sign in to report this job post.",
+    reportReasons: {
+      misleading: "Misleading or inaccurate",
+      spam: "Spam or scam",
+      inappropriate: "Inappropriate content",
+      other: "Other"
+    },
     saveError: "Unable to save the job post.",
     postLoadError: "Unable to load the job post.",
     filterCity: "City",
@@ -1354,6 +1371,7 @@ const en = {
       jobsShort: "Jobs",
       applications: "Applications / shifts",
       billing: "Payments / billing",
+      contactMessages: "Contact messages",
       reports: "Reports",
       settings: "Settings",
       more: "More"
@@ -1368,7 +1386,10 @@ const en = {
       jobPosts: "Job posts",
       applications: "Applications / shifts",
       billing: "Payments / billing",
+      contactMessages: "Contact messages",
+      contactMessageDetail: "Contact message",
       reports: "Reports",
+      reportDetail: "Report",
       settings: "Settings"
     },
     dashboard: {
@@ -1519,7 +1540,64 @@ const en = {
       }
     },
     reports: {
-      empty: "No reports have been submitted yet. This module will list candidate and employer reports when available."
+      searchPlaceholder: "Search by reason, details, or reporter email...",
+      empty: "No reports match the selected filters.",
+      allStatuses: "All statuses",
+      viewDetails: "Open",
+      resolve: "Mark as resolved",
+      resolveSuccess: "Report marked as resolved.",
+      resolveError: "Could not resolve the report.",
+      backToList: "Back to reports",
+      notFound: "Report not found.",
+      reporter: "Reporter",
+      openTarget: "Open related item",
+      details: "Details",
+      notes: "Note (optional)",
+      notesPlaceholder: "Short note about the resolution...",
+      status: {
+        Open: "Open",
+        Resolved: "Resolved"
+      },
+      targetType: {
+        JobPost: "Job post",
+        Employer: "Employer"
+      },
+      columns: {
+        target: "Target",
+        reason: "Reason",
+        reporter: "Reporter",
+        created: "Submitted",
+        status: "Status",
+        actions: "Actions"
+      }
+    },
+    contactMessages: {
+      searchPlaceholder: "Search by name, email, or subject...",
+      empty: "No contact messages match the selected filters.",
+      allStatuses: "All statuses",
+      viewDetails: "Open",
+      resolve: "Mark as resolved",
+      resolveSuccess: "Message marked as resolved.",
+      resolveError: "Could not resolve the message.",
+      backToList: "Back to contact messages",
+      notFound: "Message not found.",
+      replyMailto: "Reply by email",
+      notes: "Note (optional)",
+      notesPlaceholder: "Short note about the resolution...",
+      emailSent: "Email sent",
+      emailNotSent: "Email not sent",
+      messageBody: "Message",
+      status: {
+        Open: "Open",
+        Resolved: "Resolved"
+      },
+      columns: {
+        from: "From",
+        subject: "Subject",
+        created: "Received",
+        status: "Status",
+        actions: "Actions"
+      }
     },
     users: {
       searchPlaceholder: "Search users by name, email, or phone...",
