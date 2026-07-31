@@ -154,16 +154,16 @@ const AdminListPage = <T extends { id: string }>({
           disabled={page <= 1}
           onClick={() => setPage((current) => Math.max(1, current - 1))}
         >
-          {t("jobPosts.previousPage")}
+          {t("admin.pagination.previousPage")}
         </button>
-        <span className={styles.pageInfo}>{t("jobPosts.pageOf", { page, totalPages })}</span>
+        <span className={styles.pageInfo}>{t("admin.pagination.pageOf", { page, totalPages })}</span>
         <button
           type="button"
           className={styles.pageButton}
           disabled={page >= totalPages}
           onClick={() => setPage((current) => current + 1)}
         >
-          {t("jobPosts.nextPage")}
+          {t("admin.pagination.nextPage")}
         </button>
       </div>
     </div>

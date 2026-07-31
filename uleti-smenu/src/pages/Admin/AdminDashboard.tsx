@@ -6,6 +6,16 @@ import styles from "./AdminDashboard.module.scss";
 
 const formatDateInput = (date: Date) => date.toISOString().slice(0, 10);
 
+const formatChartLabel = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value.slice(0, 10);
+  }
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${day}.${month}`;
+};
+
 const formatRelativeTime = (value: string, locale: string) => {
   const diffMs = Date.now() - new Date(value).getTime();
   const minutes = Math.floor(diffMs / 60000);
@@ -74,7 +84,10 @@ const AdminDashboard = () => {
         { label: t("admin.dashboard.totalCandidates"), value: dashboard.totalCandidates.toLocaleString() },
         { label: t("admin.dashboard.totalEmployers"), value: dashboard.totalEmployers.toLocaleString() },
         { label: t("admin.dashboard.activeJobPosts"), value: dashboard.activeJobPosts.toLocaleString() },
-        { label: t("admin.dashboard.reports"), value: dashboard.reportsCount.toLocaleString() },
+        {
+          label: t("admin.dashboard.totalApplications"),
+          value: (dashboard.totalApplications ?? dashboard.reportsCount).toLocaleString(),
+        },
         {
           label: t("admin.dashboard.walletTopUpsMonth"),
           value: `${dashboard.walletTopUpsThisMonth.toLocaleString()} RSD`,
@@ -83,31 +96,17 @@ const AdminDashboard = () => {
           label: t("admin.dashboard.acceptedAllTime"),
           value: dashboard.acceptedCandidatesAllTime.toLocaleString(),
         },
+        {
+          label: t("admin.dashboard.totalJobPostsAllTime"),
+          value: (
+            dashboard.totalJobPostsAllTime ?? dashboard.completedShiftsAllTime ?? 0
+          ).toLocaleString(),
+        },
       ]
     : [];
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.toolbar}>
-        <div className={styles.dateRange}>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={fromDate}
-            onChange={(event) => setFromDate(event.target.value)}
-            aria-label={t("admin.dashboard.dateFrom")}
-          />
-          <span>–</span>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={toDate}
-            onChange={(event) => setToDate(event.target.value)}
-            aria-label={t("admin.dashboard.dateTo")}
-          />
-        </div>
-      </div>
-
       {loading ? (
         <div className={styles.summaryGrid}>
           {Array.from({ length: 6 }).map((_, index) => (
@@ -125,20 +124,28 @@ const AdminDashboard = () => {
             ))}
           </div>
 
-          <div className={styles.allTimeGrid}>
-            <article className={styles.summaryCard}>
-              <p className={styles.summaryLabel}>{t("admin.dashboard.acceptedAllTimeStat")}</p>
-              <p className={styles.summaryValue}>{dashboard?.acceptedCandidatesAllTime.toLocaleString() ?? "0"}</p>
-            </article>
-            <article className={styles.summaryCard}>
-              <p className={styles.summaryLabel}>{t("admin.dashboard.completedShiftsAllTime")}</p>
-              <p className={styles.summaryValue}>{dashboard?.completedShiftsAllTime.toLocaleString() ?? "0"}</p>
-            </article>
-          </div>
-
           <div className={styles.contentGrid}>
             <section className={styles.panel}>
-              <h2 className={styles.panelTitle}>{t("admin.dashboard.applicationsChart")}</h2>
+              <div className={styles.panelHeader}>
+                <h2 className={styles.panelTitle}>{t("admin.dashboard.applicationsChart")}</h2>
+                <div className={styles.dateRange}>
+                  <input
+                    type="date"
+                    className={styles.dateInput}
+                    value={fromDate}
+                    onChange={(event) => setFromDate(event.target.value)}
+                    aria-label={t("admin.dashboard.dateFrom")}
+                  />
+                  <span>–</span>
+                  <input
+                    type="date"
+                    className={styles.dateInput}
+                    value={toDate}
+                    onChange={(event) => setToDate(event.target.value)}
+                    aria-label={t("admin.dashboard.dateTo")}
+                  />
+                </div>
+              </div>
               <div className={styles.chart}>
                 {dashboard?.applicationsChart.map((point) => (
                   <div key={point.date} className={styles.chartBarWrap}>
@@ -147,7 +154,7 @@ const AdminDashboard = () => {
                       style={{ height: `${Math.max(8, (point.count / chartMax) * 140)}px` }}
                       title={`${point.count}`}
                     />
-                    <span className={styles.chartLabel}>{point.date.slice(5).replace("-", ".")}</span>
+                    <span className={styles.chartLabel}>{formatChartLabel(point.date)}</span>
                   </div>
                 ))}
               </div>

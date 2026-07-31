@@ -1375,16 +1375,23 @@ const en = {
       totalCandidates: "Total candidates",
       totalEmployers: "Total employers",
       activeJobPosts: "Active job posts",
+      totalApplications: "Total applications",
       reports: "Reports / complaints",
       walletTopUpsMonth: "Wallet top-ups (month)",
       acceptedAllTime: "Accepted candidates",
       acceptedAllTimeStat: "Accepted candidates (all time)",
+      totalJobPostsAllTime: "Total job posts (all time)",
       completedShiftsAllTime: "Completed shifts (all time)",
       applicationsChart: "Applications chart",
       recentActivity: "Recent activity",
       noActivity: "No recent activity.",
       dateFrom: "From date",
       dateTo: "To date"
+    },
+    pagination: {
+      previousPage: "Previous page",
+      nextPage: "Next page",
+      pageOf: "Showing {{page}} of {{totalPages}}"
     },
     activity: {
       employerRegistered: "New employer registered",

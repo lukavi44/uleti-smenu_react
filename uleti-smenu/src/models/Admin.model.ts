@@ -24,10 +24,12 @@ export interface AdminDashboard {
   totalCandidates: number;
   totalEmployers: number;
   activeJobPosts: number;
+  totalApplications?: number;
   reportsCount: number;
   walletTopUpsThisMonth: number;
   acceptedCandidatesAllTime: number;
-  completedShiftsAllTime: number;
+  totalJobPostsAllTime: number;
+  completedShiftsAllTime?: number;
   applicationsChart: AdminDashboardChartPoint[];
   recentActivities: AdminRecentActivity[];
 }
