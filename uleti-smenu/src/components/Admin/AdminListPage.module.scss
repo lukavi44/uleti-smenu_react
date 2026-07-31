@@ -101,6 +101,24 @@
   font-size: 0.85rem;
 }
 
+.identityCell,
+.cardIdentity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+}
+
+.avatarFallback {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .emptyState {
   margin: 0;
   padding: 2rem 1rem;

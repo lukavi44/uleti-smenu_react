@@ -1379,16 +1379,23 @@ const sr = {
       totalCandidates: "Ukupno kandidata",
       totalEmployers: "Ukupno poslodavaca",
       activeJobPosts: "Aktivni oglasi",
-      reports: "Prijave / prigovori",
+      totalApplications: "Ukupno prijava",
+      reports: "Prigovori",
       walletTopUpsMonth: "Uplate u novčanike (mesec)",
       acceptedAllTime: "Prihvaćeni kandidati",
-      acceptedAllTimeStat: "Prihvaćeni kandidati (all time)",
-      completedShiftsAllTime: "Završene smene (all time)",
+      acceptedAllTimeStat: "Prihvaćeni kandidati (ukupno)",
+      totalJobPostsAllTime: "Ukupan broj oglasa (sve)",
+      completedShiftsAllTime: "Završene smene (ukupno)",
       applicationsChart: "Grafik prijava",
       recentActivity: "Nedavne aktivnosti",
       noActivity: "Nema nedavnih aktivnosti.",
       dateFrom: "Datum od",
       dateTo: "Datum do"
+    },
+    pagination: {
+      previousPage: "Prethodna strana",
+      nextPage: "Sledeća strana",
+      pageOf: "Prikazano {{page}} od {{totalPages}}"
     },
     activity: {
       employerRegistered: "Novi poslodavac registrovan",

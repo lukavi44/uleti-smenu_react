@@ -11,6 +11,7 @@ import {
 } from "../../services/admin-service";
 import AdminStatusBadge from "../../components/Admin/AdminStatusBadge";
 import AdminVerificationModal from "../../components/Admin/AdminVerificationModal";
+import UserAvatar from "../../components/Common/UserAvatar";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 import styles from "./AdminEmployerDetailPage.module.scss";
@@ -395,11 +396,12 @@ const AdminEmployerDetailPage = () => {
 
       <section className={styles.headerCard}>
         <div className={styles.headerIdentity}>
-          {employer.profilePhoto ? (
-            <img src={employer.profilePhoto} alt="" className={styles.avatar} />
-          ) : (
-            <span className={`${styles.avatar} ${styles.avatarFallback}`}>{employer.name.charAt(0).toUpperCase()}</span>
-          )}
+          <UserAvatar
+            name={employer.name || employer.email}
+            profilePhoto={employer.profilePhoto}
+            className={styles.avatar}
+            fallbackClassName={styles.avatarFallback}
+          />
           <div>
             <h2 className={styles.headerTitle}>{employer.name}</h2>
             <p className={styles.headerMeta}>{employer.city}</p>
