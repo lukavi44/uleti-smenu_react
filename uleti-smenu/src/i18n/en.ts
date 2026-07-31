@@ -1364,6 +1364,7 @@ const en = {
       employers: "Employers",
       users: "Users",
       employerDetail: "Employer details",
+      jobPostDetail: "Job post details",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
       applications: "Applications / shifts",
@@ -1496,18 +1497,57 @@ const en = {
       searchPlaceholder: "Search job posts...",
       empty: "No job posts match the selected filters.",
       allStatuses: "All statuses",
+      viewDetails: "Details",
       columns: {
-        title: "Job post"
+        title: "Job post",
+        position: "Position",
+        startingDate: "Shift start",
+        actions: "Actions"
       }
+    },
+    jobPostDetail: {
+      notFound: "Job post not found.",
+      backToList: "Back to job posts",
+      overview: "Overview",
+      applications: "Applications",
+      description: "Description",
+      position: "Position",
+      salary: "Daily rate",
+      location: "Location",
+      startingDate: "Shift start",
+      visibleUntil: "Visible until",
+      created: "Created",
+      archive: "Archive job post",
+      archiveConfirm: "Archive this job post? Pending applications will be expired.",
+      archiveSuccess: "Job post archived.",
+      archiveError: "Could not archive the job post.",
+      noApplications: "No applications for this job post."
+    },
+    jobStatus: {
+      Draft: "Draft",
+      Active: "Active",
+      Expired: "Expired",
+      Completed: "Completed",
+      Cancelled: "Cancelled"
     },
     applications: {
       searchPlaceholder: "Search applications...",
       empty: "No applications match the selected filters.",
       allStatuses: "All statuses",
+      openJob: "Job",
+      openEmployer: "Employer",
       columns: {
         candidate: "Candidate",
-        applied: "Applied date"
+        applied: "Applied date",
+        actions: "Actions"
       }
+    },
+    applicationStatus: {
+      Applied: "Applied",
+      Accepted: "Accepted",
+      Denied: "Denied",
+      Cancelled: "Cancelled",
+      Expired: "Expired"
     },
     billing: {
       searchPlaceholder: "Search by employer...",

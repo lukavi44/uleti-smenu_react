@@ -29,6 +29,10 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       return t("admin.pages.employerDetail");
     }
 
+    if (location.pathname.startsWith("/admin/job-posts/") && location.pathname !== "/admin/job-posts") {
+      return t("admin.pages.jobPostDetail");
+    }
+
     const titles: Record<string, string> = {
       "/admin": t("admin.pages.dashboard"),
       "/admin/candidates": t("admin.pages.candidates"),
