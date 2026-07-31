@@ -18,6 +18,7 @@ const AdminMobileNav = ({ onOpenMenu }: AdminMobileNavProps) => {
     "/admin/restaurants",
     "/admin/applications",
     "/admin/billing",
+    "/admin/contact-messages",
     "/admin/reports",
     "/admin/settings",
   ];

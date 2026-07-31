@@ -102,6 +102,42 @@ export interface AdminApplicationListItem {
   appliedAtUtc: string;
 }
 
+export interface AdminContactMessageListItem {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  status: string;
+  emailSent: boolean;
+  createdAtUtc: string;
+}
+
+export interface AdminContactMessageDetail extends AdminContactMessageListItem {
+  message: string;
+  resolvedAtUtc?: string;
+  resolvedByAdminId?: string;
+  adminNotes?: string;
+}
+
+export interface AdminReportListItem {
+  id: string;
+  reporterUserId: string;
+  reporterEmail: string;
+  targetType: string;
+  targetId: string;
+  targetLabel: string;
+  reason: string;
+  status: string;
+  createdAtUtc: string;
+}
+
+export interface AdminReportDetail extends AdminReportListItem {
+  details?: string;
+  resolvedAtUtc?: string;
+  resolvedByAdminId?: string;
+  adminNotes?: string;
+}
+
 export interface AdminBillingListItem {
   id: string;
   employerId?: string;

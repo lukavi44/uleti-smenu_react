@@ -3,27 +3,21 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
 import styles from "../../components/Admin/AdminListPage.module.scss";
-import { getAdminReports } from "../../services/admin-service";
+import { getAdminContactMessages } from "../../services/admin-service";
 import { formatDisplayDateTime } from "../../helpers/formatDisplayDateTime";
 
-const AdminReportsPage = () => {
+const AdminContactMessagesPage = () => {
   const { t } = useTranslation();
 
   const statusLabel = (status: string) => {
-    const key = `admin.reports.status.${status}`;
+    const key = `admin.contactMessages.status.${status}`;
     const translated = t(key);
     return translated === key ? status : translated;
   };
 
-  const targetTypeLabel = (targetType: string) => {
-    const key = `admin.reports.targetType.${targetType}`;
-    const translated = t(key);
-    return translated === key ? targetType : translated;
-  };
-
   const fetchItems = useCallback(
     async (params: { search: string; status: string; page: number; pageSize: number }) => {
-      const response = await getAdminReports({
+      const response = await getAdminContactMessages({
         search: params.search.trim() || undefined,
         status: params.status === "all" ? undefined : params.status,
         page: params.page,
@@ -36,13 +30,13 @@ const AdminReportsPage = () => {
 
   return (
     <AdminListPage
-      searchPlaceholder={t("admin.reports.searchPlaceholder")}
-      emptyMessage={t("admin.reports.empty")}
+      searchPlaceholder={t("admin.contactMessages.searchPlaceholder")}
+      emptyMessage={t("admin.contactMessages.empty")}
       showStatusFilter
       statusOptions={[
-        { value: "all", label: t("admin.reports.allStatuses") },
-        { value: "Open", label: t("admin.reports.status.Open") },
-        { value: "Resolved", label: t("admin.reports.status.Resolved") },
+        { value: "all", label: t("admin.contactMessages.allStatuses") },
+        { value: "Open", label: t("admin.contactMessages.status.Open") },
+        { value: "Resolved", label: t("admin.contactMessages.status.Resolved") },
       ]}
       fetchItems={(params) =>
         fetchItems({
@@ -54,33 +48,28 @@ const AdminReportsPage = () => {
       }
       columns={[
         {
-          key: "target",
-          header: t("admin.reports.columns.target"),
+          key: "from",
+          header: t("admin.contactMessages.columns.from"),
           render: (item) => (
             <div>
-              <p className={styles.cardTitle}>{item.targetLabel}</p>
-              <p className={styles.cardMeta}>{targetTypeLabel(item.targetType)}</p>
+              <p className={styles.cardTitle}>{item.name}</p>
+              <p className={styles.cardMeta}>{item.email}</p>
             </div>
           ),
         },
         {
-          key: "reason",
-          header: t("admin.reports.columns.reason"),
-          render: (item) => item.reason,
-        },
-        {
-          key: "reporter",
-          header: t("admin.reports.columns.reporter"),
-          render: (item) => item.reporterEmail,
+          key: "subject",
+          header: t("admin.contactMessages.columns.subject"),
+          render: (item) => item.subject,
         },
         {
           key: "created",
-          header: t("admin.reports.columns.created"),
+          header: t("admin.contactMessages.columns.created"),
           render: (item) => formatDisplayDateTime(item.createdAtUtc) || "—",
         },
         {
           key: "status",
-          header: t("admin.reports.columns.status"),
+          header: t("admin.contactMessages.columns.status"),
           render: (item) => (
             <span className={`${styles.badge} ${item.status === "Open" ? styles.badgeActive : ""}`}>
               {statusLabel(item.status)}
@@ -89,25 +78,25 @@ const AdminReportsPage = () => {
         },
         {
           key: "actions",
-          header: t("admin.reports.columns.actions"),
+          header: t("admin.contactMessages.columns.actions"),
           render: (item) => (
-            <Link className={styles.linkButton} to={`/admin/reports/${item.id}`}>
-              {t("admin.reports.viewDetails")}
+            <Link className={styles.linkButton} to={`/admin/contact-messages/${item.id}`}>
+              {t("admin.contactMessages.viewDetails")}
             </Link>
           ),
         },
       ]}
       renderMobileCard={(item) => (
         <>
-          <h3 className={styles.cardTitle}>{item.targetLabel}</h3>
+          <h3 className={styles.cardTitle}>{item.subject}</h3>
           <p className={styles.cardSubtitle}>
-            {targetTypeLabel(item.targetType)} · {item.reason}
+            {item.name} · {item.email}
           </p>
           <p className={styles.cardMeta}>
-            {item.reporterEmail} · {statusLabel(item.status)} · {formatDisplayDateTime(item.createdAtUtc)}
+            {statusLabel(item.status)} · {formatDisplayDateTime(item.createdAtUtc)}
           </p>
-          <Link className={styles.linkButton} to={`/admin/reports/${item.id}`}>
-            {t("admin.reports.viewDetails")}
+          <Link className={styles.linkButton} to={`/admin/contact-messages/${item.id}`}>
+            {t("admin.contactMessages.viewDetails")}
           </Link>
         </>
       )}
@@ -115,4 +104,4 @@ const AdminReportsPage = () => {
   );
 };
 
-export default AdminReportsPage;
+export default AdminContactMessagesPage;
