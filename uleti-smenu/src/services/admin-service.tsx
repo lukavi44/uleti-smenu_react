@@ -14,6 +14,7 @@ import {
   AdminContactMessageListItem,
   AdminReportDetail,
   AdminReportListItem,
+  AdminJobPostDetail,
 } from "../models/Admin.model";
 
 export const getAdminDashboard = (fromUtc?: string, toUtc?: string) =>
@@ -67,6 +68,12 @@ export const getAdminJobPosts = (params: {
   page?: number;
   pageSize?: number;
 }) => axiosInstance.get<AdminPagedResponse<AdminJobPostListItem>>("/api/v1/Admin/job-posts", { params });
+
+export const getAdminJobPostDetail = (jobPostId: string) =>
+  axiosInstance.get<AdminJobPostDetail>(`/api/v1/Admin/job-posts/${jobPostId}`);
+
+export const archiveAdminJobPost = (jobPostId: string) =>
+  axiosInstance.put<AdminJobPostDetail>(`/api/v1/Admin/job-posts/${jobPostId}/archive`);
 
 export const getAdminApplications = (params: {
   search?: string;
