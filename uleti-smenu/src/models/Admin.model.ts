@@ -82,7 +82,7 @@ export interface AdminRestaurantListItem {
 
 export interface AdminJobPostListItem {
   id: string;
-  employerId?: string;
+  employerId: string;
   title: string;
   position: string;
   employerName: string;
@@ -95,11 +95,32 @@ export interface AdminJobPostListItem {
 
 export interface AdminApplicationListItem {
   id: string;
+  jobPostId: string;
+  userId: string;
+  employerId: string;
   candidateName: string;
   jobTitle: string;
   employerName: string;
   status: string;
   appliedAtUtc: string;
+}
+
+export interface AdminJobPostDetail {
+  id: string;
+  employerId: string;
+  title: string;
+  description: string;
+  position: string;
+  employerName: string;
+  locationName?: string;
+  status: string;
+  salary: number;
+  applicationsCount: number;
+  createdAtUtc: string;
+  startingDate: string;
+  visibleUntil: string;
+  canArchive: boolean;
+  applications: AdminApplicationListItem[];
 }
 
 export interface AdminBillingListItem {

@@ -1368,6 +1368,7 @@ const sr = {
       employers: "Poslodavci",
       users: "Korisnici",
       employerDetail: "Detalji poslodavca",
+      jobPostDetail: "Detalji oglasa",
       restaurants: "Restorani / filijale",
       jobPosts: "Oglasi",
       applications: "Prijave / smene",
@@ -1500,18 +1501,57 @@ const sr = {
       searchPlaceholder: "Pretraga oglasa...",
       empty: "Nema oglasa za izabrane filtere.",
       allStatuses: "Svi statusi",
+      viewDetails: "Detalji",
       columns: {
-        title: "Oglas"
+        title: "Oglas",
+        position: "Pozicija",
+        startingDate: "Početak smene",
+        actions: "Akcije"
       }
+    },
+    jobPostDetail: {
+      notFound: "Oglas nije pronađen.",
+      backToList: "Nazad na oglase",
+      overview: "Pregled",
+      applications: "Prijave",
+      description: "Opis",
+      position: "Pozicija",
+      salary: "Dnevnica",
+      location: "Lokacija",
+      startingDate: "Početak smene",
+      visibleUntil: "Vidljiv do",
+      created: "Kreiran",
+      archive: "Arhiviraj oglas",
+      archiveConfirm: "Da li ste sigurni da želite da arhivirate ovaj oglas? Pending prijave će biti istekli.",
+      archiveSuccess: "Oglas je arhiviran.",
+      archiveError: "Arhiviranje nije uspelo.",
+      noApplications: "Nema prijava za ovaj oglas."
+    },
+    jobStatus: {
+      Draft: "Nacrt",
+      Active: "Aktivan",
+      Expired: "Istekao",
+      Completed: "Završen",
+      Cancelled: "Otkazan"
     },
     applications: {
       searchPlaceholder: "Pretraga prijava...",
       empty: "Nema prijava za izabrane filtere.",
       allStatuses: "Svi statusi",
+      openJob: "Oglas",
+      openEmployer: "Poslodavac",
       columns: {
         candidate: "Kandidat",
-        applied: "Datum prijave"
+        applied: "Datum prijave",
+        actions: "Akcije"
       }
+    },
+    applicationStatus: {
+      Applied: "Prijavljen",
+      Accepted: "Prihvaćen",
+      Denied: "Odbijen",
+      Cancelled: "Otkazan",
+      Expired: "Istekao"
     },
     billing: {
       searchPlaceholder: "Pretraga po poslodavcu...",

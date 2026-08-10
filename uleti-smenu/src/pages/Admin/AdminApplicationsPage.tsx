@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
 import styles from "../../components/Admin/AdminListPage.module.scss";
@@ -7,6 +8,12 @@ import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 
 const AdminApplicationsPage = () => {
   const { t } = useTranslation();
+
+  const statusLabel = (status: string) => {
+    const key = `admin.applicationStatus.${status}`;
+    const translated = t(key);
+    return translated === key ? status : translated;
+  };
 
   const fetchItems = useCallback(
     async (params: { search: string; status: string; page: number; pageSize: number }) => {
@@ -28,11 +35,11 @@ const AdminApplicationsPage = () => {
       showStatusFilter
       statusOptions={[
         { value: "all", label: t("admin.applications.allStatuses") },
-        { value: "Applied", label: "Applied" },
-        { value: "Accepted", label: "Accepted" },
-        { value: "Denied", label: "Denied" },
-        { value: "Cancelled", label: "Cancelled" },
-        { value: "Expired", label: "Expired" },
+        { value: "Applied", label: t("admin.applicationStatus.Applied") },
+        { value: "Accepted", label: t("admin.applicationStatus.Accepted") },
+        { value: "Denied", label: t("admin.applicationStatus.Denied") },
+        { value: "Cancelled", label: t("admin.applicationStatus.Cancelled") },
+        { value: "Expired", label: t("admin.applicationStatus.Expired") },
       ]}
       fetchItems={(params) =>
         fetchItems({
@@ -48,16 +55,31 @@ const AdminApplicationsPage = () => {
           header: t("admin.applications.columns.candidate"),
           render: (item) => item.candidateName,
         },
-        { key: "job", header: t("admin.jobPosts.columns.title"), render: (item) => item.jobTitle },
+        {
+          key: "job",
+          header: t("admin.jobPosts.columns.title"),
+          render: (item) => (
+            <Link className={styles.linkButton} to={`/admin/job-posts/${item.jobPostId}`}>
+              {item.jobTitle}
+            </Link>
+          ),
+        },
         {
           key: "employer",
           header: t("admin.restaurants.columns.employer"),
-          render: (item) => item.employerName,
+          render: (item) =>
+            item.employerId ? (
+              <Link className={styles.linkButton} to={`/admin/employers/${item.employerId}`}>
+                {item.employerName}
+              </Link>
+            ) : (
+              item.employerName
+            ),
         },
         {
           key: "status",
           header: t("admin.employers.columns.status"),
-          render: (item) => <span className={styles.badge}>{item.status}</span>,
+          render: (item) => <span className={styles.badge}>{statusLabel(item.status)}</span>,
         },
         {
           key: "applied",
@@ -70,8 +92,18 @@ const AdminApplicationsPage = () => {
           <h3 className={styles.cardTitle}>{item.candidateName}</h3>
           <p className={styles.cardSubtitle}>{item.jobTitle}</p>
           <p className={styles.cardMeta}>
-            {item.employerName} · {item.status}
+            {item.employerName} · {statusLabel(item.status)}
           </p>
+          <div className={styles.cardActions}>
+            <Link className={styles.linkButton} to={`/admin/job-posts/${item.jobPostId}`}>
+              {t("admin.applications.openJob")}
+            </Link>
+            {item.employerId ? (
+              <Link className={styles.linkButton} to={`/admin/employers/${item.employerId}`}>
+                {t("admin.applications.openEmployer")}
+              </Link>
+            ) : null}
+          </div>
         </>
       )}
     />
