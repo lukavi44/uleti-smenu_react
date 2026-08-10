@@ -44,7 +44,10 @@ import AdminJobPostsPage from "./pages/Admin/AdminJobPostsPage";
 import AdminJobPostDetailPage from "./pages/Admin/AdminJobPostDetailPage";
 import AdminApplicationsPage from "./pages/Admin/AdminApplicationsPage";
 import AdminBillingPage from "./pages/Admin/AdminBillingPage";
+import AdminContactMessagesPage from "./pages/Admin/AdminContactMessagesPage";
+import AdminContactMessageDetailPage from "./pages/Admin/AdminContactMessageDetailPage";
 import AdminReportsPage from "./pages/Admin/AdminReportsPage";
+import AdminReportDetailPage from "./pages/Admin/AdminReportDetailPage";
 import AdminSettingsPage from "./pages/Admin/AdminSettingsPage";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
@@ -118,7 +121,10 @@ function App() {
               <Route path="admin/job-posts/:jobPostId" element={<AdminJobPostDetailPage />} />
               <Route path="admin/applications" element={<AdminApplicationsPage />} />
               <Route path="admin/billing" element={<AdminBillingPage />} />
+              <Route path="admin/contact-messages" element={<AdminContactMessagesPage />} />
+              <Route path="admin/contact-messages/:messageId" element={<AdminContactMessageDetailPage />} />
               <Route path="admin/reports" element={<AdminReportsPage />} />
+              <Route path="admin/reports/:reportId" element={<AdminReportDetailPage />} />
               <Route path="admin/settings" element={<AdminSettingsPage />} />
             </Route>
             </Route>
