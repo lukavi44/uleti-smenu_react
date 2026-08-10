@@ -50,3 +50,11 @@ export const RegistrationEmployerRequest = async (
   ): Promise<AxiosResponse> => {
     return axiosInstance.post("/manage/info", { oldPassword, newPassword });
   };
+
+  export const DeleteAccountRequest = async (
+    password: string
+  ): Promise<AxiosResponse<{ message: string }>> => {
+    return axiosInstance.delete<{ message: string }>("/api/v1/User/me", {
+      data: { password },
+    });
+  };

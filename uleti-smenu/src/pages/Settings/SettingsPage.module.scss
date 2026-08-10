@@ -189,7 +189,6 @@
 }
 
 .dangerCard {
-  padding-top: 2.5rem;
   border-color: #fecaca;
   background: #fffafa;
 }
@@ -204,6 +203,69 @@
   border: 1px solid #fecaca;
   background: #ffffff;
   color: #b91c1c;
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.deleteForm {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0 0 3.1rem;
+}
+
+.deleteWarning {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.deleteForm label {
+  display: grid;
+  gap: 0.35rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.deleteForm input[type="password"] {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font: inherit;
+  color: #0f172a;
+}
+
+.deleteConfirm {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-weight: 500 !important;
+  color: #334155 !important;
+}
+
+.deleteConfirm input {
+  margin-top: 0.2rem;
+}
+
+.deleteActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.deleteActions .dangerButton,
+.deleteActions .secondaryButton {
+  margin: 0;
 }
 
 .preferencesPanel {

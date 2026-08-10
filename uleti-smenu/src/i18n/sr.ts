@@ -130,6 +130,15 @@ const sr = {
     dangerZone: "Opasna zona",
     deleteAccount: "Obriši nalog",
     deleteAccountDescription: "Trajno brisanje naloga i povezanih podataka.",
+    deleteAccountWarning:
+      "Ova radnja je trajna. Lični podaci se brišu ili anonimizuju. Podaci o plaćanju i pravni zapisi mogu biti zadržani gde je to potrebno. Bićete odmah odjavljeni.",
+    deleteAccountPassword: "Potvrdite lozinkom",
+    deleteAccountPasswordPlaceholder: "Trenutna lozinka",
+    deleteAccountConfirmLabel: "Razumem da se ovo ne može poništiti",
+    deleteAccountSubmit: "Trajno obriši nalog",
+    deleteAccountCancel: "Otkaži",
+    deleteAccountSuccess: "Vaš nalog je obrisan.",
+    deleteAccountError: "Nismo mogli da obrišemo nalog. Proverite lozinku i pokušajte ponovo.",
     comingSoon: "Uskoro"
   },
   candidateShifts: {

@@ -129,6 +129,15 @@ const en = {
     dangerZone: "Danger zone",
     deleteAccount: "Delete account",
     deleteAccountDescription: "Permanently delete your account and associated data.",
+    deleteAccountWarning:
+      "This action is permanent. Personal data is removed or anonymized. Billing and legal records may be retained where required. You will be signed out immediately.",
+    deleteAccountPassword: "Confirm with your password",
+    deleteAccountPasswordPlaceholder: "Current password",
+    deleteAccountConfirmLabel: "I understand this cannot be undone",
+    deleteAccountSubmit: "Permanently delete account",
+    deleteAccountCancel: "Cancel",
+    deleteAccountSuccess: "Your account has been deleted.",
+    deleteAccountError: "We could not delete your account. Check your password and try again.",
     comingSoon: "Coming soon"
   },
   candidateShifts: {
