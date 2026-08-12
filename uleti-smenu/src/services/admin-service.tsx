@@ -10,6 +10,11 @@ import {
   AdminPagedResponse,
   AdminRestaurantListItem,
   AdminUserListItem,
+  AdminContactMessageDetail,
+  AdminContactMessageListItem,
+  AdminReportDetail,
+  AdminReportListItem,
+  AdminJobPostDetail,
 } from "../models/Admin.model";
 
 export const getAdminDashboard = (fromUtc?: string, toUtc?: string) =>
@@ -64,6 +69,12 @@ export const getAdminJobPosts = (params: {
   pageSize?: number;
 }) => axiosInstance.get<AdminPagedResponse<AdminJobPostListItem>>("/api/v1/Admin/job-posts", { params });
 
+export const getAdminJobPostDetail = (jobPostId: string) =>
+  axiosInstance.get<AdminJobPostDetail>(`/api/v1/Admin/job-posts/${jobPostId}`);
+
+export const archiveAdminJobPost = (jobPostId: string) =>
+  axiosInstance.put<AdminJobPostDetail>(`/api/v1/Admin/job-posts/${jobPostId}/archive`);
+
 export const getAdminApplications = (params: {
   search?: string;
   status?: string;
@@ -84,3 +95,39 @@ export const getAdminUsers = (params: {
 
 export const setAdminUserLockout = (userId: string, isLockedOut: boolean) =>
   axiosInstance.put<AdminUserListItem>(`/api/v1/Admin/users/${userId}/lockout`, { isLockedOut });
+
+export const getAdminContactMessages = (params: {
+  search?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}) =>
+  axiosInstance.get<AdminPagedResponse<AdminContactMessageListItem>>("/api/v1/Admin/contact-messages", {
+    params,
+  });
+
+export const getAdminContactMessage = (messageId: string) =>
+  axiosInstance.get<AdminContactMessageDetail>(`/api/v1/Admin/contact-messages/${messageId}`);
+
+export const resolveAdminContactMessage = (messageId: string, notes?: string | null) =>
+  axiosInstance.put<AdminContactMessageDetail>(`/api/v1/Admin/contact-messages/${messageId}/resolve`, {
+    notes,
+  });
+
+export const getAdminReports = (params: {
+  search?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}) =>
+  axiosInstance.get<AdminPagedResponse<AdminReportListItem>>("/api/v1/Admin/reports", {
+    params,
+  });
+
+export const getAdminReport = (reportId: string) =>
+  axiosInstance.get<AdminReportDetail>(`/api/v1/Admin/reports/${reportId}`);
+
+export const resolveAdminReport = (reportId: string, notes?: string | null) =>
+  axiosInstance.put<AdminReportDetail>(`/api/v1/Admin/reports/${reportId}/resolve`, {
+    notes,
+  });

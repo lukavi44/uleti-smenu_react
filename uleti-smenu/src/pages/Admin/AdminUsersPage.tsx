@@ -46,6 +46,15 @@ const AdminUsersPage = () => {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
+  const formatRoles = (roles: string[]) =>
+    roles
+      .map((role) => {
+        const key = `admin.users.roles.${role}`;
+        const translated = t(key);
+        return translated === key ? role : translated;
+      })
+      .join(", ") || "—";
+
   const handleToggleLock = async (user: AdminUserListItem) => {
     setBusyUserId(user.id);
     try {
@@ -123,7 +132,7 @@ const AdminUsersPage = () => {
                   {user.phoneNumber ? <p className={styles.userMeta}>{user.phoneNumber}</p> : null}
                 </td>
                 <td>{user.email}</td>
-                <td>{user.roles.join(", ") || "—"}</td>
+                <td>{formatRoles(user.roles)}</td>
                 <td>{user.emailConfirmed ? t("common.yes") : t("common.no")}</td>
                 <td>
                   <AdminStatusBadge kind={user.isLockedOut ? "suspended" : "active"} />
@@ -162,7 +171,7 @@ const AdminUsersPage = () => {
               <div>
                 <h3 className={styles.cardTitle}>{user.displayName}</h3>
                 <p className={styles.cardSubtitle}>{user.email}</p>
-                <p className={styles.cardMeta}>{user.roles.join(", ") || "—"}</p>
+                <p className={styles.cardMeta}>{formatRoles(user.roles)}</p>
               </div>
               <AdminStatusBadge kind={user.isLockedOut ? "suspended" : "active"} />
             </div>
@@ -198,18 +207,16 @@ const AdminUsersPage = () => {
           disabled={page <= 1}
           onClick={() => setPage((current) => Math.max(1, current - 1))}
         >
-          {t("common.previous")}
+          {t("admin.pagination.previousPage")}
         </button>
-        <span className={styles.pageInfo}>
-          {page} / {totalPages}
-        </span>
+        <span className={styles.pageInfo}>{t("admin.pagination.pageOf", { page, totalPages })}</span>
         <button
           type="button"
           className={styles.pageButton}
           disabled={page >= totalPages}
           onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
         >
-          {t("common.next")}
+          {t("admin.pagination.nextPage")}
         </button>
       </div>
     </div>

@@ -115,8 +115,10 @@ const inferRoleFromMePayload = (data: Record<string, unknown>): string | null =>
     return null;
 };
 
-export const getCurrentUser = async () => {
-    const response = await axiosInstance.get("/api/v1/User/me");
+export const getCurrentUser = async (options?: { skipAuthRefresh?: boolean }) => {
+    const response = await axiosInstance.get("/api/v1/User/me", {
+      _skipAuthRefresh: options?.skipAuthRefresh,
+    });
     const data = response.data as Record<string, unknown>;
     const role = inferRoleFromMePayload(data);
 

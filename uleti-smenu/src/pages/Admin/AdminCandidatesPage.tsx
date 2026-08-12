@@ -1,7 +1,9 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import AdminListPage from "../../components/Admin/AdminListPage";
+import UserAvatar from "../../components/Common/UserAvatar";
 import styles from "../../components/Admin/AdminListPage.module.scss";
+import { AdminCandidateListItem } from "../../models/Admin.model";
 import { getAdminCandidates } from "../../services/admin-service";
 
 const AdminCandidatesPage = () => {
@@ -20,6 +22,11 @@ const AdminCandidatesPage = () => {
     []
   );
 
+  const displayName = (item: AdminCandidateListItem) => {
+    const name = `${item.firstName ?? ""} ${item.lastName ?? ""}`.trim();
+    return name || item.email || "—";
+  };
+
   return (
     <AdminListPage
       searchPlaceholder={t("admin.candidates.searchPlaceholder")}
@@ -37,7 +44,17 @@ const AdminCandidatesPage = () => {
         {
           key: "name",
           header: t("admin.candidates.columns.name"),
-          render: (item) => `${item.firstName} ${item.lastName}`,
+          render: (item) => (
+            <div className={styles.identityCell}>
+              <UserAvatar
+                name={displayName(item)}
+                profilePhoto={item.profilePhoto}
+                className={styles.avatar}
+                fallbackClassName={styles.avatarFallback}
+              />
+              <span>{displayName(item)}</span>
+            </div>
+          ),
         },
         { key: "email", header: t("admin.employers.columns.email"), render: (item) => item.email },
         { key: "phone", header: t("admin.candidates.columns.phone"), render: (item) => item.phoneNumber },
@@ -49,16 +66,22 @@ const AdminCandidatesPage = () => {
         },
       ]}
       renderMobileCard={(item) => (
-        <>
-          <h3 className={styles.cardTitle}>
-            {item.firstName} {item.lastName}
-          </h3>
-          <p className={styles.cardSubtitle}>{item.city ?? "—"}</p>
-          <p className={styles.cardMeta}>{item.email}</p>
-          <p className={styles.cardMeta}>
-            {t("admin.candidates.columns.applications")}: {item.applicationsCount}
-          </p>
-        </>
+        <div className={styles.cardIdentity}>
+          <UserAvatar
+            name={displayName(item)}
+            profilePhoto={item.profilePhoto}
+            className={styles.avatar}
+            fallbackClassName={styles.avatarFallback}
+          />
+          <div>
+            <h3 className={styles.cardTitle}>{displayName(item)}</h3>
+            <p className={styles.cardSubtitle}>{item.city ?? "—"}</p>
+            <p className={styles.cardMeta}>{item.email}</p>
+            <p className={styles.cardMeta}>
+              {t("admin.candidates.columns.applications")}: {item.applicationsCount}
+            </p>
+          </div>
+        </div>
       )}
     />
   );

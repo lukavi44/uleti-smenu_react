@@ -29,6 +29,24 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       return t("admin.pages.employerDetail");
     }
 
+    if (
+      location.pathname.startsWith("/admin/contact-messages/") &&
+      location.pathname !== "/admin/contact-messages"
+    ) {
+      return t("admin.pages.contactMessageDetail");
+    }
+
+    if (
+      location.pathname.startsWith("/admin/reports/") &&
+      location.pathname !== "/admin/reports"
+    ) {
+      return t("admin.pages.reportDetail");
+    }
+
+    if (location.pathname.startsWith("/admin/job-posts/") && location.pathname !== "/admin/job-posts") {
+      return t("admin.pages.jobPostDetail");
+    }
+
     const titles: Record<string, string> = {
       "/admin": t("admin.pages.dashboard"),
       "/admin/candidates": t("admin.pages.candidates"),
@@ -38,6 +56,7 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       "/admin/job-posts": t("admin.pages.jobPosts"),
       "/admin/applications": t("admin.pages.applications"),
       "/admin/billing": t("admin.pages.billing"),
+      "/admin/contact-messages": t("admin.pages.contactMessages"),
       "/admin/reports": t("admin.pages.reports"),
       "/admin/settings": t("admin.pages.settings"),
     };

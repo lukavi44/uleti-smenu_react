@@ -24,10 +24,12 @@ export interface AdminDashboard {
   totalCandidates: number;
   totalEmployers: number;
   activeJobPosts: number;
+  totalApplications?: number;
   reportsCount: number;
   walletTopUpsThisMonth: number;
   acceptedCandidatesAllTime: number;
-  completedShiftsAllTime: number;
+  totalJobPostsAllTime: number;
+  completedShiftsAllTime?: number;
   applicationsChart: AdminDashboardChartPoint[];
   recentActivities: AdminRecentActivity[];
 }
@@ -80,7 +82,7 @@ export interface AdminRestaurantListItem {
 
 export interface AdminJobPostListItem {
   id: string;
-  employerId?: string;
+  employerId: string;
   title: string;
   position: string;
   employerName: string;
@@ -93,11 +95,68 @@ export interface AdminJobPostListItem {
 
 export interface AdminApplicationListItem {
   id: string;
+  jobPostId: string;
+  userId: string;
+  employerId: string;
   candidateName: string;
   jobTitle: string;
   employerName: string;
   status: string;
   appliedAtUtc: string;
+}
+
+export interface AdminContactMessageListItem {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  status: string;
+  emailSent: boolean;
+  createdAtUtc: string;
+}
+
+export interface AdminContactMessageDetail extends AdminContactMessageListItem {
+  message: string;
+  resolvedAtUtc?: string;
+  resolvedByAdminId?: string;
+  adminNotes?: string;
+}
+
+export interface AdminReportListItem {
+  id: string;
+  reporterUserId: string;
+  reporterEmail: string;
+  targetType: string;
+  targetId: string;
+  targetLabel: string;
+  reason: string;
+  status: string;
+  createdAtUtc: string;
+}
+
+export interface AdminReportDetail extends AdminReportListItem {
+  details?: string;
+  resolvedAtUtc?: string;
+  resolvedByAdminId?: string;
+  adminNotes?: string;
+}
+
+export interface AdminJobPostDetail {
+  id: string;
+  employerId: string;
+  title: string;
+  description: string;
+  position: string;
+  employerName: string;
+  locationName?: string;
+  status: string;
+  salary: number;
+  applicationsCount: number;
+  createdAtUtc: string;
+  startingDate: string;
+  visibleUntil: string;
+  canArchive: boolean;
+  applications: AdminApplicationListItem[];
 }
 
 export interface AdminBillingListItem {

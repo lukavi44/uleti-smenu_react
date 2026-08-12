@@ -129,6 +129,15 @@ const en = {
     dangerZone: "Danger zone",
     deleteAccount: "Delete account",
     deleteAccountDescription: "Permanently delete your account and associated data.",
+    deleteAccountWarning:
+      "This action is permanent. Personal data is removed or anonymized. Billing and legal records may be retained where required. You will be signed out immediately.",
+    deleteAccountPassword: "Confirm with your password",
+    deleteAccountPasswordPlaceholder: "Current password",
+    deleteAccountConfirmLabel: "I understand this cannot be undone",
+    deleteAccountSubmit: "Permanently delete account",
+    deleteAccountCancel: "Cancel",
+    deleteAccountSuccess: "Your account has been deleted.",
+    deleteAccountError: "We could not delete your account. Check your password and try again.",
     comingSoon: "Coming soon"
   },
   candidateShifts: {
@@ -685,6 +694,23 @@ const en = {
     createPost: "Create Job Post",
     applySuccess: "Successfully applied for this shift.",
     applyError: "Unable to apply for this shift.",
+    report: "Report",
+    reportTitle: "Report this job post",
+    reportReason: "Reason",
+    reportReasonPlaceholder: "Select a reason",
+    reportDetails: "Details (optional)",
+    reportDetailsPlaceholder: "Add more context for moderators...",
+    reportSubmit: "Submit report",
+    reportCancel: "Cancel",
+    reportSuccess: "Thanks — your report was submitted.",
+    reportError: "Unable to submit the report.",
+    reportLoginRequired: "Sign in to report this job post.",
+    reportReasons: {
+      misleading: "Misleading or inaccurate",
+      spam: "Spam or scam",
+      inappropriate: "Inappropriate content",
+      other: "Other"
+    },
     saveError: "Unable to save the job post.",
     postLoadError: "Unable to load the job post.",
     filterCity: "City",
@@ -1354,6 +1380,7 @@ const en = {
       jobsShort: "Jobs",
       applications: "Applications / shifts",
       billing: "Payments / billing",
+      contactMessages: "Contact messages",
       reports: "Reports",
       settings: "Settings",
       more: "More"
@@ -1364,27 +1391,38 @@ const en = {
       employers: "Employers",
       users: "Users",
       employerDetail: "Employer details",
+      jobPostDetail: "Job post details",
       restaurants: "Restaurants / branches",
       jobPosts: "Job posts",
       applications: "Applications / shifts",
       billing: "Payments / billing",
+      contactMessages: "Contact messages",
+      contactMessageDetail: "Contact message",
       reports: "Reports",
+      reportDetail: "Report",
       settings: "Settings"
     },
     dashboard: {
       totalCandidates: "Total candidates",
       totalEmployers: "Total employers",
       activeJobPosts: "Active job posts",
+      totalApplications: "Total applications",
       reports: "Reports / complaints",
       walletTopUpsMonth: "Wallet top-ups (month)",
       acceptedAllTime: "Accepted candidates",
       acceptedAllTimeStat: "Accepted candidates (all time)",
+      totalJobPostsAllTime: "Total job posts (all time)",
       completedShiftsAllTime: "Completed shifts (all time)",
       applicationsChart: "Applications chart",
       recentActivity: "Recent activity",
       noActivity: "No recent activity.",
       dateFrom: "From date",
       dateTo: "To date"
+    },
+    pagination: {
+      previousPage: "Previous page",
+      nextPage: "Next page",
+      pageOf: "Showing {{page}} of {{totalPages}}"
     },
     activity: {
       employerRegistered: "New employer registered",
@@ -1489,18 +1527,57 @@ const en = {
       searchPlaceholder: "Search job posts...",
       empty: "No job posts match the selected filters.",
       allStatuses: "All statuses",
+      viewDetails: "Details",
       columns: {
-        title: "Job post"
+        title: "Job post",
+        position: "Position",
+        startingDate: "Shift start",
+        actions: "Actions"
       }
+    },
+    jobPostDetail: {
+      notFound: "Job post not found.",
+      backToList: "Back to job posts",
+      overview: "Overview",
+      applications: "Applications",
+      description: "Description",
+      position: "Position",
+      salary: "Daily rate",
+      location: "Location",
+      startingDate: "Shift start",
+      visibleUntil: "Visible until",
+      created: "Created",
+      archive: "Archive job post",
+      archiveConfirm: "Archive this job post? Pending applications will be expired.",
+      archiveSuccess: "Job post archived.",
+      archiveError: "Could not archive the job post.",
+      noApplications: "No applications for this job post."
+    },
+    jobStatus: {
+      Draft: "Draft",
+      Active: "Active",
+      Expired: "Expired",
+      Completed: "Completed",
+      Cancelled: "Cancelled"
     },
     applications: {
       searchPlaceholder: "Search applications...",
       empty: "No applications match the selected filters.",
       allStatuses: "All statuses",
+      openJob: "Job",
+      openEmployer: "Employer",
       columns: {
         candidate: "Candidate",
-        applied: "Applied date"
+        applied: "Applied date",
+        actions: "Actions"
       }
+    },
+    applicationStatus: {
+      Applied: "Applied",
+      Accepted: "Accepted",
+      Denied: "Denied",
+      Cancelled: "Cancelled",
+      Expired: "Expired"
     },
     billing: {
       searchPlaceholder: "Search by employer...",
@@ -1512,7 +1589,64 @@ const en = {
       }
     },
     reports: {
-      empty: "No reports have been submitted yet. This module will list candidate and employer reports when available."
+      searchPlaceholder: "Search by reason, details, or reporter email...",
+      empty: "No reports match the selected filters.",
+      allStatuses: "All statuses",
+      viewDetails: "Open",
+      resolve: "Mark as resolved",
+      resolveSuccess: "Report marked as resolved.",
+      resolveError: "Could not resolve the report.",
+      backToList: "Back to reports",
+      notFound: "Report not found.",
+      reporter: "Reporter",
+      openTarget: "Open related item",
+      details: "Details",
+      notes: "Note (optional)",
+      notesPlaceholder: "Short note about the resolution...",
+      status: {
+        Open: "Open",
+        Resolved: "Resolved"
+      },
+      targetType: {
+        JobPost: "Job post",
+        Employer: "Employer"
+      },
+      columns: {
+        target: "Target",
+        reason: "Reason",
+        reporter: "Reporter",
+        created: "Submitted",
+        status: "Status",
+        actions: "Actions"
+      }
+    },
+    contactMessages: {
+      searchPlaceholder: "Search by name, email, or subject...",
+      empty: "No contact messages match the selected filters.",
+      allStatuses: "All statuses",
+      viewDetails: "Open",
+      resolve: "Mark as resolved",
+      resolveSuccess: "Message marked as resolved.",
+      resolveError: "Could not resolve the message.",
+      backToList: "Back to contact messages",
+      notFound: "Message not found.",
+      replyMailto: "Reply by email",
+      notes: "Note (optional)",
+      notesPlaceholder: "Short note about the resolution...",
+      emailSent: "Email sent",
+      emailNotSent: "Email not sent",
+      messageBody: "Message",
+      status: {
+        Open: "Open",
+        Resolved: "Resolved"
+      },
+      columns: {
+        from: "From",
+        subject: "Subject",
+        created: "Received",
+        status: "Status",
+        actions: "Actions"
+      }
     },
     users: {
       searchPlaceholder: "Search users by name, email, or phone...",

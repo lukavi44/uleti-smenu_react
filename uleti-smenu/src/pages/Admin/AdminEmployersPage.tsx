@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AdminEmployerListItem } from "../../models/Admin.model";
 import { getAdminEmployers } from "../../services/admin-service";
 import AdminStatusBadge from "../../components/Admin/AdminStatusBadge";
+import UserAvatar from "../../components/Common/UserAvatar";
 import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import styles from "./AdminEmployersPage.module.scss";
 
@@ -46,12 +47,14 @@ const AdminEmployersPage = () => {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
-  const renderAvatar = (employer: AdminEmployerListItem, className: string, fallbackClassName: string) =>
-    employer.profilePhoto ? (
-      <img src={employer.profilePhoto} alt="" className={className} />
-    ) : (
-      <span className={`${className} ${fallbackClassName}`}>{employer.name.charAt(0).toUpperCase()}</span>
-    );
+  const renderAvatar = (employer: AdminEmployerListItem, className: string, fallbackClassName: string) => (
+    <UserAvatar
+      name={employer.name || employer.email}
+      profilePhoto={employer.profilePhoto}
+      className={className}
+      fallbackClassName={fallbackClassName}
+    />
+  );
 
   const formatDate = (value?: string) => {
     if (!value) {
@@ -192,16 +195,16 @@ const AdminEmployersPage = () => {
           disabled={page <= 1}
           onClick={() => setPage((current) => Math.max(1, current - 1))}
         >
-          {t("jobPosts.previousPage")}
+          {t("admin.pagination.previousPage")}
         </button>
-        <span className={styles.pageInfo}>{t("jobPosts.pageOf", { page, totalPages })}</span>
+        <span className={styles.pageInfo}>{t("admin.pagination.pageOf", { page, totalPages })}</span>
         <button
           type="button"
           className={styles.pageButton}
           disabled={page >= totalPages}
           onClick={() => setPage((current) => current + 1)}
         >
-          {t("jobPosts.nextPage")}
+          {t("admin.pagination.nextPage")}
         </button>
       </div>
     </div>

@@ -101,6 +101,24 @@
   font-size: 0.85rem;
 }
 
+.identityCell,
+.cardIdentity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+}
+
+.avatarFallback {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .emptyState {
   margin: 0;
   padding: 2rem 1rem;
@@ -148,4 +166,20 @@
 .badgeActive {
   background: #dcfce7;
   color: #15803d;
+}
+
+.linkButton {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
 }
