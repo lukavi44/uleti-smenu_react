@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import ShellPageHeader from "../../components/Layout/ShellPageHeader";
-import { ChangePasswordRequest } from "../../services/auth-service";
+import { ChangePasswordRequest, DeleteAccountRequest } from "../../services/auth-service";
 import {
   getNotificationPreferences,
   NotificationPreferences,
@@ -69,6 +69,10 @@ const SettingsPage = () => {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
   const [isSavingPreference, setIsSavingPreference] = useState(false);
+  const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const isEmployee = role === "Employee";
   const isEmployer = role === "Employer";
@@ -156,6 +160,24 @@ const SettingsPage = () => {
       toast.error(t("settings.passwordChangeError"));
     } finally {
       setIsSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!deleteConfirmed || !deletePassword.trim() || isDeletingAccount) {
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      await DeleteAccountRequest(deletePassword);
+      toast.success(t("settings.deleteAccountSuccess"));
+      await logout();
+    } catch {
+      toast.error(t("settings.deleteAccountError"));
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -358,7 +380,6 @@ const SettingsPage = () => {
       </section>
 
       <section className={`${styles.card} ${styles.dangerCard}`}>
-        <span className={styles.comingSoonBadge}>{t("settings.comingSoon")}</span>
         <div className={styles.sectionHeading}>
           <span className={`${styles.sectionIcon} ${styles.dangerIcon}`}><TrashIcon /></span>
           <div>
@@ -366,9 +387,60 @@ const SettingsPage = () => {
             <p>{t("settings.deleteAccountDescription")}</p>
           </div>
         </div>
-        <button type="button" className={styles.dangerButton} disabled>
-          {t("settings.deleteAccount")}
-        </button>
+
+        {!showDeleteForm ? (
+          <button
+            type="button"
+            className={styles.dangerButton}
+            onClick={() => setShowDeleteForm(true)}
+          >
+            {t("settings.deleteAccount")}
+          </button>
+        ) : (
+          <form className={styles.deleteForm} onSubmit={(event) => void handleDeleteAccount(event)}>
+            <p className={styles.deleteWarning}>{t("settings.deleteAccountWarning")}</p>
+            <label>
+              <span>{t("settings.deleteAccountPassword")}</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={deletePassword}
+                onChange={(event) => setDeletePassword(event.target.value)}
+                placeholder={t("settings.deleteAccountPasswordPlaceholder")}
+                required
+              />
+            </label>
+            <label className={styles.deleteConfirm}>
+              <input
+                type="checkbox"
+                checked={deleteConfirmed}
+                onChange={(event) => setDeleteConfirmed(event.target.checked)}
+              />
+              <span>{t("settings.deleteAccountConfirmLabel")}</span>
+            </label>
+            <div className={styles.deleteActions}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                disabled={isDeletingAccount}
+                onClick={() => {
+                  setShowDeleteForm(false);
+                  setDeletePassword("");
+                  setDeleteConfirmed(false);
+                }}
+              >
+                {t("settings.deleteAccountCancel")}
+              </button>
+              <button
+                type="submit"
+                className={styles.dangerButton}
+                disabled={isDeletingAccount || !deleteConfirmed || !deletePassword.trim()}
+              >
+                {isDeletingAccount ? t("common.loading") : t("settings.deleteAccountSubmit")}
+              </button>
+            </div>
+          </form>
+        )}
       </section>
     </div>
   );

@@ -5,10 +5,18 @@ import i18n from "../i18n";
 import { LoginResponseData } from "./auth-service";
 import { isPublicAuthPath, isPublicBrowsePath } from "../helpers/publicBrowse";
 
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    _skipAuthRefresh?: boolean;
+    _retry?: boolean;
+  }
+}
+
 const apiBaseURL = getApiBaseUrl();
 
 const axiosInstance = axios.create({
     baseURL: apiBaseURL,
+    timeout: 20_000,
     headers: {
         // "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -53,6 +61,10 @@ axiosInstance.interceptors.response.use(
     };
 
     if (error.response?.status === 401 && isAuthEndpoint(originalRequest?.url)) {
+      return Promise.reject(error);
+    }
+
+    if (originalRequest?._skipAuthRefresh) {
       return Promise.reject(error);
     }
 

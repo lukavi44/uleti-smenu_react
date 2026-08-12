@@ -41,12 +41,9 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     const [me, setMe] = useState<MeResponse | undefined>();
     const navigate = useNavigate();
 
+    const AUTH_BOOTSTRAP_TIMEOUT_MS = 12_000;
+
     const logout = async () => {
-        try {
-            await LogoutUserRequest();
-        } catch {
-            // Local logout should still proceed if backend logout fails.
-        }
         localStorage.removeItem("AccessToken");
         localStorage.removeItem("RefreshToken");
         setIsLoggedIn(false);
@@ -54,6 +51,11 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         setRole(null);
         setMe(undefined);
         navigate("/login");
+        try {
+            await LogoutUserRequest();
+        } catch {
+            // Local logout already completed; backend revoke is best-effort.
+        }
     };
 
     const refreshAuthState = async () => {
@@ -69,7 +71,12 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         }
 
         try {
-            const meResponse = await getCurrentUser();
+            const meResponse = await Promise.race([
+                getCurrentUser({ skipAuthRefresh: true }),
+                new Promise<never>((_, reject) => {
+                    window.setTimeout(() => reject(new Error("Auth bootstrap timed out")), AUTH_BOOTSTRAP_TIMEOUT_MS);
+                }),
+            ]);
             const meData = meResponse.data as Record<string, unknown>;
             const role =
                 typeof meData.role === "string"
