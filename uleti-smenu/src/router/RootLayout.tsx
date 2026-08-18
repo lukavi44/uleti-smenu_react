@@ -5,6 +5,7 @@ import EmployerLayout from "../components/Layout/EmployerLayout/EmployerLayout";
 import AdminLayout from "../components/Layout/AdminLayout/AdminLayout";
 import GuestLayout from "../components/Layout/GuestLayout/GuestLayout";
 import { AuthContext } from "../store/Auth-context";
+import { hasStoredAccessToken } from "../helpers/sessionStorage";
 
 const AUTH_PATH_PREFIXES = ["/login", "/registration"];
 
@@ -13,12 +14,17 @@ const RootLayout = () => {
   const { authStatus, role } = useContext(AuthContext);
 
   const isAuthPage = AUTH_PATH_PREFIXES.some((prefix) => location.pathname.startsWith(prefix));
+  const isBootstrappingSession = authStatus === "loading" && hasStoredAccessToken();
   const isEmployeeShell = authStatus === "authenticated" && role === "Employee";
   const isEmployerShell = authStatus === "authenticated" && role === "Employer";
   const isAdminShell = authStatus === "authenticated" && role === "Admin";
-  const useGuestLayout = authStatus !== "authenticated" && !isAuthPage;
+  const useGuestLayout = authStatus !== "authenticated" && !isAuthPage && !isBootstrappingSession;
 
   if (isAuthPage) {
+    return <Outlet />;
+  }
+
+  if (isBootstrappingSession) {
     return <Outlet />;
   }
 

@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import EmployeeDashboard from "../EmployeeDashboard/EmployeeDashboard";
 import EmployerDashboard from "../EmployerDashboard/EmployerDashboard";
 import PublicLandingPage from "./PublicLandingPage";
+import { hasStoredAccessToken } from "../../helpers/sessionStorage";
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -32,8 +33,11 @@ const HomePage = () => {
     return <Navigate to="/admin" replace />;
   }
 
-  // Avoid mounting JobPosts (100vh) while auth is still resolving — that
-  // created a huge blank band on slow staging/Render loads.
+  if (authStatus === "loading" && hasStoredAccessToken()) {
+    return <div>{t("common.loading")}</div>;
+  }
+
+  // Guest marketing home while auth resolves with no token, or after logout.
   if (authStatus !== "authenticated") {
     return <PublicLandingPage />;
   }
