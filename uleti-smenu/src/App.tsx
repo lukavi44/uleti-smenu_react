@@ -1,56 +1,60 @@
+import { Suspense } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 
 import './App.css'
 import ScrollToTop from "./router/ScrollToTop";
 import RootLayout from "./router/RootLayout";
-import HomePage from './pages/Home/Home'
-import RegistrationPage from "./pages/Registration/Registration";
-import RegistrationChoicePage from "./pages/Registration/RegistrationChoice";
-import LoginPage from "./pages/Login/Login";
-import ForgotPasswordPage from "./pages/Login/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/Login/ResetPasswordPage";
 import AuthContextProvider from "./store/Auth-context";
 import RequireAuth from "./router/RequireAuth";
 import LoggedOutRoute from "./router/LoggedOutRoute";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "./store/Loading-context";
-import JobPosts from "./pages/JobPosts/JobPosts";
-import JobPostDetailRouter from "./pages/JobPosts/JobPostDetailRouter";
-import ProfilePage from "./pages/Profile/Profile";
-import RestaurantsPage from "./pages/Restaurants/Restaurants";
-import MessagesPage from "./pages/Messages/MessagesPage";
-import MessageConversationPage from "./pages/Messages/MessageConversationPage";
-import AboutPage from "./pages/Info/AboutPage";
-import HowItWorksPage from "./pages/Info/HowItWorksPage";
-import FaqPage from "./pages/Info/FaqPage";
-import ForCandidatesPage from "./pages/Info/ForCandidatesPage";
-import ForEmployersPage from "./pages/Info/ForEmployersPage";
-import LegalHubPage from "./pages/Info/LegalHubPage";
-import ContactPage from "./pages/Info/ContactPage";
-import EmployeePublicProfilePage from "./pages/Employees/EmployeePublicProfilePage";
-import CandidateShiftsPage from "./pages/CandidateShifts/CandidateShiftsPage";
-import EmployerPublicProfilePage from "./pages/Employers/EmployerPublicProfilePage";
-import EmployerLegacyRedirect from "./pages/Employers/EmployerLegacyRedirect";
-import RestaurantReviewsRouter from "./pages/Reviews/RestaurantReviewsRouter";
-import CandidateReviewsRouter from "./pages/Reviews/CandidateReviewsRouter";
-import UpgradePage from "./pages/Billing/UpgradePage";
 import RequireAdmin from "./router/RequireAdmin";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
-import AdminEmployersPage from "./pages/Admin/AdminEmployersPage";
-import AdminEmployerDetailPage from "./pages/Admin/AdminEmployerDetailPage";
-import AdminCandidatesPage from "./pages/Admin/AdminCandidatesPage";
-import AdminRestaurantsPage from "./pages/Admin/AdminRestaurantsPage";
-import AdminJobPostsPage from "./pages/Admin/AdminJobPostsPage";
-import AdminJobPostDetailPage from "./pages/Admin/AdminJobPostDetailPage";
-import AdminApplicationsPage from "./pages/Admin/AdminApplicationsPage";
-import AdminBillingPage from "./pages/Admin/AdminBillingPage";
-import AdminContactMessagesPage from "./pages/Admin/AdminContactMessagesPage";
-import AdminContactMessageDetailPage from "./pages/Admin/AdminContactMessageDetailPage";
-import AdminReportsPage from "./pages/Admin/AdminReportsPage";
-import AdminReportDetailPage from "./pages/Admin/AdminReportDetailPage";
-import AdminSettingsPage from "./pages/Admin/AdminSettingsPage";
-import AdminUsersPage from "./pages/Admin/AdminUsersPage";
-import SettingsPage from "./pages/Settings/SettingsPage";
+import RouteSuspenseFallback from "./router/RouteSuspenseFallback";
+import {
+  HomePage,
+  RegistrationPage,
+  RegistrationChoicePage,
+  LoginPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  JobPosts,
+  JobPostDetailRouter,
+  ProfilePage,
+  RestaurantsPage,
+  MessagesPage,
+  MessageConversationPage,
+  AboutPage,
+  HowItWorksPage,
+  FaqPage,
+  ForCandidatesPage,
+  ForEmployersPage,
+  LegalHubPage,
+  ContactPage,
+  EmployeePublicProfilePage,
+  CandidateShiftsPage,
+  EmployerPublicProfilePage,
+  EmployerLegacyRedirect,
+  RestaurantReviewsRouter,
+  CandidateReviewsRouter,
+  UpgradePage,
+  AdminDashboard,
+  AdminEmployersPage,
+  AdminEmployerDetailPage,
+  AdminCandidatesPage,
+  AdminRestaurantsPage,
+  AdminJobPostsPage,
+  AdminJobPostDetailPage,
+  AdminApplicationsPage,
+  AdminBillingPage,
+  AdminContactMessagesPage,
+  AdminContactMessageDetailPage,
+  AdminReportsPage,
+  AdminReportDetailPage,
+  AdminSettingsPage,
+  AdminUsersPage,
+  SettingsPage,
+} from "./router/lazyPages";
 
 function App() {
   return (
@@ -67,68 +71,70 @@ function App() {
       <LoadingProvider>
         <AuthContextProvider>
           <ScrollToTop />
-          <Routes>
-            <Route element={<RootLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="how-it-works" element={<HowItWorksPage />} />
-            <Route path="faq" element={<FaqPage />} />
-            <Route path="za-kandidate" element={<ForCandidatesPage />} />
-            <Route path="for-candidates" element={<Navigate to="/za-kandidate" replace />} />
-            <Route path="za-restorane" element={<ForEmployersPage />} />
-            <Route path="for-employers" element={<Navigate to="/za-restorane" replace />} />
-            <Route path="pravno" element={<LegalHubPage />} />
-            <Route path="kontakt" element={<ContactPage />} />
-            <Route path="contact" element={<Navigate to="/kontakt" replace />} />
-            <Route path="terms" element={<Navigate to="/pravno#uslovi" replace />} />
-            <Route path="privacy" element={<Navigate to="/pravno#privatnost" replace />} />
-            <Route path="cookies" element={<Navigate to="/pravno#kolacici" replace />} />
-            <Route path="restaurants" element={<RestaurantsPage />} />
-            <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
-            <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />
-            <Route path="oglasi-za-posao" element={<JobPosts />} />
-            <Route path="oglasi-za-posao/:jobPostId" element={<JobPostDetailRouter />} />
-            <Route path="jobs" element={<Navigate to="/oglasi-za-posao" replace />} />
-            <Route element={<LoggedOutRoute />}>
-              <Route path="registration" element={<RegistrationChoicePage />} />
-              <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
-              <Route path="registration/employer" element={<RegistrationPage userType="employer" />} />
-              <Route path="registration-user" element={<Navigate to="/registration/candidate" replace />} />
-              <Route path="login" element={<LoginPage />} />
-              <Route path="forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="reset-password" element={<ResetPasswordPage />} />
-            </Route>
-            <Route element={<RequireAuth />}>
-              <Route path="messages" element={<MessagesPage/>}/>
-              <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
-              <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
-              <Route path="employees/:employeeId/reviews" element={<CandidateReviewsRouter/>}/>
-              <Route path="moje-smene" element={<CandidateShiftsPage/>}/>
-              <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
-              <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
-              <Route path="profile" element={<ProfilePage/>}/>
-              <Route path="settings" element={<SettingsPage/>}/>
-              <Route path="billing/upgrade" element={<UpgradePage/>}/>
-            </Route>
-            <Route element={<RequireAdmin />}>
-              <Route path="admin" element={<AdminDashboard />} />
-              <Route path="admin/candidates" element={<AdminCandidatesPage />} />
-              <Route path="admin/employers" element={<AdminEmployersPage />} />
-              <Route path="admin/employers/:employerId" element={<AdminEmployerDetailPage />} />
-              <Route path="admin/users" element={<AdminUsersPage />} />
-              <Route path="admin/restaurants" element={<AdminRestaurantsPage />} />
-              <Route path="admin/job-posts" element={<AdminJobPostsPage />} />
-              <Route path="admin/job-posts/:jobPostId" element={<AdminJobPostDetailPage />} />
-              <Route path="admin/applications" element={<AdminApplicationsPage />} />
-              <Route path="admin/billing" element={<AdminBillingPage />} />
-              <Route path="admin/contact-messages" element={<AdminContactMessagesPage />} />
-              <Route path="admin/contact-messages/:messageId" element={<AdminContactMessageDetailPage />} />
-              <Route path="admin/reports" element={<AdminReportsPage />} />
-              <Route path="admin/reports/:reportId" element={<AdminReportDetailPage />} />
-              <Route path="admin/settings" element={<AdminSettingsPage />} />
-            </Route>
-            </Route>
-          </Routes>
+          <Suspense fallback={<RouteSuspenseFallback />}>
+            <Routes>
+              <Route element={<RootLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="how-it-works" element={<HowItWorksPage />} />
+              <Route path="faq" element={<FaqPage />} />
+              <Route path="za-kandidate" element={<ForCandidatesPage />} />
+              <Route path="for-candidates" element={<Navigate to="/za-kandidate" replace />} />
+              <Route path="za-restorane" element={<ForEmployersPage />} />
+              <Route path="for-employers" element={<Navigate to="/za-restorane" replace />} />
+              <Route path="pravno" element={<LegalHubPage />} />
+              <Route path="kontakt" element={<ContactPage />} />
+              <Route path="contact" element={<Navigate to="/kontakt" replace />} />
+              <Route path="terms" element={<Navigate to="/pravno#uslovi" replace />} />
+              <Route path="privacy" element={<Navigate to="/pravno#privatnost" replace />} />
+              <Route path="cookies" element={<Navigate to="/pravno#kolacici" replace />} />
+              <Route path="restaurants" element={<RestaurantsPage />} />
+              <Route path="restaurants/:slug" element={<EmployerPublicProfilePage />} />
+              <Route path="restaurants/:slug/reviews" element={<RestaurantReviewsRouter />} />
+              <Route path="oglasi-za-posao" element={<JobPosts />} />
+              <Route path="oglasi-za-posao/:jobPostId" element={<JobPostDetailRouter />} />
+              <Route path="jobs" element={<Navigate to="/oglasi-za-posao" replace />} />
+              <Route element={<LoggedOutRoute />}>
+                <Route path="registration" element={<RegistrationChoicePage />} />
+                <Route path="registration/candidate" element={<RegistrationPage userType="employee" />} />
+                <Route path="registration/employer" element={<RegistrationPage userType="employer" />} />
+                <Route path="registration-user" element={<Navigate to="/registration/candidate" replace />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="reset-password" element={<ResetPasswordPage />} />
+              </Route>
+              <Route element={<RequireAuth />}>
+                <Route path="messages" element={<MessagesPage/>}/>
+                <Route path="messages/:conversationId" element={<MessageConversationPage/>}/>
+                <Route path="employees/:employeeId" element={<EmployeePublicProfilePage/>}/>
+                <Route path="employees/:employeeId/reviews" element={<CandidateReviewsRouter/>}/>
+                <Route path="moje-smene" element={<CandidateShiftsPage/>}/>
+                <Route path="employers/:employerId" element={<EmployerLegacyRedirect target="profile"/>}/>
+                <Route path="employers/:employerId/reviews" element={<EmployerLegacyRedirect target="reviews"/>}/>
+                <Route path="profile" element={<ProfilePage/>}/>
+                <Route path="settings" element={<SettingsPage/>}/>
+                <Route path="billing/upgrade" element={<UpgradePage/>}/>
+              </Route>
+              <Route element={<RequireAdmin />}>
+                <Route path="admin" element={<AdminDashboard />} />
+                <Route path="admin/candidates" element={<AdminCandidatesPage />} />
+                <Route path="admin/employers" element={<AdminEmployersPage />} />
+                <Route path="admin/employers/:employerId" element={<AdminEmployerDetailPage />} />
+                <Route path="admin/users" element={<AdminUsersPage />} />
+                <Route path="admin/restaurants" element={<AdminRestaurantsPage />} />
+                <Route path="admin/job-posts" element={<AdminJobPostsPage />} />
+                <Route path="admin/job-posts/:jobPostId" element={<AdminJobPostDetailPage />} />
+                <Route path="admin/applications" element={<AdminApplicationsPage />} />
+                <Route path="admin/billing" element={<AdminBillingPage />} />
+                <Route path="admin/contact-messages" element={<AdminContactMessagesPage />} />
+                <Route path="admin/contact-messages/:messageId" element={<AdminContactMessageDetailPage />} />
+                <Route path="admin/reports" element={<AdminReportsPage />} />
+                <Route path="admin/reports/:reportId" element={<AdminReportDetailPage />} />
+                <Route path="admin/settings" element={<AdminSettingsPage />} />
+              </Route>
+              </Route>
+            </Routes>
+          </Suspense>
         </AuthContextProvider>
       </LoadingProvider>
     </>

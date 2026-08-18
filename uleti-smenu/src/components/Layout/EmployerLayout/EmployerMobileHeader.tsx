@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
 import NotificationsMenu from "../../Notifications/NotificationsMenu";
 import EmployerProfileMenu from "./EmployerProfileMenu";
 import { BellIcon } from "@heroicons/react/24/outline";
@@ -8,6 +9,7 @@ import styles from "./EmployerMobileHeader.module.scss";
 
 const EmployerMobileHeader = () => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery("(max-width:1023px)");
 
   return (
     <header className={styles.header}>
@@ -17,6 +19,7 @@ const EmployerMobileHeader = () => {
 
       <div className={styles.actions}>
         <NotificationsMenu
+          enabled={isMobile}
           trigger={({ onClick, unreadCount, isOpen }) => (
             <button
               type="button"

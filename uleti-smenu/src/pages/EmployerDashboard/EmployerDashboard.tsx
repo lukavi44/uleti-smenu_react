@@ -7,13 +7,12 @@ import { Employer } from "../../models/User.model";
 import { EmployerDashboardSummary } from "../../models/EmployerDashboardSummary.model";
 import {
   GetEmployerDashboardSummary,
-  GetMyJobPosts,
   GetMyJobPostsPaged,
 } from "../../services/jobPost-service";
-import { GetMyUnreadChatCount } from "../../services/chat-service";
-import { subscribeChatUnreadCount, startRealtimeConnection } from "../../services/realtime-service";
+import useUnreadChatCount from "../../hooks/useUnreadChatCount";
 import {
   buildEmployerDashboardSummaryFromPosts,
+  EMPLOYER_DASHBOARD_JOB_POSTS_PAGE_SIZE,
   normalizeEmployerDashboardSummary,
 } from "../../helpers/employerDashboard";
 import { isEmployerProfileComplete } from "../../helpers/employerProfileCompleteness";
@@ -34,10 +33,10 @@ const EmployerDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { authStatus, role, me } = useContext(AuthContext);
+  const unreadMessagesCount = useUnreadChatCount();
   const [dashboardSummary, setDashboardSummary] = useState<EmployerDashboardSummary | null>(null);
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
   const [pendingApplicants, setPendingApplicants] = useState<PendingApplicantItem[]>([]);
-  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [isOverviewLoading, setIsOverviewLoading] = useState(true);
   const [isJobPostsLoading, setIsJobPostsLoading] = useState(true);
   const [isPendingLoading, setIsPendingLoading] = useState(true);
@@ -47,76 +46,88 @@ const EmployerDashboard = () => {
   const isEmployer = authStatus === "authenticated" && role === "Employer";
 
   useEffect(() => {
-    if (!isEmployer) {
-      return;
-    }
-
-    void startRealtimeConnection();
-
-    const loadUnread = async () => {
-      try {
-        const response = await GetMyUnreadChatCount();
-        setUnreadMessagesCount(response.data.count);
-      } catch {
-        setUnreadMessagesCount(0);
-      }
-    };
-
-    void loadUnread();
-    const unsubscribe = subscribeChatUnreadCount((count) => setUnreadMessagesCount(count));
-    return () => {
-      unsubscribe();
-    };
-  }, [isEmployer]);
-
-  useEffect(() => {
-    const loadEmployerDashboardOverview = async () => {
+    const loadDashboard = async () => {
       if (!isEmployer) {
         return;
       }
 
       setIsOverviewLoading(true);
+      setIsJobPostsLoading(true);
+      setIsPendingLoading(true);
 
       try {
-        try {
-          const summaryResponse = await GetEmployerDashboardSummary();
+        const [summaryResult, jobPostsResult, pendingResult] = await Promise.allSettled([
+          GetEmployerDashboardSummary(),
+          GetMyJobPostsPaged({
+            page: 1,
+            pageSize: EMPLOYER_DASHBOARD_JOB_POSTS_PAGE_SIZE,
+          }),
+          loadPendingApplicantsForDashboard(),
+        ]);
+
+        if (jobPostsResult.status === "fulfilled") {
+          setJobPosts(jobPostsResult.value.data.items);
+        } else {
+          console.error("Failed to load employer job posts.", jobPostsResult.reason);
+          setJobPosts([]);
+        }
+
+        if (pendingResult.status === "fulfilled") {
+          setPendingApplicants(pendingResult.value);
+        } else {
+          console.error("Failed to load pending applicants.", pendingResult.reason);
+          setPendingApplicants([]);
+        }
+
+        if (summaryResult.status === "fulfilled") {
           setDashboardSummary(
             normalizeEmployerDashboardSummary(
-              summaryResponse.data as unknown as Record<string, unknown>
+              summaryResult.value.data as unknown as Record<string, unknown>
             )
           );
-        } catch {
-          const [activePostsResponse, allPostsResponse] = await Promise.all([
-            GetMyJobPostsPaged({ page: 1, pageSize: 1, lifecycle: "active" }),
-            GetMyJobPosts(),
-          ]);
-
-          setDashboardSummary(
-            buildEmployerDashboardSummaryFromPosts(
-              allPostsResponse.data,
-              activePostsResponse.data.totalCount
-            )
-          );
+        } else if (jobPostsResult.status === "fulfilled") {
+          try {
+            const activePostsResponse = await GetMyJobPostsPaged({
+              page: 1,
+              pageSize: 1,
+              lifecycle: "active",
+            });
+            setDashboardSummary(
+              buildEmployerDashboardSummaryFromPosts(
+                jobPostsResult.value.data.items,
+                activePostsResponse.data.totalCount
+              )
+            );
+          } catch (error) {
+            console.error("Failed to load employer dashboard overview.", error);
+          }
+        } else {
+          console.error("Failed to load employer dashboard overview.", summaryResult.reason);
         }
-      } catch (error) {
-        console.error("Failed to load employer dashboard overview.", error);
       } finally {
         setIsOverviewLoading(false);
+        setIsJobPostsLoading(false);
+        setIsPendingLoading(false);
       }
     };
 
-    void loadEmployerDashboardOverview();
+    void loadDashboard();
   }, [isEmployer]);
 
   useEffect(() => {
-    const loadJobPosts = async () => {
-      if (!isEmployer) return;
+    const reloadJobPosts = async () => {
+      if (!isEmployer || jobPostsReloadToken === 0) {
+        return;
+      }
 
       setIsJobPostsLoading(true);
 
       try {
-        const response = await GetMyJobPosts();
-        setJobPosts(response.data);
+        const response = await GetMyJobPostsPaged({
+          page: 1,
+          pageSize: EMPLOYER_DASHBOARD_JOB_POSTS_PAGE_SIZE,
+        });
+        setJobPosts(response.data.items);
       } catch (error) {
         console.error("Failed to load employer job posts.", error);
       } finally {
@@ -124,7 +135,7 @@ const EmployerDashboard = () => {
       }
     };
 
-    void loadJobPosts();
+    void reloadJobPosts();
   }, [isEmployer, jobPostsReloadToken]);
 
   const reloadJobPosts = () => {
@@ -134,26 +145,6 @@ const EmployerDashboard = () => {
   const manageHandlers = useJobPostManageHandlers({
     onPostsChanged: reloadJobPosts,
   });
-
-  useEffect(() => {
-    const loadPendingApplicants = async () => {
-      if (!isEmployer) return;
-
-      setIsPendingLoading(true);
-
-      try {
-        const applicants = await loadPendingApplicantsForDashboard();
-        setPendingApplicants(applicants);
-      } catch (error) {
-        console.error("Failed to load pending applicants.", error);
-        setPendingApplicants([]);
-      } finally {
-        setIsPendingLoading(false);
-      }
-    };
-
-    void loadPendingApplicants();
-  }, [isEmployer]);
 
   const handleApplicantUpdated = (applicationId: string) => {
     setPendingApplicants((previous) =>
