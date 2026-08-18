@@ -78,9 +78,9 @@ const LoginPage = () => {
       const returnUrl = searchParams.get("returnUrl");
       const safeReturnUrl =
         returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : "/";
-      void refreshAuthState();
+      await refreshAuthState();
       toast.success(t("login.success"));
-      navigate(safeReturnUrl);
+      navigate(safeReturnUrl, { replace: true });
     } catch (error: unknown) {
       console.error("Login failed:", error);
       if (axios.isAxiosError(error)) {
