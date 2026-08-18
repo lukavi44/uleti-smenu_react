@@ -24,3 +24,11 @@ export const GetMyApplications = async (): Promise<AxiosResponse<EmployeeApplica
 export const CancelMyApplication = async (applicationId: string): Promise<AxiosResponse> => {
   return axiosInstance.patch(`/api/v1/Application/${applicationId}/cancel`);
 };
+
+export const GetMyPendingDashboardApplicants = async (
+  limit = 12
+): Promise<AxiosResponse<Applicant[]>> => {
+  return axiosInstance.get("/api/v1/Application/my/pending-dashboard", {
+    params: { limit },
+  });
+};

@@ -1,6 +1,8 @@
 import { EmployerDashboardSummary } from "../models/EmployerDashboardSummary.model";
 import { JobPost } from "../models/JobPost.model";
 
+export const EMPLOYER_DASHBOARD_JOB_POSTS_PAGE_SIZE = 100;
+
 export const normalizeEmployerDashboardSummary = (
   data: Record<string, unknown>
 ): EmployerDashboardSummary => ({
