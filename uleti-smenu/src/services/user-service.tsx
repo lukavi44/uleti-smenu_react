@@ -84,9 +84,15 @@ export const GetAllEmployers = async (city?: string): Promise<AxiosResponse<Empl
     });
 };
 
-export const GetEmployersWithFavouriteStatus = async (city?: string): Promise<AxiosResponse<Employer[]>> => {
+export const GetEmployersWithFavouriteStatus = async (
+    city?: string,
+    limit?: number
+): Promise<AxiosResponse<Employer[]>> => {
     return axiosInstance.get<Employer[]>("/api/v1/User/employers/", {
-        params: city ? { city } : undefined,
+        params: {
+            ...(city ? { city } : {}),
+            ...(typeof limit === "number" ? { limit } : {}),
+        },
     });
 };
 
