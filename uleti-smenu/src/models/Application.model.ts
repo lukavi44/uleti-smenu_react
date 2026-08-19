@@ -26,3 +26,11 @@ export interface EmployeeApplication {
   status: string;
   appliedAt: string;
 }
+
+export interface EmployeeDashboard {
+  applicationCount: number;
+  acceptedShiftCount: number;
+  totalEarnings: number;
+  nextShift: EmployeeApplication | null;
+  acceptedShifts: EmployeeApplication[];
+}
