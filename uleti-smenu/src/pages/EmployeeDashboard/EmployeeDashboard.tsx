@@ -18,7 +18,7 @@ import { EmployeeApplication } from "../../models/Application.model";
 import { ReviewSummary } from "../../models/Review.model";
 import { GetCandidateRecommendedJobs } from "../../services/jobPost-service";
 import { GetEmployersWithFavouriteStatus } from "../../services/user-service";
-import { GetMyApplications } from "../../services/application-service";
+import { GetMyDashboard } from "../../services/application-service";
 import { GetChatConversationByApplication } from "../../services/chat-service";
 import { GetEmployeeReviewSummary } from "../../services/review-service";
 import RecommendedJobPostCard from "../../components/EmployeeDashboard/RecommendedJobPostCard";
@@ -28,6 +28,8 @@ import styles from "./EmployeeDashboard.module.scss";
 
 const SHIFT_CAROUSEL_PAGE_SIZE_DESKTOP = 3;
 const SHIFT_CAROUSEL_PAGE_SIZE_MOBILE = 1;
+const DASHBOARD_SHIFT_PREVIEW_LIMIT = 12;
+const DASHBOARD_EMPLOYER_PREVIEW_LIMIT = 12;
 
 const isShiftOver = (startingDate: string) => {
   const parsedDate = new Date(startingDate);
@@ -55,8 +57,12 @@ const EmployeeDashboard = () => {
   const employee = me && "firstName" in me ? (me as Employee) : null;
 
   const [recommendedPosts, setRecommendedPosts] = useState<JobPost[]>([]);
-  const [applications, setApplications] = useState<EmployeeApplication[]>([]);
+  const [acceptedShifts, setAcceptedShifts] = useState<EmployeeApplication[]>([]);
   const [appliedJobPostIds, setAppliedJobPostIds] = useState<string[]>([]);
+  const [applicationCount, setApplicationCount] = useState(0);
+  const [acceptedShiftCount, setAcceptedShiftCount] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [nextShift, setNextShift] = useState<EmployeeApplication | null>(null);
   const [browseRestaurants, setBrowseRestaurants] = useState<
     { id: string; name: string; profilePhoto?: string; publicSlug?: string; isFavourite: boolean }[]
   >([]);
@@ -65,34 +71,7 @@ const EmployeeDashboard = () => {
   const [shiftPage, setShiftPage] = useState(0);
   const [openingChatFor, setOpeningChatFor] = useState<string | null>(null);
 
-  const acceptedShifts = useMemo(
-    () =>
-      applications
-        .filter((application) => application.status === "Accepted")
-        .sort(
-          (left, right) =>
-            new Date(right.startingDate).getTime() - new Date(left.startingDate).getTime()
-        ),
-    [applications]
-  );
   const appliedJobPostIdSet = useMemo(() => new Set(appliedJobPostIds), [appliedJobPostIds]);
-  const nextShift = useMemo(
-    () =>
-      acceptedShifts
-        .filter((shift) => !isShiftOver(shift.startingDate))
-        .sort(
-          (left, right) =>
-            new Date(left.startingDate).getTime() - new Date(right.startingDate).getTime()
-        )[0],
-    [acceptedShifts]
-  );
-  const totalEarnings = useMemo(
-    () =>
-      acceptedShifts
-        .filter((shift) => isShiftOver(shift.startingDate))
-        .reduce((total, shift) => total + shift.salary, 0),
-    [acceptedShifts]
-  );
   const shiftCardsPerPage = isMobile ? SHIFT_CAROUSEL_PAGE_SIZE_MOBILE : SHIFT_CAROUSEL_PAGE_SIZE_DESKTOP;
   const shiftPageCount = Math.max(1, Math.ceil(acceptedShifts.length / shiftCardsPerPage));
   const visibleShifts = acceptedShifts.slice(
@@ -112,30 +91,56 @@ const EmployeeDashboard = () => {
       }
 
       try {
-        const [postsResponse, restaurantsResponse, applicationsResponse, reviewSummaryResponse] = await Promise.all([
+        const [postsResult, restaurantsResult, dashboardResult, reviewSummaryResult] = await Promise.allSettled([
           GetCandidateRecommendedJobs(3),
-          GetEmployersWithFavouriteStatus(),
-          GetMyApplications(),
+          GetEmployersWithFavouriteStatus(undefined, DASHBOARD_EMPLOYER_PREVIEW_LIMIT),
+          GetMyDashboard(DASHBOARD_SHIFT_PREVIEW_LIMIT),
           GetEmployeeReviewSummary(employee.id),
         ]);
 
-        setRecommendedPosts(postsResponse.data);
-        setApplications(applicationsResponse.data);
-        setAppliedJobPostIds(
-          applicationsResponse.data.map((application) => application.jobPostId).filter(Boolean)
-        );
-        setReviewSummary(reviewSummaryResponse.data);
-        setBrowseRestaurants(
-          restaurantsResponse.data.map((restaurant) => ({
-            id: restaurant.id,
-            name: restaurant.name,
-            profilePhoto: restaurant.profilePhoto,
-            publicSlug: restaurant.publicSlug,
-            isFavourite: restaurant.isFavourite,
-          }))
-        );
-      } catch (error) {
-        console.error("Failed to load employee dashboard", error);
+        if (postsResult.status === "fulfilled") {
+          setRecommendedPosts(postsResult.value.data);
+        } else {
+          console.error("Failed to load recommended jobs.", postsResult.reason);
+          setRecommendedPosts([]);
+        }
+
+        if (restaurantsResult.status === "fulfilled") {
+          setBrowseRestaurants(
+            restaurantsResult.value.data.map((restaurant) => ({
+              id: restaurant.id,
+              name: restaurant.name,
+              profilePhoto: restaurant.profilePhoto,
+              publicSlug: restaurant.publicSlug,
+              isFavourite: restaurant.isFavourite,
+            }))
+          );
+        } else {
+          console.error("Failed to load employers.", restaurantsResult.reason);
+          setBrowseRestaurants([]);
+        }
+
+        if (dashboardResult.status === "fulfilled") {
+          const dashboard = dashboardResult.value.data;
+          setApplicationCount(dashboard.applicationCount);
+          setAcceptedShiftCount(dashboard.acceptedShiftCount);
+          setTotalEarnings(dashboard.totalEarnings);
+          setNextShift(dashboard.nextShift ?? null);
+          setAcceptedShifts(dashboard.acceptedShifts ?? []);
+        } else {
+          console.error("Failed to load candidate dashboard applications.", dashboardResult.reason);
+          setApplicationCount(0);
+          setAcceptedShiftCount(0);
+          setTotalEarnings(0);
+          setNextShift(null);
+          setAcceptedShifts([]);
+        }
+
+        if (reviewSummaryResult.status === "fulfilled") {
+          setReviewSummary(reviewSummaryResult.value.data);
+        } else {
+          console.error("Failed to load review summary.", reviewSummaryResult.reason);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -157,9 +162,12 @@ const EmployeeDashboard = () => {
   };
 
   const handleApplied = (jobPostId: string) => {
-    setAppliedJobPostIds((previousIds) =>
-      previousIds.includes(jobPostId) ? previousIds : [...previousIds, jobPostId]
-    );
+    if (appliedJobPostIds.includes(jobPostId)) {
+      return;
+    }
+
+    setAppliedJobPostIds((previousIds) => [...previousIds, jobPostId]);
+    setApplicationCount((count) => count + 1);
   };
 
   const openShiftChat = async (applicationId: string) => {
@@ -191,7 +199,7 @@ const EmployeeDashboard = () => {
           <span className={styles.statEmoji} aria-hidden>📄</span>
           <div>
             <p className={styles.statLabel}>{t("candidateDashboard.applications")}</p>
-            <p className={styles.statValue}>{appliedJobPostIds.length}</p>
+            <p className={styles.statValue}>{applicationCount}</p>
           </div>
         </article>
 
@@ -199,7 +207,7 @@ const EmployeeDashboard = () => {
           <span className={styles.statEmoji} aria-hidden>✅</span>
           <div>
             <p className={styles.statLabel}>{t("candidateDashboard.acceptedShifts")}</p>
-            <p className={styles.statValue}>{acceptedShifts.length}</p>
+            <p className={styles.statValue}>{acceptedShiftCount}</p>
           </div>
         </article>
 
